@@ -1,4 +1,4 @@
-# H2-Projekt {Indsæt gruppenavn}
+# H2-Projekt gruppe-7-0
 
 Projektet han findes her - [H2 Projekt forløb på Notion](https://mercantec.notion.site/h2f)
 
