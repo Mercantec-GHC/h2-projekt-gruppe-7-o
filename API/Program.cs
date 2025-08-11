@@ -1,6 +1,9 @@
-using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using System;
+using System.Reflection;
+using API.Data; 
 
 namespace API;
 
@@ -48,6 +51,14 @@ public class Program
         builder.Services.AddHealthChecks()
             .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), ["live"]);
 
+        IConfiguration Configuration = builder.Configuration;
+
+        string connectionString = Configuration.GetConnectionString("DefaultConnection")
+        ?? Environment.GetEnvironmentVariable("DefaultConnection");
+
+        builder.Services.AddDbContext<AppDBContext>(options =>
+                options.UseNpgsql(connectionString));
+
         var app = builder.Build();
 
         // Brug CORS - skal være før anden middleware
@@ -68,8 +79,10 @@ public class Program
             options
                 .WithTitle("MAGSLearn")
                 .WithTheme(ScalarTheme.Mars)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .OpenApiRoutePattern = "/swagger/v1/swagger.json";
         });
+
 
         // Map the Swagger UI
         app.UseSwagger();
@@ -78,10 +91,12 @@ public class Program
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
         });
 
+       
+
         app.UseAuthorization();
 
         app.MapControllers();
 
         app.Run();
     }
-}
+} 
