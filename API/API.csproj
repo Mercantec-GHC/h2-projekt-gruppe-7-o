@@ -23,8 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DomainModels\DomainModels.csproj" />
-    <ProjectReference Include="..\H2-Projekt.ServiceDefaults\H2-Projekt.ServiceDefaults.csproj" />
+    <Folder Include="Models\Entities\" />
   </ItemGroup>
 
 </Project>
