@@ -1,10 +1,14 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace API.Models.Entities;
 
-public abstract class Entity<TKey>
+public interface IAuditable
+{
+    DateTimeOffset CreatedAt { get; set; }
+    DateTimeOffset UpdatedAt { get; set; }
+}
+
+public abstract class Entity<TKey> : IAuditable
 {
     public TKey Id { get; protected init; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }
