@@ -4,8 +4,9 @@ namespace API.Models.Dtos;
 
 public class LoginDto
 {
-    //TODO: Do we need to validate it is an email address here already?
-    [EmailAddress] public string Email { get; set; }
+    [EmailAddress(ErrorMessage = "Invalid email address"), Required(ErrorMessage = "Email is required")]
+    public required string Email { get; set; }
 
-    public string Password { get; set; }
+    [Required(ErrorMessage = "Password is required")]
+    public required string Password { get; set; }
 }
