@@ -56,6 +56,7 @@ public class Program
         // Adding the database including enum mappings, see DBContextRegistrationExtensions.cs
         builder.Services.AddAppDbContext(connectionString);
 
+
         var app = builder.Build();
 
         // Brug CORS - skal være før anden middleware
