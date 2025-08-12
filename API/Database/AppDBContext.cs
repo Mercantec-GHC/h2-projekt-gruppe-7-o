@@ -19,6 +19,8 @@ public class AppDBContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // TODO: do we need to add postgres enum mappings here as well, or is it fine to just have it in the extension?
+
         // User -> Role (many Users to one Role)
         modelBuilder.Entity<User>()
             .HasOne(u => u.Role)
