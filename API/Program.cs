@@ -1,5 +1,7 @@
 using System.Reflection;
-using Microsoft.OpenApi.Models;
+using API.Data;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Scalar.AspNetCore;
 
 namespace API;
@@ -18,10 +20,7 @@ public class Program
         {
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            if (File.Exists(xmlPath))
-            {
-                c.IncludeXmlComments(xmlPath);
-            }
+            if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
         });
 
         // Tilføj CORS for specifikke Blazor WASM domæner
@@ -46,7 +45,16 @@ public class Program
 
         // Tilføj basic health checks
         builder.Services.AddHealthChecks()
-            .AddCheck("self", () => Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckResult.Healthy(), ["live"]);
+            .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
+
+        // Add database
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
+                               Environment.GetEnvironmentVariable("DefaultConnection");
+
+        if (string.IsNullOrEmpty(connectionString)) throw new Exception("Missing connection string for database");
+
+        // Adding the database including enum mappings, see DBContextRegistrationExtensions.cs
+        builder.Services.AddAppDbContext(connectionString);
 
         var app = builder.Build();
 
@@ -55,7 +63,7 @@ public class Program
 
         // Map health checks
         app.MapHealthChecks("/health");
-        app.MapHealthChecks("/alive", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        app.MapHealthChecks("/alive", new HealthCheckOptions
         {
             Predicate = r => r.Tags.Contains("live")
         });
@@ -73,10 +81,7 @@ public class Program
 
         // Map the Swagger UI
         app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        {
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
-        });
+        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
         app.UseAuthorization();
 
