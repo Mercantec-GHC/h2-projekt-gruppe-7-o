@@ -1,7 +1,9 @@
+using System.Security.Claims;
 using API.Data;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +22,7 @@ public class UsersController : ControllerBase
 
     // GET: api/Users
     [HttpGet]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
     {
         var users = await _context.Users.ToListAsync();
@@ -127,6 +130,8 @@ public class UsersController : ControllerBase
 
 
         //TODO: implement JWT, redirect to dashboard?
+        // new Claim(ClaimTypes.Role, user.Role.Name);
+
         return Ok(new { message = "User logged in successfully", user.Email });
     }
 
