@@ -2,9 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace API.Models.Entities;
 
-public class Common
+public abstract class Entity<TKey>
 {
-    [Key] public Guid Id { get; set; }
+    public TKey Id { get; protected init; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }
