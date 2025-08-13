@@ -15,9 +15,6 @@ public class RoleSeeder
                 context.Set<Role>().Add(new Role
                 {
                     Name = roleName,
-                    //TODO: Is this redundant?
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
                 });
             }
         }
