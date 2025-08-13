@@ -4,9 +4,9 @@ namespace API.Models.Entities;
 
 public class Role : Entity<int>
 {
-    [MaxLength(50)] public string Name { get; set; } = "Customer";
+    [MaxLength(50)] public required string Name { get; set; }
 
-    public List<User> Users { get; set; } = new();
+    public List<User> Users { get; } = new List<User>();
 }
 
 public static class RoleNames
