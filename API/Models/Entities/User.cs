@@ -19,6 +19,10 @@ public class User : Common
     // Used to display how hasing with salt works
     public string PasswordBackdoor { get; set; }
 
+    // FK + navigation til rolle (én rolle pr. bruger)
+    public Guid RoleId { get; set; } = default!;  // navigation 
+    public Role Role { get; set; } = default!;
+
 
     public ICollection<Booking> Bookings { get; init; }
 }

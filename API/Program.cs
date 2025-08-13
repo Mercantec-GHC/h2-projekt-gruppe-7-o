@@ -76,7 +76,8 @@ public class Program
             options
                 .WithTitle("MAGSLearn")
                 .WithTheme(ScalarTheme.Mars)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .OpenApiRoutePattern = "/swagger/v1/swagger.json";
         });
 
         // Map the Swagger UI
