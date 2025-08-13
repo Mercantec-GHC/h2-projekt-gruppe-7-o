@@ -16,7 +16,7 @@ public class User : Entity<Guid>
 
     public DateTimeOffset? LastLogin { get; set; }
 
-    // Explicit FK to Role (guid assumed from Common.Id)
+    // Explicit FK to Role (guid assumed from Entity.Id)
     public int RoleId { get; set; }
 
 
@@ -24,5 +24,5 @@ public class User : Entity<Guid>
     public Role Role { get; set; } = null!;
 
 
-    public ICollection<Booking> Bookings { get; init; } = new List<Booking>();
+    public List<Booking> Bookings { get; init; } = new List<Booking>();
 }
