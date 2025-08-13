@@ -3,7 +3,7 @@ using API.Models.Entities;
 
 namespace API.Mapping;
 
-public static class UserToDtoMapper
+public static class UserMapping
 {
     // Extension method syntax sugar.
     // An extension method lets you “add” methods to an existing type without modifying the type.
