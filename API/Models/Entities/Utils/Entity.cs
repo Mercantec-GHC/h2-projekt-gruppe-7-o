@@ -9,7 +9,7 @@ public interface IAuditable
 public abstract class Entity<TKey> : IAuditable
 {
     //TODO: add soft delete
-    public TKey Id { get; protected init; }
+    public TKey Id { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }
