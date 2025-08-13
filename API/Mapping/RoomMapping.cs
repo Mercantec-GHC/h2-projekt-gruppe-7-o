@@ -36,18 +36,18 @@ public static class RoomMapping
         };
     }
 
-    public static Room ToRoom(this RoomPostDto roomPostDto)
+    public static Room ToRoom(this RoomCreateDto roomCreateDto)
     {
         return new Room
         {
-            Number = roomPostDto.Number,
-            Capacity = roomPostDto.Capacity,
-            PricePerNight = roomPostDto.PricePerNight,
-            Type = roomPostDto.Type,
-            Description = roomPostDto.Description ?? string.Empty,
-            Floor = roomPostDto.Floor,
-            isActive = roomPostDto.isActive,
-            HotelId = roomPostDto.HotelId,
+            Number = roomCreateDto.Number,
+            Capacity = roomCreateDto.Capacity,
+            PricePerNight = roomCreateDto.PricePerNight,
+            Type = roomCreateDto.Type,
+            Description = roomCreateDto.Description ?? string.Empty,
+            Floor = roomCreateDto.Floor,
+            isActive = roomCreateDto.isActive,
+            HotelId = roomCreateDto.HotelId,
         };
     }
 }

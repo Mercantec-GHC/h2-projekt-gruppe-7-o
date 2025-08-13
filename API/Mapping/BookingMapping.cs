@@ -21,14 +21,17 @@ public static class BookingMapping
         };
     }
 
-    public static Booking ToBooking(this BookingCreateDto bookingCreateDto)
+    public static Booking ToBooking(this BookingCreateDto bookingCreateDto, decimal totalPrice)
     {
+        //TODO: The total price should be calculated on the fly (not coming from the cleint) and then stored in the database.
+        // What is the best way to do this? Do we pass it in as a dependency to our mapper? Do we even use a mapper for this?
         return new Booking
         {
             CheckIn = bookingCreateDto.CheckIn,
             CheckOut = bookingCreateDto.CheckOut,
             Adults = bookingCreateDto.Adults,
             Children = bookingCreateDto.Children,
+            TotalPrice = totalPrice,
             Status = BookingStatus.Pending
         };
     }
