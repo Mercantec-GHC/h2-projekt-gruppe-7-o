@@ -1,7 +1,9 @@
 using System.Reflection;
+using System.Text;
 using API.Data;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 
 namespace API;
@@ -47,6 +49,11 @@ public class Program
         builder.Services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
 
+        //TODO: Add Autherization services builder.Services.AddAuthorization();
+        //TODO: Specify authentication using JWT Bearer tokens, and specify how the token should be validated
+        // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).....
+
+
         // Add database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
                                Environment.GetEnvironmentVariable("DefaultConnection");
@@ -55,6 +62,7 @@ public class Program
 
         // Adding the database including enum mappings, see DBContextRegistrationExtensions.cs
         builder.Services.AddAppDbContext(connectionString);
+
 
         var app = builder.Build();
 
@@ -83,6 +91,7 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
+        //TODO: Add Authentication middleware - app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

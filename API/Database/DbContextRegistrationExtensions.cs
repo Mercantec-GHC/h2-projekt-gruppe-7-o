@@ -1,3 +1,4 @@
+using API.Data.Seeders;
 using API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,8 @@ public static class DbContextRegistrationExtensions
                 o.MapEnum<RoomType>("room_type");
                 o.MapEnum<BookingStatus>("booking_status");
                 // Add other enum mappings here
-            }));
+            }).UseSeeding((context, _) => { RoleSeeder.Seed(context); }));
+
 
         return services;
     }

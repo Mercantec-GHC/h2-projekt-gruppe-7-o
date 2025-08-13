@@ -4,21 +4,25 @@ using Microsoft.EntityFrameworkCore;
 namespace API.Models.Entities;
 
 [Index(nameof(Email), nameof(Phone), IsUnique = true)]
-public class User : Common
+public class User : Entity<Guid>
 {
     public required string Email { get; set; }
 
     [StringLength(32)] public string? Phone { get; set; }
-    public required string FirstName { get; set; }
-    public required string LastName { get; set; }
+    [StringLength(255)] public required string FirstName { get; set; }
+    [StringLength(255)] public required string LastName { get; set; }
+
     public required string HashedPassword { get; set; }
-    public required string Salt { get; set; }
-    public DateTime LastLogin { get; set; }
 
-    // Only for educational purposses, not in the final product!
-    // Used to display how hasing with salt works
-    public string PasswordBackdoor { get; set; }
+    public DateTimeOffset? LastLogin { get; set; }
+
+    // Explicit FK to Role (guid assumed from Common.Id)
+    public int RoleId { get; set; }
 
 
-    public ICollection<Booking> Bookings { get; init; }
+    // Navigation to principal
+    public Role Role { get; set; } = null!;
+
+
+    public ICollection<Booking> Bookings { get; init; } = new List<Booking>();
 }

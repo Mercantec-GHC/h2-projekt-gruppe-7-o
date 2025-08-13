@@ -1,18 +1,16 @@
 namespace API.Models.Entities;
 
-public class Booking : Common
+public class Booking : Entity<Guid>
 {
-    // public Guid RoomId { get; set; }
-    // public Guid UserId { get; set; }
-    public required DateTime CheckIn { get; set; }
-    public required DateTime CheckOut { get; set; }
-    public required short Adults { get; set; }
-    public required short Children { get; set; }
-    public required decimal TotalPrice { get; set; }
+    public required DateTime CheckIn { get; init; }
+    public required DateTime CheckOut { get; init; }
+    public required short Adults { get; init; }
+    public required short Children { get; init; }
+    public required decimal TotalPrice { get; init; }
     public required BookingStatus Status { get; set; } = BookingStatus.Pending;
 
-    public User User { get; set; }
-    public ICollection<Room> Rooms { get; set; }
+    public User User { get; init; }
+    public ICollection<Room> Rooms { get; init; } = new List<Room>();
 }
 
 public enum BookingStatus
