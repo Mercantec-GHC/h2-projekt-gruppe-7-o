@@ -13,12 +13,12 @@ public class RoomResponseDto : Entity<Guid>
     public bool isActive { get; set; } = false;
 }
 
-public class RoomWithBookingsDto : RoomResponseDto
+public sealed class RoomWithBookingsDto : RoomResponseDto
 {
     public List<BookingResponseDto> Bookings { get; set; } = new List<BookingResponseDto>();
 }
 
-public class RoomPostDto
+public sealed class RoomCreateDto
 {
     public required string Number { get; init; }
     public required short Capacity { get; init; }
@@ -29,4 +29,16 @@ public class RoomPostDto
 
     public bool isActive { get; set; }
     public Guid HotelId { get; set; }
+}
+
+public sealed class RoomUpdateDto
+{
+    public required string Number { get; init; }
+    public required short Capacity { get; init; }
+    public required decimal PricePerNight { get; set; }
+    public required RoomType Type { get; set; }
+    public required short Floor { get; set; }
+    public string? Description { get; set; }
+
+    public bool isActive { get; set; }
 }
