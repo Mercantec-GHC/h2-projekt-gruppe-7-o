@@ -14,12 +14,11 @@ public class AppDBContext : DbContext
     public DbSet<Room> Rooms { get; set; }
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Role> Roles { get; set; }
+    public DbSet<Hotel> Hotels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // TODO: do we need to add postgres enum mappings here as well, or is it fine to just have it in the extension?
 
         // User -> Role (many Users to one Role)
         modelBuilder.Entity<User>()
@@ -33,6 +32,22 @@ public class AppDBContext : DbContext
         modelBuilder.Entity<Role>()
             .HasIndex(r => r.Name)
             .IsUnique();
+
+        //TODO: add more modelBuilder configs here (hotel, room, booking)
+        modelBuilder.Entity<Hotel>()
+            .HasMany(h => h.Rooms)
+            .WithOne(r => r.Hotel)
+            .HasForeignKey(r => r.HotelId);
+
+
+        modelBuilder.Entity<Booking>()
+            .HasOne(b => b.User)
+            .WithMany(u => u.Bookings)
+            .HasForeignKey(b => b.UserId);
+
+        modelBuilder.Entity<Booking>()
+            .HasMany(b => b.Rooms)
+            .WithMany(r => r.Bookings);
     }
 
     public override int SaveChanges()

@@ -10,10 +10,16 @@ public class Room : Entity<Guid>
     public required short Capacity { get; init; }
     public required decimal PricePerNight { get; set; }
     public required RoomType Type { get; set; } = RoomType.Standard;
-    public short? Floor { get; init; }
-    public string? Description { get; set; }
+    public required short Floor { get; init; }
+    public string Description { get; set; } = string.Empty;
     public bool isActive { get; set; } = false;
 
+
+    public required Guid HotelId { get; set; }
+
+    public Hotel? Hotel { get; init; }
+
+    public Guid BookingId { get; set; }
     public ICollection<Booking> Bookings { get; init; } = new List<Booking>();
 }
 

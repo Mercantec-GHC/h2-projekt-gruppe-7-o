@@ -26,7 +26,7 @@ public class UsersController : ControllerBase
     // GET: api/Users
     [HttpGet]
     [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
-    public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+    public async Task<ActionResult<IEnumerable<UserReponseDto>>> GetUsers()
     {
         var users = await _context.Users.ToListAsync();
 
@@ -35,7 +35,7 @@ public class UsersController : ControllerBase
 
     // GET: api/Users/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetUser(Guid id)
+    public async Task<ActionResult<UserReponseDto>> GetUser(Guid id)
     {
         var user = await _context.Users.FindAsync(id);
 
@@ -47,10 +47,8 @@ public class UsersController : ControllerBase
     // PUT: api/Users/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
-    public async Task<IActionResult> PutUser(Guid id, User user)
+    public async Task<IActionResult> PutUser(Guid id, UserUpdateDto user)
     {
-        if (id != user.Id) return BadRequest();
-
         _context.Entry(user).State = EntityState.Modified;
 
         try
@@ -172,5 +170,10 @@ public class UsersController : ControllerBase
     private bool UserExists(Guid id)
     {
         return _context.Users.Any(e => e.Id == id);
+    }
+
+    private bool UserEmailExists(Guid id, string email)
+    {
+        return _context.Users.Any(e => e.Email == email && e.Id != id);
     }
 }

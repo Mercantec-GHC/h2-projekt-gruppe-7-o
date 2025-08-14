@@ -8,7 +8,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTables_User_Role_Booking_Room : Migration
+    public partial class AddTables_User_Role_Booking_Room_Hotel : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,6 +16,28 @@ namespace API.Migrations
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:Enum:booking_status", "cancelled,confirmed,pending")
                 .Annotation("Npgsql:Enum:room_type", "deluxe,standard,suite");
+
+            migrationBuilder.CreateTable(
+                name: "Hotels",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    StreetName = table.Column<string>(type: "text", nullable: false),
+                    StreetNumber = table.Column<string>(type: "text", nullable: false),
+                    Floor = table.Column<string>(type: "text", nullable: true),
+                    City = table.Column<string>(type: "text", nullable: false),
+                    ZipCode = table.Column<string>(type: "text", nullable: false),
+                    Country = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Hotels", x => x.Id);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Roles",
@@ -41,15 +63,23 @@ namespace API.Migrations
                     Capacity = table.Column<short>(type: "smallint", nullable: false),
                     PricePerNight = table.Column<decimal>(type: "numeric", nullable: false),
                     Type = table.Column<RoomType>(type: "room_type", nullable: false),
-                    Floor = table.Column<short>(type: "smallint", nullable: true),
-                    Description = table.Column<string>(type: "text", nullable: true),
+                    Floor = table.Column<short>(type: "smallint", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: false),
                     isActive = table.Column<bool>(type: "boolean", nullable: false),
+                    HotelId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookingId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Rooms", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Rooms_Hotels_HotelId",
+                        column: x => x.HotelId,
+                        principalTable: "Hotels",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -87,9 +117,9 @@ namespace API.Migrations
                     CheckOut = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Adults = table.Column<short>(type: "smallint", nullable: false),
                     Children = table.Column<short>(type: "smallint", nullable: false),
-                    TotalPrice = table.Column<decimal>(type: "numeric", nullable: false),
                     Status = table.Column<BookingStatus>(type: "booking_status", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    RoomId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
@@ -145,6 +175,11 @@ namespace API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Rooms_HotelId",
+                table: "Rooms",
+                column: "HotelId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Rooms_Number",
                 table: "Rooms",
                 column: "Number",
@@ -176,6 +211,9 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Hotels");
 
             migrationBuilder.DropTable(
                 name: "Roles");
