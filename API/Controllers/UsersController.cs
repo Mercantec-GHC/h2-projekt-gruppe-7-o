@@ -1,6 +1,5 @@
-using System.Security.Claims;
-using System.Text;
 using API.Data;
+using API.Database.Services;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
@@ -9,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+using System.Text;
 
 namespace API.Controllers;
 
@@ -17,10 +18,12 @@ namespace API.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly AppDBContext _context;
+    private readonly JwtService _jwtService;
 
-    public UsersController(AppDBContext context)
+    public UsersController(AppDBContext context, JwtService jwtService)
     {
         _context = context;
+        _jwtService = jwtService;
     }
 
     // GET: api/Users
@@ -115,7 +118,7 @@ public class UsersController : ControllerBase
 
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> LoginUser(LoginDto loginDto)
+    public async Task<ActionResult> LoginUser(LoginDto loginDto)
     {
         // TODO: instead of using FirstOrDefaultAsync, can we create our own extension method (i.e: GetByEmail?) 
         User? user = await _context.Users.Include(user => user.Role)
@@ -132,41 +135,21 @@ public class UsersController : ControllerBase
 
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
+        // Generer JWT token
+        var token = _jwtService.GenerateToken(user);
 
-
-        //TODO: implement JWT, redirect to dashboard?
-        // MOVE ALL OF THIS LOGIC TO A JWT SERVICE
-        // STILL GETTING "INVALID SIGNATURE" WHEN TESTING ON JWT.IO
-        // https://www.youtube.com/watch?v=6DWJIyipxzw&ab_channel=MilanJovanovi%C4%87
-
-        var securityKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super-duper-secret-key-that-should-also-be-fairly-long"));
-
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
+        return Ok(new
         {
-            Subject = new ClaimsIdentity([
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                // new Claim("email_verified", user.EmailVerified.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.Name)
-            ]),
-            Expires = DateTime.UtcNow.AddMinutes(60),
-            // Expires = DateTime.UtcNow.AddMinutes(ConfigurationBinder.GetValue<int>("Jwt:ExpiresInMinutes")),
-            SigningCredentials = credentials,
-            Issuer = "h2-projekt-gruppe-7-0",
-            Audience = "h2-projekt-gruppe-7-0",
-            // Issuer = configuration["Jwt:Issuer"],
-            // Audience = configuration["Jwt:Audience"],
-        };
-        // Here we could use the JwtSecurityTokenHandler to create the JWT token, however the below is the recommended approach, and is also up to 30% faster.
-        var tokenHandler = new JsonWebTokenHandler();
-
-        string token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return token;
-        // return Ok(new { message = "User logged in successfully", token });
+            message = "Login godkendt!",
+            token = token,
+            user = new
+            {
+                id = user.Id,
+                email = user.Email,
+                username = user.FirstName,
+                role = user.Role?.Name ?? "User"
+            }
+        });
     }
 
     private bool UserExists(Guid id)
