@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Data;
@@ -10,6 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace API.Controllers;
 
@@ -84,15 +86,19 @@ public class UsersController : ControllerBase
     /// Get the information about the current user based on the JWT token
     /// </summary>
     /// <returns>Brugerens information</returns>
-    [Authorize]
+    // [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser()
     {
         // 1. Get user id from token
-        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        // TODO: couldn't get getting the id to work with the JwtRegisteredClaimNames.Sub, can we fix this?
+        // TODO: can we get the current user id in an easier way than having to constantly look it up in the token? Can we extract this to some kind of service?
+        var userId =
+            User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (userId == null)
-            return Unauthorized("Bruger-ID ikke fundet i token.");
+            return Unauthorized("UserId missing from token");
 
         // 2. Find the user in the database
         var user = await _context.Users
@@ -104,7 +110,6 @@ public class UsersController : ControllerBase
         if (user == null)
             return NotFound("User Not found");
 
-        // 3. Return the users information
         return Ok(new
         {
             user.Id,
@@ -119,9 +124,18 @@ public class UsersController : ControllerBase
                 b.CheckOut,
                 b.CreatedAt,
                 b.UpdatedAt,
-                b.Rooms
+                Rooms = b.Rooms.Select(r => new
+                {
+                    r.Id,
+                    r.Type,
+                    r.Floor,
+                    r.Number,
+                    r.PricePerNight,
+                    r.Description
+                })
             }).ToList()
         });
+        // 3. Return the users information
     }
 
     [HttpPost("register")]

@@ -53,7 +53,9 @@ namespace API.Services
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity([
+                    // TODO: couldn't get getting the id to work with the JwtRegisteredClaimNames.Sub
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     //TODO: add more claims, like email_verified
                     // new Claim("email_verified", user.EmailVerified.ToString()),
@@ -69,6 +71,15 @@ namespace API.Services
 
             string token = tokenHandler.CreateToken(tokenDescriptor);
 
+            return token;
+        }
+
+        public string? GetTokenFromRequest(HttpRequest request)
+        {
+            var authHeader = request.Headers["Authorization"].ToString();
+            var token = authHeader?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true
+                ? authHeader.Substring("Bearer ".Length).Trim()
+                : null;
             return token;
         }
     }
