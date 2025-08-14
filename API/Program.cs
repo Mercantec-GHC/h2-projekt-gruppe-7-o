@@ -26,13 +26,13 @@ public class Program
 
         // Configure JWT Authentication
         var jwtSecretKey = configuration["Jwt:SecretKey"]
-                           ?? Environment.GetEnvironmentVariable("Jwt:SecretKey");
+                           ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
 
         var jwtIssuer = configuration["Jwt:Issuer"]
-                        ?? Environment.GetEnvironmentVariable("Jwt:Issuer");
+                        ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
 
         var jwtAudience = configuration["Jwt:Audience"]
-                          ?? Environment.GetEnvironmentVariable("Jwt:Audience");
+                          ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
 
         builder.Services.AddAuthentication(options =>
             {
@@ -44,13 +44,13 @@ public class Program
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.ASCII.GetBytes(jwtSecretKey)),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey)),
                     ValidateIssuer = true,
                     ValidIssuer = jwtIssuer,
                     ValidateAudience = true,
                     ValidAudience = jwtAudience,
                     ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
                 };
             });
 
@@ -163,9 +163,9 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseAuthentication();
 
         app.MapControllers();
 
