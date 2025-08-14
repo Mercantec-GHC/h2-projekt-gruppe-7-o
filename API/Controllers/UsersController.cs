@@ -86,7 +86,7 @@ public class UsersController : ControllerBase
     /// Get the information about the current user based on the JWT token
     /// </summary>
     /// <returns>Brugerens information</returns>
-    // [Authorize]
+    [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser()
     {
