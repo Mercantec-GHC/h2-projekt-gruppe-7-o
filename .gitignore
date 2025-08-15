@@ -5,6 +5,7 @@ obj/
 .vscode
 appsettings.json
 appsettings.Development.json
+.idea
 
 GitHub-MCP.json
 mcp.json
