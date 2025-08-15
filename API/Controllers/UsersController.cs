@@ -1,14 +1,17 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using API.Data;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace API.Controllers;
 
@@ -79,7 +82,62 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-    // TODO: this does not work yet, since we need to have a seeder for our roles, and input that when creating a new user (can this be done automatically from the User entity?)
+    /// <summary>
+    /// Get the information about the current user based on the JWT token
+    /// </summary>
+    /// <returns>Brugerens information</returns>
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetCurrentUser()
+    {
+        // 1. Get user id from token
+        // TODO: couldn't get getting the id to work with the JwtRegisteredClaimNames.Sub, can we fix this?
+        // TODO: can we get the current user id in an easier way than having to constantly look it up in the token? Can we extract this to some kind of service?
+        var userId =
+            User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+            return Unauthorized("UserId missing from token");
+
+        // 2. Find the user in the database
+        var user = await _context.Users
+            .Include(u => u.Role)
+            .Include(u => u.Bookings)
+            .ThenInclude(b => b.Rooms)
+            .FirstOrDefaultAsync(u => u.Id.ToString() == userId);
+
+        if (user == null)
+            return NotFound("User Not found");
+
+        return Ok(new
+        {
+            user.Id,
+            user.Email,
+            user.CreatedAt,
+            user.LastLogin,
+            Role = user.Role.Name,
+            Bookings = user.Bookings.Select(b => new
+            {
+                b.Id,
+                b.CheckIn,
+                b.CheckOut,
+                b.CreatedAt,
+                b.UpdatedAt,
+                Rooms = b.Rooms.Select(r => new
+                {
+                    r.Id,
+                    r.Type,
+                    r.Floor,
+                    r.Number,
+                    r.PricePerNight,
+                    r.Description
+                })
+            }).ToList()
+        });
+        // 3. Return the users information
+    }
+
     [HttpPost("register")]
     public async Task<ActionResult<User>> RegisterUser(RegisterDto registerDto)
     {
@@ -113,7 +171,7 @@ public class UsersController : ControllerBase
 
 
     [HttpPost("login")]
-    public async Task<ActionResult<string>> LoginUser(LoginDto loginDto)
+    public async Task<ActionResult<string>> LoginUser(LoginDto loginDto, JwtService jwtService)
     {
         // TODO: instead of using FirstOrDefaultAsync, can we create our own extension method (i.e: GetByEmail?) 
         User? user = await _context.Users.Include(user => user.Role)
@@ -131,40 +189,9 @@ public class UsersController : ControllerBase
         _context.Users.Update(user);
         await _context.SaveChangesAsync();
 
-
-        //TODO: implement JWT, redirect to dashboard?
-        // MOVE ALL OF THIS LOGIC TO A JWT SERVICE
-        // STILL GETTING "INVALID SIGNATURE" WHEN TESTING ON JWT.IO
-        // https://www.youtube.com/watch?v=6DWJIyipxzw&ab_channel=MilanJovanovi%C4%87
-
-        var securityKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super-duper-secret-key-that-should-also-be-fairly-long"));
-
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity([
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                // new Claim("email_verified", user.EmailVerified.ToString()),
-                new Claim(ClaimTypes.Role, user.Role.Name)
-            ]),
-            Expires = DateTime.UtcNow.AddMinutes(60),
-            // Expires = DateTime.UtcNow.AddMinutes(ConfigurationBinder.GetValue<int>("Jwt:ExpiresInMinutes")),
-            SigningCredentials = credentials,
-            Issuer = "h2-projekt-gruppe-7-0",
-            Audience = "h2-projekt-gruppe-7-0",
-            // Issuer = configuration["Jwt:Issuer"],
-            // Audience = configuration["Jwt:Audience"],
-        };
-        // Here we could use the JwtSecurityTokenHandler to create the JWT token, however the below is the recommended approach, and is also up to 30% faster.
-        var tokenHandler = new JsonWebTokenHandler();
-
-        string token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return token;
-        // return Ok(new { message = "User logged in successfully", token });
+        var token = jwtService.GenerateToken(user);
+        //TODO: maybe we want to return more than just the token 
+        return Ok(token);
     }
 
     private bool UserExists(Guid id)

@@ -1,9 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text;
 using API.Data;
+using API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
 
 namespace API;
@@ -14,6 +18,44 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        IConfiguration configuration = builder.Configuration;
+
+
+        // Register JWT Service
+        builder.Services.AddScoped<JwtService>();
+
+        // Configure JWT Authentication
+        var jwtSecretKey = configuration["Jwt:SecretKey"]
+                           ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
+
+        var jwtIssuer = configuration["Jwt:Issuer"]
+                        ?? Environment.GetEnvironmentVariable("JWT_ISSUER");
+
+        var jwtAudience = configuration["Jwt:Audience"]
+                          ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+        builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecretKey)),
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtIssuer,
+                    ValidateAudience = true,
+                    ValidAudience = jwtAudience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+            });
+
+        builder.Services.AddAuthorization();
+
         // Add services to the container.
         builder.Services.AddControllers();
 
@@ -22,10 +64,44 @@ public class Program
         {
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-            if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+            if (File.Exists(xmlPath))
+            {
+                c.IncludeXmlComments(xmlPath);
+            }
+
+            // Add JWT Bearer support to Swagger
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Description =
+                    "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer"
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "oauth2",
+                        Name = "Bearer",
+                        In = ParameterLocation.Header,
+                    },
+                    new List<string>()
+                }
+            });
         });
 
-        // Tilføj CORS for specifikke Blazor WASM domæner
+        // TODO: when creating the frontend, we should instead use the localhost and ports for the react app
+
+        // Add CORS for specific Blazor WASM domains
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(
@@ -45,14 +121,10 @@ public class Program
             );
         });
 
-        // Tilføj basic health checks
+
+        // Add basic health checks
         builder.Services.AddHealthChecks()
             .AddCheck("self", () => HealthCheckResult.Healthy(), ["live"]);
-
-        //TODO: Add Autherization services builder.Services.AddAuthorization();
-        //TODO: Specify authentication using JWT Bearer tokens, and specify how the token should be validated
-        // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).....
-
 
         // Add database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
@@ -91,8 +163,9 @@ public class Program
         app.UseSwagger();
         app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
-        //TODO: Add Authentication middleware - app.UseAuthentication();
+        app.UseAuthentication();
         app.UseAuthorization();
+
 
         app.MapControllers();
 
