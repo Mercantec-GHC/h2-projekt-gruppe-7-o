@@ -1,8 +1,8 @@
 {
   "id": "0",
   "name": "mercantec - Hotel Booking App",
-  "createdAt": "2025-08-18T08:18:02.480Z",
-  "updatedAt": "2025-08-18T08:18:02.480Z",
+  "createdAt": "2025-08-18T08:26:44.660Z",
+  "updatedAt": "2025-08-18T08:26:44.660Z",
   "databaseType": "postgresql",
   "tables": [
     {
@@ -162,18 +162,6 @@
         },
         {
           "id": "14",
-          "name": "RoomId",
-          "type": {
-            "id": "uuid",
-            "name": "uuid"
-          },
-          "unique": false,
-          "nullable": false,
-          "primaryKey": false,
-          "createdAt": 1755504483144
-        },
-        {
-          "id": "15",
           "name": "CheckIn",
           "type": {
             "id": "timestamp",
@@ -185,7 +173,7 @@
           "createdAt": 1755504399692
         },
         {
-          "id": "16",
+          "id": "15",
           "name": "CheckOut",
           "type": {
             "id": "timestamp",
@@ -197,7 +185,7 @@
           "createdAt": 1755504412043
         },
         {
-          "id": "17",
+          "id": "16",
           "name": "Adults",
           "type": {
             "id": "smallint",
@@ -209,7 +197,7 @@
           "createdAt": 1755504421940
         },
         {
-          "id": "18",
+          "id": "17",
           "name": "Children",
           "type": {
             "id": "smallint",
@@ -221,7 +209,7 @@
           "createdAt": 1755504431699
         },
         {
-          "id": "19",
+          "id": "18",
           "name": "TotalPrice",
           "type": {
             "id": "decimal",
@@ -233,7 +221,7 @@
           "createdAt": 1755504437847
         },
         {
-          "id": "20",
+          "id": "19",
           "name": "BookingStatus",
           "type": {
             "id": "enum",
@@ -254,13 +242,13 @@
       "diagramId": "tg572bx76e10"
     },
     {
-      "id": "21",
+      "id": "20",
       "name": "Roles",
       "x": -505.2975144883239,
       "y": -295.7452169536642,
       "fields": [
         {
-          "id": "22",
+          "id": "21",
           "name": "Id",
           "type": {
             "id": "integer",
@@ -272,7 +260,7 @@
           "createdAt": 1755502575517
         },
         {
-          "id": "23",
+          "id": "22",
           "name": "Name",
           "type": {
             "id": "varchar",
@@ -293,13 +281,13 @@
       "diagramId": "tg572bx76e10"
     },
     {
-      "id": "24",
+      "id": "23",
       "name": "Hotels",
       "x": 190.9322906881555,
       "y": -245.75122345961444,
       "fields": [
         {
-          "id": "25",
+          "id": "24",
           "name": "Id",
           "type": {
             "id": "uuid",
@@ -311,7 +299,7 @@
           "createdAt": 1755502568415
         },
         {
-          "id": "26",
+          "id": "25",
           "name": "Name",
           "type": {
             "id": "text",
@@ -323,7 +311,7 @@
           "createdAt": 1755504240706
         },
         {
-          "id": "27",
+          "id": "26",
           "name": "StreetName",
           "type": {
             "id": "text",
@@ -335,7 +323,7 @@
           "createdAt": 1755504249425
         },
         {
-          "id": "28",
+          "id": "27",
           "name": "StreetNumber",
           "type": {
             "id": "text",
@@ -347,7 +335,7 @@
           "createdAt": 1755504258339
         },
         {
-          "id": "29",
+          "id": "28",
           "name": "Floor",
           "type": {
             "id": "text",
@@ -359,7 +347,7 @@
           "createdAt": 1755504268013
         },
         {
-          "id": "30",
+          "id": "29",
           "name": "City",
           "type": {
             "id": "text",
@@ -371,7 +359,7 @@
           "createdAt": 1755504284939
         },
         {
-          "id": "31",
+          "id": "30",
           "name": "ZipCode",
           "type": {
             "id": "text",
@@ -383,7 +371,7 @@
           "createdAt": 1755504294436
         },
         {
-          "id": "32",
+          "id": "31",
           "name": "Country",
           "type": {
             "id": "text",
@@ -395,7 +383,7 @@
           "createdAt": 1755504302459
         },
         {
-          "id": "33",
+          "id": "32",
           "name": "Email",
           "type": {
             "id": "text",
@@ -407,7 +395,7 @@
           "createdAt": 1755504309637
         },
         {
-          "id": "34",
+          "id": "33",
           "name": "PhoneNumber",
           "type": {
             "id": "text",
@@ -427,13 +415,13 @@
       "diagramId": "tg572bx76e10"
     },
     {
-      "id": "35",
+      "id": "34",
       "name": "Users",
       "x": -829.2823525749056,
       "y": -293.3236562478105,
       "fields": [
         {
-          "id": "36",
+          "id": "35",
           "name": "Id",
           "type": {
             "id": "uuid",
@@ -445,7 +433,7 @@
           "createdAt": 1755502536509
         },
         {
-          "id": "37",
+          "id": "36",
           "name": "RoleId",
           "type": {
             "id": "integer",
@@ -457,7 +445,7 @@
           "createdAt": 1755502933353
         },
         {
-          "id": "38",
+          "id": "37",
           "name": "Email",
           "type": {
             "id": "text",
@@ -469,7 +457,7 @@
           "createdAt": 1755502671010
         },
         {
-          "id": "39",
+          "id": "38",
           "name": "Phone",
           "type": {
             "id": "varchar",
@@ -482,7 +470,7 @@
           "characterMaximumLength": "32"
         },
         {
-          "id": "40",
+          "id": "39",
           "name": "FirstName",
           "type": {
             "id": "varchar",
@@ -494,7 +482,7 @@
           "createdAt": 1755502721022
         },
         {
-          "id": "41",
+          "id": "40",
           "name": "LastName",
           "type": {
             "id": "varchar",
@@ -507,7 +495,7 @@
           "characterMaximumLength": "255"
         },
         {
-          "id": "42",
+          "id": "41",
           "name": "HashedPassword",
           "type": {
             "id": "text",
@@ -519,7 +507,7 @@
           "createdAt": 1755502876238
         },
         {
-          "id": "43",
+          "id": "42",
           "name": "LastLogin",
           "type": {
             "id": "timestamp_with_time_zone",
@@ -531,7 +519,7 @@
           "createdAt": 1755502888751
         },
         {
-          "id": "44",
+          "id": "43",
           "name": "CreatedAt",
           "type": {
             "id": "timestamp_with_time_zone",
@@ -543,7 +531,7 @@
           "createdAt": 1755502964694
         },
         {
-          "id": "45",
+          "id": "44",
           "name": "UpdatedAt",
           "type": {
             "id": "timestamp_with_time_zone",
@@ -563,13 +551,13 @@
       "diagramId": "tg572bx76e10"
     },
     {
-      "id": "46",
+      "id": "45",
       "name": "BookingRoom",
       "x": -135,
       "y": 157.5,
       "fields": [
         {
-          "id": "47",
+          "id": "46",
           "name": "BookingId",
           "type": {
             "id": "uuid",
@@ -581,7 +569,7 @@
           "createdAt": 1755503915468
         },
         {
-          "id": "48",
+          "id": "47",
           "name": "RoomId",
           "type": {
             "id": "uuid",
@@ -598,65 +586,70 @@
       "createdAt": 1755503887319,
       "isView": false,
       "order": 5,
-      "comments": "BookingId + RoomId makes up the compound primary key"
+      "comments": "BookingId + RoomId makes up the compound primary key",
+      "diagramId": "tg572bx76e10"
     }
   ],
   "relationships": [
     {
+      "id": "48",
+      "name": "Bookings_Id_fk",
+      "sourceTableId": "11",
+      "targetTableId": "45",
+      "sourceFieldId": "12",
+      "targetFieldId": "46",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755504136821,
+      "diagramId": "tg572bx76e10"
+    },
+    {
       "id": "49",
+      "name": "Hotels_Id_fk",
+      "sourceTableId": "23",
+      "targetTableId": "1",
+      "sourceFieldId": "24",
+      "targetFieldId": "3",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755503858929,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "50",
       "name": "Roles_Id_fk",
-      "sourceTableId": "21",
-      "targetTableId": "35",
-      "sourceFieldId": "22",
-      "targetFieldId": "37",
+      "sourceTableId": "20",
+      "targetTableId": "34",
+      "sourceFieldId": "21",
+      "targetFieldId": "36",
       "sourceCardinality": "one",
       "targetCardinality": "many",
       "createdAt": 1755503079974,
       "diagramId": "tg572bx76e10"
     },
     {
-      "id": "50",
-      "name": "Hotels_Id_fk",
-      "sourceTableId": "24",
-      "targetTableId": "1",
-      "sourceFieldId": "25",
-      "targetFieldId": "3",
-      "sourceCardinality": "one",
-      "targetCardinality": "many",
-      "createdAt": 1755503858929
-    },
-    {
       "id": "51",
       "name": "Rooms_Id_fk",
       "sourceTableId": "1",
-      "targetTableId": "46",
+      "targetTableId": "45",
       "sourceFieldId": "2",
-      "targetFieldId": "48",
-      "sourceCardinality": "one",
-      "targetCardinality": "many",
-      "createdAt": 1755504103518
-    },
-    {
-      "id": "52",
-      "name": "Bookings_Id_fk",
-      "sourceTableId": "11",
-      "targetTableId": "46",
-      "sourceFieldId": "12",
       "targetFieldId": "47",
       "sourceCardinality": "one",
       "targetCardinality": "many",
-      "createdAt": 1755504136821
+      "createdAt": 1755504103518,
+      "diagramId": "tg572bx76e10"
     },
     {
-      "id": "53",
+      "id": "52",
       "name": "Users_Id_fk",
-      "sourceTableId": "35",
+      "sourceTableId": "34",
       "targetTableId": "11",
-      "sourceFieldId": "36",
+      "sourceFieldId": "35",
       "targetFieldId": "13",
       "sourceCardinality": "one",
       "targetCardinality": "many",
-      "createdAt": 1755504563601
+      "createdAt": 1755504563601,
+      "diagramId": "tg572bx76e10"
     }
   ],
   "dependencies": [],
@@ -671,7 +664,8 @@
         "Confirmed",
         "Cancelled"
       ],
-      "fields": []
+      "fields": [],
+      "diagramId": "tg572bx76e10"
     },
     {
       "id": "nb4jz31j4u5s9qedtk0zrvdy4",
@@ -682,7 +676,8 @@
         "Deluxe",
         "Suite"
       ],
-      "fields": []
+      "fields": [],
+      "diagramId": "tg572bx76e10"
     }
   ]
 }
