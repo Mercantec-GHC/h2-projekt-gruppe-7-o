@@ -1,0 +1,688 @@
+{
+  "id": "0",
+  "name": "mercantec - Hotel Booking App",
+  "createdAt": "2025-08-18T08:18:02.480Z",
+  "updatedAt": "2025-08-18T08:18:02.480Z",
+  "databaseType": "postgresql",
+  "tables": [
+    {
+      "id": "1",
+      "name": "Rooms",
+      "x": -202.5,
+      "y": -240,
+      "fields": [
+        {
+          "id": "2",
+          "name": "Id",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": true,
+          "createdAt": 1755502582793
+        },
+        {
+          "id": "3",
+          "name": "HotelId",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503792956
+        },
+        {
+          "id": "4",
+          "name": "Number",
+          "type": {
+            "id": "varchar",
+            "name": "varchar"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503399713,
+          "comments": "This field is unique, for the specific hotel",
+          "characterMaximumLength": "32"
+        },
+        {
+          "id": "5",
+          "name": "Capacity",
+          "type": {
+            "id": "smallint",
+            "name": "smallint"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503506569
+        },
+        {
+          "id": "6",
+          "name": "PricePerNight",
+          "type": {
+            "id": "decimal",
+            "name": "decimal"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503532635
+        },
+        {
+          "id": "7",
+          "name": "RoomType",
+          "type": {
+            "id": "enum",
+            "name": "enum"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503542243
+        },
+        {
+          "id": "8",
+          "name": "Floor",
+          "type": {
+            "id": "smallint",
+            "name": "smallint"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503569727
+        },
+        {
+          "id": "9",
+          "name": "Description",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503580689
+        },
+        {
+          "id": "10",
+          "name": "IsActive",
+          "type": {
+            "id": "boolean",
+            "name": "boolean"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503595628,
+          "comments": "default false"
+        }
+      ],
+      "indexes": [],
+      "color": "#c05dcf",
+      "createdAt": 1755502582793,
+      "isView": false,
+      "order": 3,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "11",
+      "name": "Bookings",
+      "x": -486.1955589381581,
+      "y": 163.50895279040083,
+      "fields": [
+        {
+          "id": "12",
+          "name": "Id",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": true,
+          "createdAt": 1755502587903
+        },
+        {
+          "id": "13",
+          "name": "UserId",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504468861
+        },
+        {
+          "id": "14",
+          "name": "RoomId",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504483144
+        },
+        {
+          "id": "15",
+          "name": "CheckIn",
+          "type": {
+            "id": "timestamp",
+            "name": "timestamp"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504399692
+        },
+        {
+          "id": "16",
+          "name": "CheckOut",
+          "type": {
+            "id": "timestamp",
+            "name": "timestamp"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504412043
+        },
+        {
+          "id": "17",
+          "name": "Adults",
+          "type": {
+            "id": "smallint",
+            "name": "smallint"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504421940
+        },
+        {
+          "id": "18",
+          "name": "Children",
+          "type": {
+            "id": "smallint",
+            "name": "smallint"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504431699
+        },
+        {
+          "id": "19",
+          "name": "TotalPrice",
+          "type": {
+            "id": "decimal",
+            "name": "decimal"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504437847
+        },
+        {
+          "id": "20",
+          "name": "BookingStatus",
+          "type": {
+            "id": "enum",
+            "name": "enum"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504449073,
+          "comments": "default = pending"
+        }
+      ],
+      "indexes": [],
+      "color": "#ffe374",
+      "createdAt": 1755502587903,
+      "isView": false,
+      "order": 4,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "21",
+      "name": "Roles",
+      "x": -505.2975144883239,
+      "y": -295.7452169536642,
+      "fields": [
+        {
+          "id": "22",
+          "name": "Id",
+          "type": {
+            "id": "integer",
+            "name": "integer"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": true,
+          "createdAt": 1755502575517
+        },
+        {
+          "id": "23",
+          "name": "Name",
+          "type": {
+            "id": "varchar",
+            "name": "varchar"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503049408,
+          "characterMaximumLength": "50"
+        }
+      ],
+      "indexes": [],
+      "color": "#9ef07a",
+      "createdAt": 1755502575517,
+      "isView": false,
+      "order": 2,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "24",
+      "name": "Hotels",
+      "x": 190.9322906881555,
+      "y": -245.75122345961444,
+      "fields": [
+        {
+          "id": "25",
+          "name": "Id",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": true,
+          "createdAt": 1755502568415
+        },
+        {
+          "id": "26",
+          "name": "Name",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504240706
+        },
+        {
+          "id": "27",
+          "name": "StreetName",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504249425
+        },
+        {
+          "id": "28",
+          "name": "StreetNumber",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504258339
+        },
+        {
+          "id": "29",
+          "name": "Floor",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": true,
+          "primaryKey": false,
+          "createdAt": 1755504268013
+        },
+        {
+          "id": "30",
+          "name": "City",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504284939
+        },
+        {
+          "id": "31",
+          "name": "ZipCode",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504294436
+        },
+        {
+          "id": "32",
+          "name": "Country",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504302459
+        },
+        {
+          "id": "33",
+          "name": "Email",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504309637
+        },
+        {
+          "id": "34",
+          "name": "PhoneNumber",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504320798
+        }
+      ],
+      "indexes": [],
+      "color": "#ff6b8a",
+      "createdAt": 1755502568415,
+      "isView": false,
+      "order": 1,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "35",
+      "name": "Users",
+      "x": -829.2823525749056,
+      "y": -293.3236562478105,
+      "fields": [
+        {
+          "id": "36",
+          "name": "Id",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": true,
+          "createdAt": 1755502536509
+        },
+        {
+          "id": "37",
+          "name": "RoleId",
+          "type": {
+            "id": "integer",
+            "name": "integer"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502933353
+        },
+        {
+          "id": "38",
+          "name": "Email",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": true,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502671010
+        },
+        {
+          "id": "39",
+          "name": "Phone",
+          "type": {
+            "id": "varchar",
+            "name": "varchar"
+          },
+          "unique": false,
+          "nullable": true,
+          "primaryKey": false,
+          "createdAt": 1755502633341,
+          "characterMaximumLength": "32"
+        },
+        {
+          "id": "40",
+          "name": "FirstName",
+          "type": {
+            "id": "varchar",
+            "name": "varchar"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502721022
+        },
+        {
+          "id": "41",
+          "name": "LastName",
+          "type": {
+            "id": "varchar",
+            "name": "varchar"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502721714,
+          "characterMaximumLength": "255"
+        },
+        {
+          "id": "42",
+          "name": "HashedPassword",
+          "type": {
+            "id": "text",
+            "name": "text"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502876238
+        },
+        {
+          "id": "43",
+          "name": "LastLogin",
+          "type": {
+            "id": "timestamp_with_time_zone",
+            "name": "timestamp with time zone"
+          },
+          "unique": false,
+          "nullable": true,
+          "primaryKey": false,
+          "createdAt": 1755502888751
+        },
+        {
+          "id": "44",
+          "name": "CreatedAt",
+          "type": {
+            "id": "timestamp_with_time_zone",
+            "name": "timestamp with time zone"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502964694
+        },
+        {
+          "id": "45",
+          "name": "UpdatedAt",
+          "type": {
+            "id": "timestamp_with_time_zone",
+            "name": "timestamp with time zone"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755502985433
+        }
+      ],
+      "indexes": [],
+      "color": "#ffe374",
+      "createdAt": 1755502536509,
+      "isView": false,
+      "order": 0,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "46",
+      "name": "BookingRoom",
+      "x": -135,
+      "y": 157.5,
+      "fields": [
+        {
+          "id": "47",
+          "name": "BookingId",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755503915468
+        },
+        {
+          "id": "48",
+          "name": "RoomId",
+          "type": {
+            "id": "uuid",
+            "name": "uuid"
+          },
+          "unique": false,
+          "nullable": false,
+          "primaryKey": false,
+          "createdAt": 1755504022691
+        }
+      ],
+      "indexes": [],
+      "color": "#ff6b8a",
+      "createdAt": 1755503887319,
+      "isView": false,
+      "order": 5,
+      "comments": "BookingId + RoomId makes up the compound primary key"
+    }
+  ],
+  "relationships": [
+    {
+      "id": "49",
+      "name": "Roles_Id_fk",
+      "sourceTableId": "21",
+      "targetTableId": "35",
+      "sourceFieldId": "22",
+      "targetFieldId": "37",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755503079974,
+      "diagramId": "tg572bx76e10"
+    },
+    {
+      "id": "50",
+      "name": "Hotels_Id_fk",
+      "sourceTableId": "24",
+      "targetTableId": "1",
+      "sourceFieldId": "25",
+      "targetFieldId": "3",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755503858929
+    },
+    {
+      "id": "51",
+      "name": "Rooms_Id_fk",
+      "sourceTableId": "1",
+      "targetTableId": "46",
+      "sourceFieldId": "2",
+      "targetFieldId": "48",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755504103518
+    },
+    {
+      "id": "52",
+      "name": "Bookings_Id_fk",
+      "sourceTableId": "11",
+      "targetTableId": "46",
+      "sourceFieldId": "12",
+      "targetFieldId": "47",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755504136821
+    },
+    {
+      "id": "53",
+      "name": "Users_Id_fk",
+      "sourceTableId": "35",
+      "targetTableId": "11",
+      "sourceFieldId": "36",
+      "targetFieldId": "13",
+      "sourceCardinality": "one",
+      "targetCardinality": "many",
+      "createdAt": 1755504563601
+    }
+  ],
+  "dependencies": [],
+  "areas": [],
+  "customTypes": [
+    {
+      "id": "wrx0bysfc8sp1vyt8co34p5kd",
+      "name": "BookingStatus",
+      "kind": "enum",
+      "values": [
+        "Pending",
+        "Confirmed",
+        "Cancelled"
+      ],
+      "fields": []
+    },
+    {
+      "id": "nb4jz31j4u5s9qedtk0zrvdy4",
+      "name": "RoomType",
+      "kind": "enum",
+      "values": [
+        "Standard",
+        "Deluxe",
+        "Suite"
+      ],
+      "fields": []
+    }
+  ]
+}
