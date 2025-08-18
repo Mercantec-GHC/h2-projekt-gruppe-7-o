@@ -12,7 +12,6 @@ public class Booking : Entity<Guid>
 
     public Guid UserId { get; init; }
     public User User { get; init; }
-    public Guid RoomId { get; set; }
     public ICollection<Room> Rooms { get; init; } = new List<Room>();
 
     private int Nights => (CheckOut - CheckIn).Days == 0 ? 1 : (CheckOut - CheckIn).Days;
@@ -33,6 +32,7 @@ public class Booking : Entity<Guid>
     }
 }
 
+// TODO: do we need to add a active and done status?
 public enum BookingStatus
 {
     Pending,
