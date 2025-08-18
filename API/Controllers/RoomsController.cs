@@ -24,7 +24,7 @@ public class RoomsController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves all rooms in the system
+    /// Retrieves all rooms
     /// </summary>
     /// <returns>A list of all rooms</returns>
     /// <response code="200">Returns the list of rooms</response>
@@ -60,7 +60,7 @@ public class RoomsController : ControllerBase
     }
 
     /// <summary>
-    /// Creates a new room in the system
+    /// Creates a new rooom
     /// </summary>
     /// <param name="roomCreateDto">The room information to create</param>
     /// <returns>A success message and the created room's ID</returns>
@@ -112,7 +112,7 @@ public class RoomsController : ControllerBase
 
 
     /// <summary>
-    /// Deletes a specific room from the system
+    /// Deletes a specific room
     /// </summary>
     /// <param name="id">The unique identifier of the room to delete</param>
     /// <returns>No content if the deletion was successful</returns>

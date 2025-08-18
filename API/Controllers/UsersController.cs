@@ -27,7 +27,7 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Retrieves all users in the system
+    /// Retrieves all users
     /// </summary>
     /// <returns>A list of all users</returns>
     /// <response code="200">Returns the list of users</response>
@@ -95,7 +95,7 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Deletes a specific user from the system
+    /// Deletes a specific user
     /// </summary>
     /// <param name="id">The unique identifier of the user to delete</param>
     /// <returns>No content if the deletion was successful</returns>
@@ -176,7 +176,7 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Registers a new user in the system
+    /// Registers a new user
     /// </summary>
     /// <param name="registerDto">The user registration information</param>
     /// <returns>A success message and the registered email</returns>
