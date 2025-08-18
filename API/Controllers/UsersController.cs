@@ -26,7 +26,13 @@ public class UsersController : ControllerBase
         _context = context;
     }
 
-    // GET: api/Users
+    /// <summary>
+    /// Retrieves all users
+    /// </summary>
+    /// <returns>A list of all users</returns>
+    /// <response code="200">Returns the list of users</response>
+    /// <response code="401">If the user is not authenticated</response>
+    /// <response code="403">If the user doesn't have the required role (Admin or Receptionist)</response>
     [HttpGet]
     [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<IEnumerable<UserReponseDto>>> GetUsers()
@@ -36,8 +42,18 @@ public class UsersController : ControllerBase
         return users.Select(u => u.ToUserDto()).ToList();
     }
 
-    // GET: api/Users/5
+    /// <summary>
+    /// Retrieves a specific user by their unique identifier
+    /// </summary>
+    /// <param name="id">The unique identifier of the user</param>
+    /// <returns>The requested user information</returns>
+    /// <response code="200">Returns the requested user</response>
+    /// <response code="401">If the user is not authenticated</response>
+    /// <response code="403">If the user is not an admin and not the owner of the resource</response>
+    /// <response code="404">If no user is found with the specified ID</response>
     [HttpGet("{id}")]
+    // TODO: add Auth for Owner validation
+    // [AuthorizeAdminOrOwner]
     public async Task<ActionResult<UserReponseDto>> GetUser(Guid id)
     {
         var user = await _context.Users.FindAsync(id);
@@ -47,9 +63,19 @@ public class UsersController : ControllerBase
         return user.ToUserDto();
     }
 
-    // PUT: api/Users/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    /// <summary>
+    /// Updates an existing user's information
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to update</param>
+    /// <param name="user">The updated user information</param>
+    /// <returns>No content if the update was successful</returns>
+    /// <response code="204">If the user was updated successfully</response>
+    /// <response code="400">If the ID in the URL doesn't match the ID in the request body</response>
+    /// <response code="401">If the user is not authenticated</response>
+    /// <response code="404">If no user is found with the specified ID</response>
     [HttpPut("{id}")]
+    // TODO: add Auth for Owner validation
+    // [AuthorizeAdminOrOwner]
     public async Task<IActionResult> PutUser(Guid id, UserUpdateDto user)
     {
         _context.Entry(user).State = EntityState.Modified;
@@ -68,9 +94,18 @@ public class UsersController : ControllerBase
         return NoContent();
     }
 
-
-    // DELETE: api/Users/5
+    /// <summary>
+    /// Deletes a specific user
+    /// </summary>
+    /// <param name="id">The unique identifier of the user to delete</param>
+    /// <returns>No content if the deletion was successful</returns>
+    /// <response code="204">If the user was deleted successfully</response>
+    /// <response code="401">If the user is not authenticated</response>
+    /// <response code="403">If the user is not an admin and not the owner of the resource</response>
+    /// <response code="404">If no user is found with the specified ID</response>
     [HttpDelete("{id}")]
+    // TODO: add Auth for Owner validation
+    // [AuthorizeAdminOrOwner]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
         User? user = await _context.Users.FindAsync(id);
@@ -83,9 +118,11 @@ public class UsersController : ControllerBase
     }
 
     /// <summary>
-    /// Get the information about the current user based on the JWT token
+    /// Retrieves the current authenticated user's information
     /// </summary>
-    /// <returns>Brugerens information</returns>
+    /// <returns>The current user's information</returns>
+    /// <response code="200">Returns the current user's information</response>
+    /// <response code="401">If the user is not authenticated</response>
     [Authorize]
     [HttpGet("me")]
     public async Task<IActionResult> GetCurrentUser()
@@ -138,6 +175,13 @@ public class UsersController : ControllerBase
         // 3. Return the users information
     }
 
+    /// <summary>
+    /// Registers a new user
+    /// </summary>
+    /// <param name="registerDto">The user registration information</param>
+    /// <returns>A success message and the registered email</returns>
+    /// <response code="200">If the user was registered successfully</response>
+    /// <response code="400">If the email is already registered</response>
     [HttpPost("register")]
     public async Task<ActionResult<User>> RegisterUser(RegisterDto registerDto)
     {
@@ -170,6 +214,14 @@ public class UsersController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Authenticates a user and returns a JWT token
+    /// </summary>
+    /// <param name="loginDto">The user login credentials</param>
+    /// <returns>A JWT token for authentication</returns>
+    /// <response code="200">Returns the JWT token</response>
+    /// <response code="400">If the request is invalid</response>
+    /// <response code="401">If the email or password is incorrect, or the user is not found</response>
     [HttpPost("login")]
     public async Task<ActionResult<string>> LoginUser(LoginDto loginDto, JwtService jwtService)
     {
@@ -177,7 +229,7 @@ public class UsersController : ControllerBase
         User? user = await _context.Users.Include(user => user.Role)
             .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-        if (user == null) return NotFound();
+        if (user == null) return Unauthorized("Incorrect email or password");
 
         bool isPasswordCorrect = BCrypt.Net.BCrypt.Verify(loginDto.Password, user.HashedPassword);
 
