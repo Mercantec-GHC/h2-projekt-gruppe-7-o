@@ -12,7 +12,7 @@ public class Room : Entity<Guid>
     public required RoomType Type { get; set; } = RoomType.Standard;
     public required short Floor { get; init; }
     public string Description { get; set; } = string.Empty;
-    public bool isActive { get; set; } = false;
+    public bool IsActive { get; set; } = false;
 
 
     public required Guid HotelId { get; set; }

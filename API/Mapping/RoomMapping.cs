@@ -32,7 +32,7 @@ public static class RoomMapping
             Type = Room.Type,
             Description = Room.Description,
             Floor = Room.Floor,
-            isActive = Room.isActive,
+            IsActive = Room.IsActive,
         };
     }
 
@@ -46,7 +46,7 @@ public static class RoomMapping
             Type = roomCreateDto.Type,
             Description = roomCreateDto.Description ?? string.Empty,
             Floor = roomCreateDto.Floor,
-            isActive = roomCreateDto.isActive,
+            IsActive = roomCreateDto.IsActive,
             HotelId = roomCreateDto.HotelId,
         };
     }
