@@ -18,6 +18,7 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+
         IConfiguration configuration = builder.Configuration;
 
 
@@ -135,8 +136,18 @@ public class Program
         // Adding the database including enum mappings, see DBContextRegistrationExtensions.cs
         builder.Services.AddAppDbContext(connectionString);
 
+        builder.WebHost.UseSentry(options =>
+        {
+            options.Dsn =
+                "https://a8f408fee2844ebb3a148a8f3d03d91d@o4509869483425792.ingest.de.sentry.io/4509869485719632";
+            // When configuring for the first time, to see what the SDK is doing:
+            //TODO: set this to false?
+            options.Debug = true;
+        });
+
 
         var app = builder.Build();
+
 
         // Brug CORS - skal være før anden middleware
         app.UseCors("AllowSpecificOrigins");
