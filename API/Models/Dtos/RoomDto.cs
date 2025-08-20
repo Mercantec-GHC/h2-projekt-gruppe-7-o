@@ -10,7 +10,7 @@ public class RoomResponseDto : Entity<Guid>
     public required RoomType Type { get; set; }
     public short? Floor { get; init; }
     public string? Description { get; set; }
-    public bool isActive { get; set; } = false;
+    public bool IsActive { get; set; } = false;
 }
 
 public sealed class RoomWithBookingsDto : RoomResponseDto
@@ -27,7 +27,7 @@ public sealed class RoomCreateDto
     public required short Floor { get; set; }
     public string? Description { get; set; }
 
-    public bool isActive { get; set; }
+    public bool IsActive { get; set; }
     public Guid HotelId { get; set; }
 }
 

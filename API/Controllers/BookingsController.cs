@@ -12,18 +12,29 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace API.Controllers;
 
+/// <summary>
+/// Controller for managing hotel bookings.
+/// </summary>
 [Route("api/[controller]")]
 [ApiController]
 public class BookingsController : ControllerBase
 {
     private readonly AppDBContext _context;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="BookingsController"/> class.
+    /// </summary>
+    /// <param name="context">The database context.</param>
     public BookingsController(AppDBContext context)
     {
         _context = context;
     }
 
-    // GET: api/Bookings
+    /// <summary>
+    /// Gets all bookings.
+    /// </summary>
+    /// <returns>List of all bookings.</returns>
+    /// <response code="200">Returns the list of bookings.</response>
     [HttpGet]
     // [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<IEnumerable<BookingResponseDto>>> GetBookings()
@@ -34,7 +45,13 @@ public class BookingsController : ControllerBase
         return bookingDtos;
     }
 
-    // GET: api/Bookings/5
+    /// <summary>
+    /// Gets a specific booking by ID.
+    /// </summary>
+    /// <param name="id">The booking ID.</param>
+    /// <returns>The booking with the specified ID.</returns>
+    /// <response code="200">Returns the booking.</response>
+    /// <response code="404">If the booking is not found.</response>
     [HttpGet("{id}")]
     public async Task<ActionResult<BookingResponseDto>> GetBooking(Guid id)
     {
@@ -45,8 +62,15 @@ public class BookingsController : ControllerBase
         return Booking.ToBookingDto();
     }
 
-    // PUT: api/Bookings/5
-    // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+    /// <summary>
+    /// Updates an existing booking.
+    /// </summary>
+    /// <param name="id">The booking ID.</param>
+    /// <param name="bookingUpdateDto">The updated booking data.</param>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">Booking updated successfully.</response>
+    /// <response code="404">If the booking is not found.</response>
+    /// <response code="400">If the request is invalid.</response>
     [HttpPut("{id}")]
     public async Task<IActionResult> PutBooking(Guid id, BookingUpdateDto bookingUpdateDto)
     {
@@ -66,6 +90,13 @@ public class BookingsController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Creates a new booking.
+    /// </summary>
+    /// <param name="bookingCreateDto">The booking data.</param>
+    /// <returns>The ID of the created booking.</returns>
+    /// <response code="200">Booking created successfully.</response>
+    /// <response code="400">If the request is invalid.</response>
     [HttpPost]
     public async Task<ActionResult<Guid>> CreateBooking(BookingCreateDto bookingCreateDto)
     {
@@ -76,7 +107,13 @@ public class BookingsController : ControllerBase
         return Ok(Booking.Entity.Id);
     }
 
-
+    /// <summary>
+    /// Deletes a booking by ID.
+    /// </summary>
+    /// <param name="id">The booking ID.</param>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">Booking deleted successfully.</response>
+    /// <response code="404">If the booking is not found.</response>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBooking(Guid id)
     {
@@ -89,7 +126,11 @@ public class BookingsController : ControllerBase
         return NoContent();
     }
 
-
+    /// <summary>
+    /// Checks if a booking exists by ID.
+    /// </summary>
+    /// <param name="id">The booking ID.</param>
+    /// <returns>True if the booking exists, otherwise false.</returns>
     private bool BookingExists(Guid id)
     {
         return _context.Bookings.Any(e => e.Id == id);
