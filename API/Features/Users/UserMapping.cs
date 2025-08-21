@@ -13,6 +13,7 @@ public static class UserMapping
         return new UserReponseDto
         {
             Id = user.Id,
+            Phone = user.Phone,
             Email = user.Email,
             FirstName = user.FirstName,
             LastName = user.LastName,

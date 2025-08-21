@@ -23,6 +23,6 @@ public class User : Entity<Guid>
     // Navigation to principal
     public Role Role { get; set; } = null!;
 
-
     public List<Booking> Bookings { get; init; } = new List<Booking>();
+    public List<BookingLine> BookingLines { get; init; } = new List<BookingLine>();
 }

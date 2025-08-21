@@ -2,7 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text;
 using API.Data;
+using API.Data.Seeders;
+using API.Repositories;
 using API.Services;
+using API.Services.Password;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -22,8 +25,17 @@ public class Program
         IConfiguration configuration = builder.Configuration;
 
 
-        // Register JWT Service
+        //  Register services 
         builder.Services.AddScoped<JwtService>();
+        builder.Services.AddScoped<IPasswordHashingService, BCryptPasswordHashingService>();
+        builder.Services.AddScoped<DevelopmentOnlyFilter>();
+        builder.Services.AddScoped<UsersSeeder>();
+
+
+        // Register Repositories
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
 
         // Configure JWT Authentication
         var jwtSecretKey = configuration["Jwt:SecretKey"]
@@ -34,6 +46,11 @@ public class Program
 
         var jwtAudience = configuration["Jwt:Audience"]
                           ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+        if (string.IsNullOrEmpty(jwtSecretKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+        {
+            throw new Exception($"Missing JWT configuration values.");
+        }
 
         builder.Services.AddAuthentication(options =>
             {

@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250813105622_AddTables_User_Role_Booking_Room_Hotel")]
-    partial class AddTables_User_Role_Booking_Room_Hotel
+    [Migration("20250821192656_Add_InitialTables")]
+    partial class Add_InitialTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,11 +49,11 @@ namespace API.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<Guid>("RoomId")
-                        .HasColumnType("uuid");
-
                     b.Property<BookingStatus>("Status")
                         .HasColumnType("booking_status");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -66,6 +66,56 @@ namespace API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("API.Models.Entities.BookingLine", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
+
+                    b.Property<Guid>("BookingId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("RoomId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("RoomId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("BookingLine");
                 });
 
             modelBuilder.Entity("API.Models.Entities.Hotel", b =>
@@ -172,6 +222,9 @@ namespace API.Migrations
                     b.Property<Guid>("HotelId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Number")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -185,9 +238,6 @@ namespace API.Migrations
 
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("isActive")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 
@@ -275,6 +325,27 @@ namespace API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("API.Models.Entities.BookingLine", b =>
+                {
+                    b.HasOne("API.Models.Entities.Booking", "Booking")
+                        .WithMany("BookingLines")
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Entities.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId");
+
+                    b.HasOne("API.Models.Entities.User", null)
+                        .WithMany("BookingLines")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Booking");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("API.Models.Entities.Room", b =>
                 {
                     b.HasOne("API.Models.Entities.Hotel", "Hotel")
@@ -312,6 +383,11 @@ namespace API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("API.Models.Entities.Booking", b =>
+                {
+                    b.Navigation("BookingLines");
+                });
+
             modelBuilder.Entity("API.Models.Entities.Hotel", b =>
                 {
                     b.Navigation("Rooms");
@@ -324,6 +400,8 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Entities.User", b =>
                 {
+                    b.Navigation("BookingLines");
+
                     b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
