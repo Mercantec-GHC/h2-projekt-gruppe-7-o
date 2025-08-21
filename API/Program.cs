@@ -129,7 +129,7 @@ public class Program
 
         // Add database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                               Environment.GetEnvironmentVariable("DefaultConnection");
+                               Environment.GetEnvironmentVariable("DATABASE_URL");
 
         if (string.IsNullOrEmpty(connectionString)) throw new Exception("Missing connection string for database");
 
