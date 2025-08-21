@@ -117,7 +117,6 @@ public class Program
             });
         });
 
-        // TODO: when creating the frontend, we should instead use the localhost and ports for the react app
 
         // Add CORS for specific Blazor WASM domains
         builder.Services.AddCors(options =>
@@ -126,11 +125,12 @@ public class Program
                 "AllowSpecificOrigins",
                 builder =>
                 {
+                    //TODO: Add localhost for frontend app:
                     builder
                         .WithOrigins(
                             "http://localhost:5085",
                             "http://localhost:8052",
-                            "https://h2.mercantec.tech"
+                            "https://kabdikhan.mercantec.tech"
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
