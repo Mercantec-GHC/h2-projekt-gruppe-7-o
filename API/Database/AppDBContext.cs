@@ -46,8 +46,10 @@ public class AppDBContext : DbContext
             .HasForeignKey(b => b.UserId);
 
         modelBuilder.Entity<Booking>()
-            .HasMany(b => b.Rooms)
-            .WithMany(r => r.Bookings);
+            .HasMany(b => b.BookingLines);
+
+        modelBuilder.Entity<Booking>()
+            .HasMany(b => b.Rooms);
     }
 
     public override int SaveChanges()
