@@ -118,6 +118,8 @@ public class SeedersController : ControllerBase
         _context.Users.AddRange(users);
         _context.Hotels.AddRange(hotels);
         _context.Rooms.AddRange(rooms);
+
+        // TODO: Fix adding bookings - "Cannot write DateTime with Kind=Local to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')"
         // _context.Bookings.AddRange(bookings);
 
         await _context.SaveChangesAsync();
