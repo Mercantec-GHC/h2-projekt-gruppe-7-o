@@ -97,13 +97,16 @@ public class SeedersController : ControllerBase
         {
             var user = faker.PickRandom(users);
             var room = faker.PickRandom(rooms);
-            var checkInDate = faker.Date.Future(1);
+            var checkInDate = faker.Date.Future(1).ToUniversalTime();
             var nights = faker.Random.Int(1, 14);
-            var checkOutDate = checkInDate.AddDays(nights);
+            var checkOutDate = checkInDate.AddDays(nights).ToUniversalTime();
 
             // TODO: This overlap check needs to be implemented, we need to check the BookingRoom table
             // Check for overlap
 
+            // TODO: we need to implement booking lines for each booking as well
+
+            // TODO: This should populate in the BookingRoom table as well, it is not
             bookings.Add(new Booking
             {
                 UserId = user.Id,
@@ -119,7 +122,7 @@ public class SeedersController : ControllerBase
         _context.Hotels.AddRange(hotels);
         _context.Rooms.AddRange(rooms);
 
-        // TODO: Fix adding bookings - "Cannot write DateTime with Kind=Local to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')"
+        // TODO: uncomment when BookingRoom is being populated correctly, and when BookingLine is implemented
         // _context.Bookings.AddRange(bookings);
 
         await _context.SaveChangesAsync();
