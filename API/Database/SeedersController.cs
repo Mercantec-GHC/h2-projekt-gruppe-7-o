@@ -28,6 +28,11 @@ public class SeedersController : ControllerBase
     }
 
 
+    /// <summary>
+    ///    Seeds the database with the specified number of users
+    /// </summary>
+    /// <param name="count"></param>
+    /// <response code="204">{count} Users seeded!</response>
     [HttpPost("users")]
     public async Task<IActionResult> SeedUsers([FromQuery] int count = 20)
     {
@@ -42,9 +47,15 @@ public class SeedersController : ControllerBase
         }
     }
 
+    /// <summary>
+    ///    Seeds the database with the specified number of hotels
+    /// </summary>
+    /// <param name="count"></param>
+    /// <response code="204">{count} Users seeded!</response>
     [HttpPost("hotels")]
     public async Task<IActionResult> SeedHotels([FromQuery] int count = 20)
     {
+        // TODO: @Abdi implement hotel seeder
         throw new NotImplementedException();
     }
 
@@ -130,6 +141,11 @@ public class SeedersController : ControllerBase
     }
 
 
+    /// <summary>
+    /// Deletes all data from the database.
+    /// </summary>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">Database cleared successfully.</response>
     [HttpDelete("clear")]
     public async Task<IActionResult> ClearDatabase()
     {
