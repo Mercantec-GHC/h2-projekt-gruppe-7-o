@@ -12,7 +12,9 @@ public class BookingResponseDto : Entity<Guid>
     public required decimal TotalPrice { get; init; }
 
     //TODO: we need to return the name of the status here instead of the enum value (0,1,2 etc.)
-    public required BookingStatus Status { get; set; }
+    // public required BookingStatus Status { get; set; }
+
+    public required string Status { get; init; }
 
     public UserReponseDto User { get; init; }
     public ICollection<RoomResponseDto> Rooms { get; init; } = new List<RoomResponseDto>();

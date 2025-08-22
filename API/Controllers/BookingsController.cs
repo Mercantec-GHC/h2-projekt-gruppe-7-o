@@ -63,6 +63,36 @@ public class BookingsController : ControllerBase
     }
 
     /// <summary>
+    /// Searches for bookings by status and/or date range.
+    /// </summary>
+    /// <param name="status">Optional booking status to filter by.</param>
+    /// <param name="from">Optional start date for check-in filtering.</param>
+    /// <param name="to">Optional end date for check-out filtering.</param>
+    /// <returns>List of bookings matching the search criteria.</returns>
+    /// <response code="200">Returns the list of matching bookings.</response>
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<BookingResponseDto>>> SearchBookings(
+        [FromQuery] BookingStatus? status,
+        [FromQuery] DateTime? from,
+        [FromQuery] DateTime? to)
+    {
+        IQueryable<Booking> query = _context.Bookings;
+
+        if (status != null)
+            query = query.Where(b => b.Status == status);
+
+        if (from != null)
+            query = query.Where(b => b.CheckIn >= from);
+
+        if (to != null)
+            query = query.Where(b => b.CheckOut <= to);
+
+        var bookings = await query.ToListAsync();
+        return bookings.Select(b => b.ToBookingDto()).ToList();
+    }
+
+
+    /// <summary>
     /// Updates an existing booking.
     /// </summary>
     /// <param name="id">The booking ID.</param>

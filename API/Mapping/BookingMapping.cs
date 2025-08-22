@@ -15,7 +15,7 @@ public static class BookingMapping
             Adults = Booking.Adults,
             Children = Booking.Children,
             TotalPrice = Booking.CalculateTotalPrice(),
-            Status = Booking.Status,
+            Status = Booking.Status.ToString(),
             CreatedAt = Booking.CreatedAt,
             UpdatedAt = Booking.UpdatedAt
         };
