@@ -7,6 +7,7 @@ using API.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -17,10 +18,12 @@ namespace API.Controllers;
 public class RoomsController : ControllerBase
 {
     private readonly AppDBContext _context;
+    private readonly IMemoryCache _cache;
 
-    public RoomsController(AppDBContext context)
+    public RoomsController(AppDBContext context, IMemoryCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     /// <summary>
@@ -34,9 +37,19 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetRooms()
     {
-        var Rooms = await _context.Rooms.ToListAsync();
+        string cacheKey = "all_rooms";
 
-        return Rooms.Select(u => u.ToRoomDto()).ToList();
+        // try to get from cache
+        if (_cache.TryGetValue(cacheKey, out List<Room> cachedRooms))
+        {
+            return Ok(cachedRooms);
+        }
+
+        var rooms = await _context.Rooms.ToListAsync();
+
+        _cache.Set(cacheKey, rooms, TimeSpan.FromSeconds(30));
+
+        return rooms.Select(r => r.ToRoomDto()).ToList();
     }
 
     /// <summary>
@@ -52,11 +65,11 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<RoomResponseDto>> GetRoom(Guid id)
     {
-        var Room = await _context.Rooms.FindAsync(id);
+        var room = await _context.Rooms.FindAsync(id);
 
-        if (Room == null) return NotFound();
+        if (room == null) return NotFound();
 
-        return Room.ToRoomDto();
+        return room.ToRoomDto();
     }
 
     /// <summary>
@@ -72,10 +85,11 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<ActionResult<Room>> CreateRoom(RoomCreateDto roomCreateDto)
     {
-        var Room = _context.Rooms.Add(roomCreateDto.ToRoom());
+        var room = _context.Rooms.Add(roomCreateDto.ToRoom());
         await _context.SaveChangesAsync();
+        _cache.Remove("all_rooms");
 
-        return Ok(new { message = "Room created successfully", Room.Entity.Id });
+        return Ok(new { message = "Room created successfully", room.Entity.Id });
     }
 
 
@@ -99,6 +113,7 @@ public class RoomsController : ControllerBase
         try
         {
             await _context.SaveChangesAsync();
+            _cache.Remove("all_rooms");
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -124,11 +139,13 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> DeleteRoom(Guid id)
     {
-        Room? Room = await _context.Rooms.FindAsync(id);
-        if (Room == null) return NotFound();
+        Room? room = await _context.Rooms.FindAsync(id);
+        if (room == null) return NotFound();
 
-        _context.Rooms.Remove(Room);
+        _context.Rooms.Remove(room);
         await _context.SaveChangesAsync();
+
+        _cache.Remove("all_rooms");
 
         return NoContent();
     }

@@ -7,6 +7,7 @@ using API.Models.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,14 +21,16 @@ namespace API.Controllers;
 public class HotelsController : ControllerBase
 {
     private readonly AppDBContext _context;
+    private readonly IMemoryCache _cache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="HotelsController"/> class.
     /// </summary>
     /// <param name="context">The database context.</param>
-    public HotelsController(AppDBContext context)
+    public HotelsController(AppDBContext context, IMemoryCache cache)
     {
         _context = context;
+        _cache = cache;
     }
 
     /// <summary>
@@ -38,9 +41,19 @@ public class HotelsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<HotelResponseDto>>> GetHotels()
     {
-        var Hotels = await _context.Hotels.ToListAsync();
+        var cacheKey = "all_hotels";
 
-        return Hotels.Select(u => u.ToHotelDto()).ToList();
+        // try to get from cache
+        if (_cache.TryGetValue(cacheKey, out List<Hotel> cachedHotels))
+        {
+            return Ok(cachedHotels);
+        }
+
+        var hotels = await _context.Hotels.ToListAsync();
+
+        _cache.Set(cacheKey, cachedHotels, TimeSpan.FromSeconds(60));
+
+        return hotels.Select(u => u.ToHotelDto()).ToList();
     }
 
     /// <summary>
@@ -77,6 +90,7 @@ public class HotelsController : ControllerBase
         try
         {
             await _context.SaveChangesAsync();
+            _cache.Remove("all_hotels");
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -103,6 +117,7 @@ public class HotelsController : ControllerBase
 
         _context.Hotels.Remove(Hotel);
         await _context.SaveChangesAsync();
+        _cache.Remove("all_hotels");
 
         return NoContent();
     }
@@ -126,6 +141,7 @@ public class HotelsController : ControllerBase
         var hotel = hotelCreateDto.ToHotel();
         _context.Hotels.Add(hotel);
         await _context.SaveChangesAsync();
+        _cache.Remove("all_hotels");
 
         return Ok(hotel.ToHotelDto());
     }
