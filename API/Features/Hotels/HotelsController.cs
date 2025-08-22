@@ -36,7 +36,6 @@ public class HotelsController : ControllerBase
     /// <returns>List of all hotels.</returns>
     /// <response code="200">Returns the list of hotels.</response>
     [HttpGet]
-    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<ActionResult<IEnumerable<HotelResponseDto>>> GetHotels()
     {
         var Hotels = await _context.Hotels.ToListAsync();
@@ -116,17 +115,19 @@ public class HotelsController : ControllerBase
     /// <response code="200">Hotel created successfully.</response>
     /// <response code="400">If a hotel with the same email already exists.</response>
     [HttpPost]
-    public async Task<ActionResult<Hotel>> CreateHotel(HotelCreateDto hotelCreateDto)
+    public async Task<ActionResult<HotelResponseDto>> CreateHotel(HotelCreateDto hotelCreateDto)
     {
+        //TODO: we should probably allow the hotels to have the same email
         if (_context.Hotels.Any(u => u.Email == hotelCreateDto.Email))
         {
             return BadRequest("A Hotel with that email already exists");
         }
 
-        var hotel = _context.Hotels.Add(hotelCreateDto.ToHotel());
+        var hotel = hotelCreateDto.ToHotel();
+        _context.Hotels.Add(hotel);
         await _context.SaveChangesAsync();
 
-        return Ok(new { message = "Hotel created successfully", hotel.Entity.Id });
+        return Ok(hotel.ToHotelDto());
     }
 
     /// <summary>
