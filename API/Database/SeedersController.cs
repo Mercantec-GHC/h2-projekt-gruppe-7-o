@@ -72,7 +72,7 @@ public class SeedersController : ControllerBase
                 string email;
                 do
                 {
-                    email = f.Internet.Email();
+                    email = f.Internet.Email().ToLower();
                 } while (usedEmails.Contains(email));
 
                 usedEmails.Add(email);
