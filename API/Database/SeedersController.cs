@@ -75,7 +75,7 @@ public class SeedersController : ControllerBase
         var hotelFaker = new Faker<Hotel>()
             .RuleFor(c => c.Id, _ => Guid.NewGuid())
             .RuleFor(c => c.Name, f => f.Name.FirstName())
-            .RuleFor(c => c.Email, f => f.Name.LastName() + "@" + "kabdikhan.com")
+            .RuleFor(c => c.Email, (_, c) => c.Name.ToLower() + "@" + "kabdikhan.com")
             .RuleFor(c => c.PhoneNumber, f => f.Phone.PhoneNumber())
             .RuleFor(c => c.City, f => f.Address.City())
             .RuleFor(c => c.StreetName, f => f.Address.StreetName())
@@ -149,6 +149,50 @@ public class SeedersController : ControllerBase
     [HttpDelete("clear")]
     public async Task<IActionResult> ClearDatabase()
     {
-        throw new NotImplementedException();
+        try
+        {
+            // Tables to OMIT from clearing (actual DB table names)
+            var tablesToOmit = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+            {
+                "Roles",
+            };
+
+            // Collect distinct mapped tables (skip owned/keyless)
+            var tables = _context.Model.GetEntityTypes()
+                .Where(et => !et.IsOwned())
+                .Select(et => new
+                {
+                    Schema = et.GetSchema(), // null or "public" or custom
+                    Table = et.GetTableName() // actual table name
+                })
+                .Where(x => x.Table != null)
+                .Distinct()
+                .ToList();
+
+            // Build list of tables to truncate
+            var toTruncate = tables
+                .Where(x => !tablesToOmit.Contains(x.Table!))
+                .Select(x =>
+                {
+                    // Quote identifiers for PostgreSQL (preserves exact case/snake_case)
+                    var schema = string.IsNullOrWhiteSpace(x.Schema) ? null : $"\"{x.Schema}\".";
+                    return $"{schema}\"{x.Table}\"";
+                })
+                .ToList();
+
+            if (toTruncate.Count == 0)
+                return Ok("Nothing to clear.");
+
+            // One statement to truncate all selected tables and reset identities
+            var sql = $"TRUNCATE TABLE {string.Join(", ", toTruncate)} RESTART IDENTITY;";
+
+            await _context.Database.ExecuteSqlRawAsync(sql);
+
+            return Ok("Database cleared successfully.");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 }
