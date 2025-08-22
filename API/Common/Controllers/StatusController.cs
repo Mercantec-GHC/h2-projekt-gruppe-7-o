@@ -1,3 +1,4 @@
+using API.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
@@ -6,6 +7,13 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class StatusController : ControllerBase
     {
+        private readonly AppDBContext _context;
+
+        public StatusController(AppDBContext context)
+        {
+            _context = context;
+        }
+
         /// <summary>
         /// Tjekker om API'en kører korrekt.
         /// </summary>
@@ -22,24 +30,22 @@ namespace API.Controllers
         /// </summary>
         /// <returns>Status og besked om databaseforbindelse.</returns>
         /// <response code="200">Database er kørende eller fejlbesked gives.</response>
-    
         [HttpGet("dbhealthcheck")]
         public IActionResult DBHealthCheck()
         {
             // Indtil vi har opsat EFCore, returnerer vi bare en besked
 
-            try {
-                // using (var context = new ApplicationDbContext())
-                // {
-                //     context.Database.CanConnect();
-                // }
-                throw new Exception("I har endnu ikke lært at opsætte EFCore! Det kommer senere!");
+            try
+            {
+                _context.Database.CanConnect();
             }
             catch (Exception ex)
             {
-                return Ok(new { status = "Error", message = "Fejl ved forbindelse til database: " + ex.Message });
+                // TODO: what should this return be? not Ok
+                return Ok(new { status = "Error", message = ex.Message });
             }
-            return Ok(new { status = "OK", message = "Database er kørende!" });
+
+            return Ok(new { status = "OK", message = "Database is running!" });
         }
 
         /// <summary>

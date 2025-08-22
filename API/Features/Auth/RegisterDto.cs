@@ -28,3 +28,10 @@ public class RegisterDto
     [Required(ErrorMessage = "Last name is required")]
     public string LastName { get; set; } = string.Empty;
 }
+
+public class RegisterResponseDto
+{
+    public required string Message { get; set; }
+    public required string Email { get; set; }
+    public required Guid Id { get; set; }
+}

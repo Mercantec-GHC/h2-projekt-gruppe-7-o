@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using NpgsqlTypes;
 
 namespace API.Models.Entities;
 
@@ -19,13 +20,14 @@ public class Room : Entity<Guid>
 
     public Hotel? Hotel { get; init; }
 
-    public Guid BookingId { get; set; }
     public ICollection<Booking> Bookings { get; init; } = new List<Booking>();
 }
 
 public enum RoomType
 {
-    Standard,
-    Deluxe,
-    Suite
+    [PgName("standard")] Standard,
+
+    [PgName("deluxe")] Deluxe,
+
+    [PgName("suite")] Suite
 }
