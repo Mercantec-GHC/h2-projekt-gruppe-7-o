@@ -21,10 +21,22 @@ public class UsersSeeder(AppDBContext context, IUserRepository userRepository, I
             throw new InvalidOperationException("No roles found. Seed roles before seeding users.");
         }
 
+        var usedEmails = new HashSet<string>();
+
         var userFaker = new Faker<User>().RuleFor(c => c.Id, _ => Guid.NewGuid())
             .RuleFor(c => c.FirstName, f => f.Name.FirstName())
             .RuleFor(c => c.LastName, f => f.Name.LastName())
-            .RuleFor(c => c.Email, f => f.Internet.Email().ToLower())
+            .RuleFor(c => c.Email, f =>
+            {
+                string email;
+                do
+                {
+                    email = f.Internet.Email();
+                } while (usedEmails.Contains(email));
+
+                usedEmails.Add(email);
+                return email;
+            })
             .RuleFor(c => c.HashedPassword, _ => _passwordHasher.Hash("12345678"))
             .RuleFor(c => c.RoleId, f => f.Random.Int(1, 4));
 
