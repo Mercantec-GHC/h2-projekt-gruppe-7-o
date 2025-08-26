@@ -30,6 +30,7 @@ public class Program
         builder.Services.AddScoped<IPasswordHashingService, BCryptPasswordHashingService>();
         builder.Services.AddScoped<DevelopmentOnlyFilter>();
         builder.Services.AddScoped<UsersSeeder>();
+        builder.Services.AddScoped<HotelsSeeder>();
 
 
         // Register Repositories
@@ -186,12 +187,17 @@ public class Program
             options
                 .WithTitle("MAGSLearn")
                 .WithTheme(ScalarTheme.Mars)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .OpenApiRoutePattern = "/swagger/v1/swagger.json";
         });
 
         // Map the Swagger UI
         app.UseSwagger();
-        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
+        app.UseSwaggerUI(options =>
+        { 
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+
+        });
 
         app.UseAuthentication();
         app.UseAuthorization();

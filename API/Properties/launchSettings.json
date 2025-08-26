@@ -7,18 +7,18 @@
       },
       "dotnetRunMessages": true,
       "applicationUrl": "http://localhost:8051",
-      "launchBrowser": false,
-      "launchUrl": "http://localhost:8051/swagger"
+      "launchBrowser": true,
+      "launchUrl": "https://localhost:8051/swagger"
     },
     "https": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "launchUrl": "https://localhost:8051/swagger",
+      "launchBrowser": true,
+      "launchUrl": "scalar/v1",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:8051;http://localhost:8051"
+      "applicationUrl": "https://localhost:7087;http://localhost:5145"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",
