@@ -18,12 +18,14 @@ public class SeedersController : ControllerBase
     private readonly AppDBContext _context;
     private readonly UsersSeeder _usersSeeder;
     private readonly IPasswordHashingService _passwordHashingService;
+    private readonly HotelsSeeder _hotelsSeeder;
 
-    public SeedersController(AppDBContext context, UsersSeeder usersSeeder,
+    public SeedersController(AppDBContext context, UsersSeeder usersSeeder, HotelsSeeder hotelsSeeder,
         IPasswordHashingService passwordHashingService)
     {
         _context = context;
         _usersSeeder = usersSeeder;
+        _hotelsSeeder = hotelsSeeder;
         _passwordHashingService = passwordHashingService;
     }
 
@@ -48,15 +50,22 @@ public class SeedersController : ControllerBase
     }
 
     /// <summary>
-    ///    Seeds the database with the specified number of hotels
+    ///    Seeds the database with hotels and rooms
     /// </summary>
     /// <param name="count"></param>
-    /// <response code="204">{count} Users seeded!</response>
+    /// <response code="200">{count} Hotels seeded!</response>
     [HttpPost("hotels")]
-    public async Task<IActionResult> SeedHotels([FromQuery] int count = 20)
+    public async Task<IActionResult> SeedHotels()
     {
-        // TODO: @Abdi implement hotel seeder
-        throw new NotImplementedException();
+        try
+        {
+            var hotels = await _hotelsSeeder.SeedAsync();
+            return Ok($"{hotels.Count} Hotels seeded with rooms!");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("init")]
