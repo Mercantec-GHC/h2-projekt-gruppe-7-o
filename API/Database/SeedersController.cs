@@ -50,10 +50,10 @@ public class SeedersController : ControllerBase
     }
 
     /// <summary>
-    ///    Seeds the database with the specified number of hotels
+    ///    Seeds the database with hotels and rooms
     /// </summary>
     /// <param name="count"></param>
-    /// <response code="204">{count} Users seeded!</response>
+    /// <response code="200">{count} Hotels seeded!</response>
     [HttpPost("hotels")]
     public async Task<IActionResult> SeedHotels()
     {
