@@ -133,7 +133,8 @@ public class Program
                         .WithOrigins(
                             "http://localhost:5085",
                             "http://localhost:8052",
-                            "https://kabdikhan.mercantec.tech"
+                            "https://kabdikhan.mercantec.tech",
+                            "http://localhost:3000"
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
