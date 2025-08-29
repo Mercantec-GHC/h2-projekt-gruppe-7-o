@@ -22,8 +22,13 @@ internal sealed class UserRepository(AppDBContext context) : IUserRepository
     }
 
     public async Task<User?> GetByIdAsync(Guid id)
+
     {
-        var user = await _context.Users.FindAsync(id);
+        var user = await _context.Users
+            .Include(u => u.Role)                  // load user role
+            .Include(u => u.Bookings)              // load bookings
+                .ThenInclude(b => b.Rooms)        // load rooms for each booking
+            .FirstOrDefaultAsync(u => u.Id == id); // FindAsync virker ikke med Include
         return user;
     }
 
