@@ -2,7 +2,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
 using System.Text;
 using API.Data;
+using API.Data.Seeders;
+using API.Repositories;
 using API.Services;
+using API.Services.Password;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -18,11 +21,22 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+
         IConfiguration configuration = builder.Configuration;
 
 
-        // Register JWT Service
+        //  Register services 
         builder.Services.AddScoped<JwtService>();
+        builder.Services.AddScoped<IPasswordHashingService, BCryptPasswordHashingService>();
+        builder.Services.AddScoped<DevelopmentOnlyFilter>();
+        builder.Services.AddScoped<UsersSeeder>();
+        builder.Services.AddScoped<HotelsSeeder>();
+
+
+        // Register Repositories
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+
 
         // Configure JWT Authentication
         var jwtSecretKey = configuration["Jwt:SecretKey"]
@@ -33,6 +47,11 @@ public class Program
 
         var jwtAudience = configuration["Jwt:Audience"]
                           ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE");
+
+        if (string.IsNullOrEmpty(jwtSecretKey) || string.IsNullOrEmpty(jwtIssuer) || string.IsNullOrEmpty(jwtAudience))
+        {
+            throw new Exception($"Missing JWT configuration values.");
+        }
 
         builder.Services.AddAuthentication(options =>
             {
@@ -58,6 +77,8 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllers();
+
+        builder.Services.AddMemoryCache();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
         builder.Services.AddSwaggerGen(c =>
@@ -99,7 +120,6 @@ public class Program
             });
         });
 
-        // TODO: when creating the frontend, we should instead use the localhost and ports for the react app
 
         // Add CORS for specific Blazor WASM domains
         builder.Services.AddCors(options =>
@@ -108,11 +128,13 @@ public class Program
                 "AllowSpecificOrigins",
                 builder =>
                 {
+                    //TODO: Add localhost for frontend app:
                     builder
                         .WithOrigins(
                             "http://localhost:5085",
                             "http://localhost:8052",
-                            "https://h2.mercantec.tech"
+                            "https://kabdikhan.mercantec.tech",
+                            "http://localhost:3000"
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
@@ -128,15 +150,25 @@ public class Program
 
         // Add database
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ??
-                               Environment.GetEnvironmentVariable("DefaultConnection");
+                               Environment.GetEnvironmentVariable("DATABASE_URL");
 
         if (string.IsNullOrEmpty(connectionString)) throw new Exception("Missing connection string for database");
 
         // Adding the database including enum mappings, see DBContextRegistrationExtensions.cs
         builder.Services.AddAppDbContext(connectionString);
 
+        builder.WebHost.UseSentry(options =>
+        {
+            options.Dsn =
+                "https://a8f408fee2844ebb3a148a8f3d03d91d@o4509869483425792.ingest.de.sentry.io/4509869485719632";
+            // When configuring for the first time, to see what the SDK is doing:
+            //TODO: set this to false?
+            options.Debug = true;
+        });
+
 
         var app = builder.Build();
+
 
         // Brug CORS - skal være før anden middleware
         app.UseCors("AllowSpecificOrigins");
@@ -156,12 +188,17 @@ public class Program
             options
                 .WithTitle("MAGSLearn")
                 .WithTheme(ScalarTheme.Mars)
-                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient);
+                .WithDefaultHttpClient(ScalarTarget.CSharp, ScalarClient.HttpClient)
+                .OpenApiRoutePattern = "/swagger/v1/swagger.json";
         });
 
         // Map the Swagger UI
         app.UseSwagger();
-        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
+        app.UseSwaggerUI(options =>
+        { 
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
+
+        });
 
         app.UseAuthentication();
         app.UseAuthorization();
