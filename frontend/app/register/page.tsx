@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RegisterDto } from "@/app/lib/types/user";
-import { RegisterResponseDto } from "@/app/lib/types/user";
+import { RegisterDto } from "@/lib/types/user";
+import { RegisterResponseDto } from "@/lib/types/user";
 import { registerUser } from "@/services/registerService";
 
 import { useRouter } from "next/navigation";

@@ -1,5 +1,5 @@
 "use client";
-import { logout } from "@/app/lib/auth";
+import { logout } from "@/lib/auth";
 
 export default function LogoutButton() {
   return (

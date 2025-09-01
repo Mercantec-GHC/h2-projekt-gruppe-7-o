@@ -1,4 +1,4 @@
-import { RegisterDto, RegisterResponseDto } from "@/app/lib/types/user";
+import { RegisterDto, RegisterResponseDto } from "@/lib/types/user";
 
 export async function registerUser(
   data: RegisterDto,
