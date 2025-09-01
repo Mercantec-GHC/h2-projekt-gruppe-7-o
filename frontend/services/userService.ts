@@ -1,4 +1,4 @@
-import { User } from "@/app/lib/types/user";
+import { User } from "@/lib/types/user";
 
 export async function getCurrentUser(): Promise<User | null> {
   try {

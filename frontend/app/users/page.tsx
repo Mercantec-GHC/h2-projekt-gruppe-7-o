@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User } from "@/app/lib/types/user";
-import { withAuth } from "@/app/lib/withAuth";
+import { User } from "@/lib/types/user";
+import { withAuth } from "@/lib/withAuth";
 import LogoutButton from "@/app/components/LogoutButton";
 
 function UsersPageComponent() {
