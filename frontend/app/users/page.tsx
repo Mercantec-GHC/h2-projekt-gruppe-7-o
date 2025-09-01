@@ -14,9 +14,12 @@ function UsersPageComponent() {
     async function fetchUser() {
       try {
         const token = localStorage.getItem("authToken");
-        const res = await fetch("https://localhost:7087/api/users/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/users/me`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         if (!res.ok) throw new Error("Fejl ved hentning af bruger");
         const data: User = await res.json();
         setUser(data);
@@ -58,10 +61,20 @@ function UsersPageComponent() {
 
       {/* Bruger info kort */}
       <div className="bg-white rounded-lg shadow p-6 mb-8 border border-gray-200">
-        <p className="mb-2"><span className="font-semibold">Email:</span> {user.email}</p>
-        <p className="mb-2"><span className="font-semibold">Rolle:</span> {user.role}</p>
-        <p className="mb-2"><span className="font-semibold">Oprettet:</span> {new Date(user.createdAt).toLocaleString()}</p>
-        <p><span className="font-semibold">Sidst login:</span> {new Date(user.lastLogin).toLocaleString()}</p>
+        <p className="mb-2">
+          <span className="font-semibold">Email:</span> {user.email}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Rolle:</span> {user.role}
+        </p>
+        <p className="mb-2">
+          <span className="font-semibold">Oprettet:</span>{" "}
+          {new Date(user.createdAt).toLocaleString()}
+        </p>
+        <p>
+          <span className="font-semibold">Sidst login:</span>{" "}
+          {new Date(user.lastLogin).toLocaleString()}
+        </p>
       </div>
 
       {/* Bookinger */}
@@ -75,9 +88,18 @@ function UsersPageComponent() {
               key={b.id}
               className="p-4 bg-white rounded-lg shadow border border-gray-200 hover:shadow-md transition"
             >
-              <p><span className="font-semibold">Check-in:</span> {new Date(b.checkIn).toLocaleDateString()}</p>
-              <p><span className="font-semibold">Check-out:</span> {new Date(b.checkOut).toLocaleDateString()}</p>
-              <p><span className="font-semibold">Værelser:</span> {b.rooms.map((r) => r.type).join(", ")}</p>
+              <p>
+                <span className="font-semibold">Check-in:</span>{" "}
+                {new Date(b.checkIn).toLocaleDateString()}
+              </p>
+              <p>
+                <span className="font-semibold">Check-out:</span>{" "}
+                {new Date(b.checkOut).toLocaleDateString()}
+              </p>
+              <p>
+                <span className="font-semibold">Værelser:</span>{" "}
+                {b.rooms.map((r) => r.type).join(", ")}
+              </p>
             </li>
           ))}
         </ul>
