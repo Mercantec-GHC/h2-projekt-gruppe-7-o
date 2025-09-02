@@ -1,3 +1,4 @@
+// TODO:: All these types should come from OpenAPI spec
 export interface Room {
   id: string;
   type: string;
@@ -38,4 +39,3 @@ export interface RegisterResponseDto {
   email: string;
   id: string;
 }
-

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { User } from "@/lib/types/user";
 import { withAuth } from "@/lib/withAuth";
-import LogoutButton from "@/app/components/LogoutButton";
+import LogoutButton from "@/components/LogoutButton";
 
 function UsersPageComponent() {
   const [user, setUser] = useState<User | null>(null);

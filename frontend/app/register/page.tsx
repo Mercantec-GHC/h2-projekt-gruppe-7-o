@@ -6,6 +6,8 @@ import { RegisterResponseDto } from "@/lib/types/user";
 import { registerUser } from "@/services/registerService";
 
 import { useRouter } from "next/navigation";
+import {useQuery} from "@tanstack/react-query";
+import {login} from "@/lib/auth";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,6 +18,7 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
   });
+
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
