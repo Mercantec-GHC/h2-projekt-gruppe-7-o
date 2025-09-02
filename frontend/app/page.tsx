@@ -1,6 +1,7 @@
 import Link from "next/link";
 
-export default function HomePage() {
+export default async function HomePage() {
+  // TODO: get user from session
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
       <h1 className="text-4xl font-bold mb-6">Velkommen !</h1>

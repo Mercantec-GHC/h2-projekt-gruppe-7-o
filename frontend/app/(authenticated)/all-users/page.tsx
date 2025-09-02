@@ -1,5 +1,5 @@
-import UsersList from "@/feature/users/components/UsersList";
-import { getUsers } from "@/feature/users/lib/getUsers";
+import UsersList from "@/features/users/components/UsersList";
+import { getUsers } from "@/features/users/lib/getUsers";
 import { getQueryClient } from "@/lib/getQueryClient";
 import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 
