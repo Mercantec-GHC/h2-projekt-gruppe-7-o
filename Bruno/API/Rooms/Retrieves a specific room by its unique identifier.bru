@@ -1,0 +1,33 @@
+meta {
+  name: Retrieves a specific room by its unique identifier
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/Rooms/{{Room-Id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Room hentet succesfuldt:", res.body);
+  } else {
+    console.log("Hentning af room fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get room returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder korrekt room ID", function() {
+    expect(res.body.id).to.equal(bru.getEnvVar("Room-Id"));
+  });
+}

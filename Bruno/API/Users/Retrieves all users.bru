@@ -1,0 +1,33 @@
+meta {
+  name: Retrieves all users
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/Users
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Alle brugere hentet succesfuldt. Antal:", res.body.length);
+  } else {
+    console.log("Hentning af brugere fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get all users returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response er en liste af brugere", function() {
+    expect(res.body).to.be.an("array");
+  });
+}

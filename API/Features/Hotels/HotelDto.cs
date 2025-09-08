@@ -35,4 +35,5 @@ public class HotelCreateDto
 
 public sealed class HotelUpdateDto : HotelCreateDto
 {
+    public Guid Id { get; set; }
 }

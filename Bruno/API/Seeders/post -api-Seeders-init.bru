@@ -1,0 +1,32 @@
+meta {
+  name: post /api/Seeders/init
+  type: http
+  seq: 3
+  tags: [
+    seed
+  ]
+}
+
+post {
+  url: {{baseUrl}}/api/Seeders/init
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-User}}
+}
+
+script:post-response {
+  if (res.status === 200) {
+    console.log("Database seedet succesfuldt.");
+  } else {
+    console.log("Seedning af database fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Database init returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+}
