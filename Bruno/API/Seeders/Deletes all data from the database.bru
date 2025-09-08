@@ -1,0 +1,32 @@
+meta {
+  name: Deletes all data from the database.
+  type: http
+  seq: 4
+  tags: [
+    seed
+  ]
+}
+
+delete {
+  url: {{baseUrl}}/api/Seeders/clear
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-User}}
+}
+
+script:post-response {
+  if (res.status === 204) {
+    console.log("Alle data i databasen blev slettet succesfuldt.");
+  } else {
+    console.log("Sletning af database fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Database clearance returnerer 204 No Content", function() {
+    expect(res.status).to.equal(204);
+  });
+}

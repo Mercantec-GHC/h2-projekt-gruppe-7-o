@@ -1,0 +1,15 @@
+meta {
+  name: Gets all bookings.
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/Bookings
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: {{apiKey}}
+}

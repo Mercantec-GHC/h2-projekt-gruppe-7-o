@@ -1,0 +1,61 @@
+meta {
+  name: Updates an existing booking
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/Bookings/{{Booking-Id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+body:json {
+  {
+    "checkIn": "{{Booking-CheckIn}}",
+    "checkOut": "{{Booking-CheckOut}}",
+    "adults": {{Booking-Adults}},
+    "children": {{Booking-Children}},
+    "roomIds": {{Booking-RoomIds}}
+  }
+}
+
+script:pre-request {
+  // Eksempel på tilfældige eller ønskede opdateringer
+  const checkIn = new Date();
+  const checkOut = new Date();
+  checkOut.setDate(checkIn.getDate() + 2);
+
+  bru.setEnvVar("Booking-CheckIn", checkIn.toISOString());
+  bru.setEnvVar("Booking-CheckOut", checkOut.toISOString());
+  bru.setEnvVar("Booking-Adults", 2);
+  bru.setEnvVar("Booking-Children", 1);
+  bru.setEnvVar("Booking-RoomIds", JSON.stringify([bru.getEnvVar("Room-Id")]));
+
+  console.log("Opdateret booking data:", {
+    checkIn: checkIn.toISOString(),
+    checkOut: checkOut.toISOString(),
+    adults: 2,
+    children: 1,
+    roomIds: [bru.getEnvVar("Room-Id")]
+  });
+}
+
+script:post-response {
+  if (res.status === 204) {
+    console.log("Booking opdateret succesfuldt");
+  } else {
+    console.log("Opdatering af booking fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Booking update returnerer 204 No Content", function() {
+    expect(res.status).to.equal(204);
+  });
+}

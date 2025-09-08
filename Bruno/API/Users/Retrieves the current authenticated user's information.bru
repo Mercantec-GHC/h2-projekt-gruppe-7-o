@@ -1,0 +1,38 @@
+meta {
+  name: Retrieves the current authenticated user's information
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/Users/me
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-User}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Aktuel bruger hentet succesfuldt:", res.body);
+    // Gem evt. bruger-id som miljøvariabel, hvis du vil bruge det senere
+    if (res.body.id) {
+      bru.setEnvVar("User-Id", res.body.id);
+      console.log("User-Id gemt som variabel:", bru.getEnvVar("User-Id"));
+    }
+  } else {
+    console.log("Hentning af aktuel bruger fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get current user returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder ID", function() {
+    expect(res.body.id).to.exist;
+  });
+}

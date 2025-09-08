@@ -1,0 +1,63 @@
+meta {
+  name: Updates an existing user's information
+  type: http
+  seq: 3
+}
+
+put {
+  url: {{baseUrl}}/api/Users/{{User-Id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-User}}
+}
+
+body:json {
+  {
+    "id": "{{User-Id}}",
+    "phone": "{{User-UpdatedPhone}}",
+    "firstName": "{{User-UpdatedFirstName}}",
+    "lastName": "{{User-UpdatedLastName}}",
+    "roleId": {{User-UpdatedRoleId}}
+  }
+}
+
+script:pre-request {
+  // Tilfældige opdaterede brugerdata
+  const firstNames = ["Anna", "Peter", "Lise", "Mikkel", "Sara"];
+  const lastNames = ["Jensen", "Hansen", "Nielsen", "Olsen", "Larsen"];
+  const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+  const randomPhone = `+45${Math.floor(10000000 + Math.random() * 90000000)}`;
+  const roleId = 1; 
+
+  bru.setEnvVar("User-UpdatedFirstName", randomFirstName);
+  bru.setEnvVar("User-UpdatedLastName", randomLastName);
+  bru.setEnvVar("User-UpdatedPhone", randomPhone);
+  bru.setEnvVar("User-UpdatedRoleId", roleId);
+
+  console.log("Genererede opdaterede brugerdata:", {
+    firstName: randomFirstName,
+    lastName: randomLastName,
+    phone: randomPhone,
+    roleId: roleId
+  });
+}
+
+script:post-response {
+  if (res.status === 204) {
+    console.log("Bruger opdateret succesfuldt (NoContent).");
+  } else {
+    console.log("Opdatering af bruger fejlede. Status:", res.status);
+  }
+}
+
+
+tests {
+  test("User update returnerer 204 NoContent", function() {
+    expect(res.status).to.equal(204);
+  });
+}

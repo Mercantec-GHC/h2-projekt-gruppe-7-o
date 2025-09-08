@@ -2,8 +2,9 @@ using API.Models.Entities;
 
 namespace API.Models.Dtos;
 
-public class RoomResponseDto : Entity<Guid>
+public class RoomResponseDto
 {
+    public Guid Id { get; set; }
     public required string Number { get; init; }
     public required short Capacity { get; init; }
     public required decimal PricePerNight { get; set; }
@@ -11,6 +12,9 @@ public class RoomResponseDto : Entity<Guid>
     public short? Floor { get; init; }
     public string? Description { get; set; }
     public bool IsActive { get; set; } = false;
+
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }
 
 public sealed class RoomWithBookingsDto : RoomResponseDto
@@ -33,12 +37,12 @@ public sealed class RoomCreateDto
 
 public sealed class RoomUpdateDto
 {
-    public required string Number { get; init; }
-    public required short Capacity { get; init; }
+    public required string Number { get; set; } = string.Empty;
+    public required short Capacity { get; set; }
     public required decimal PricePerNight { get; set; }
     public required RoomType Type { get; set; }
     public required short Floor { get; set; }
     public string? Description { get; set; }
 
-    public bool isActive { get; set; }
+    public bool IsActive { get; set; }
 }

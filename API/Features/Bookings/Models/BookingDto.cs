@@ -34,9 +34,9 @@ public sealed class BookingCreateDto
 
 public sealed class BookingUpdateDto
 {
-    public required DateTime CheckIn { get; init; }
-    public required DateTime CheckOut { get; init; }
-    public required short Adults { get; init; }
-    public required short Children { get; init; }
+    public required DateTime CheckIn { get; set; }
+    public required DateTime CheckOut { get; set; }
+    public required short Adults { get; set; }
+    public required short Children { get; set; }
     public List<Guid>? RoomIds { get; init; } // make nullable if partial updates
 }

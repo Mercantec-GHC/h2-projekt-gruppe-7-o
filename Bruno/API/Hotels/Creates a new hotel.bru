@@ -1,0 +1,94 @@
+meta {
+  name: Creates a new hotel.
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/Hotels
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+body:json {
+  {
+    "name": "{{Hotel-Name}}",
+    "streetName": "{{Hotel-StreetName}}",
+    "streetNumber": "{{Hotel-StreetNumber}}",
+    "floor": "{{Hotel-Floor}}",
+    "city": "{{Hotel-City}}",
+    "zipCode": "{{Hotel-ZipCode}}",
+    "country": "{{Hotel-Country}}",
+    "email": "{{Hotel-Email}}",
+    "phoneNumber": "{{Hotel-PhoneNumber}}"
+  }
+}
+
+script:pre-request {
+  // Tilfældige hotelnavne
+  const hotelPrefixes = ["Grand", "Royal", "Elite", "Sunset", "Ocean", "Mountain", "City", "Skyline"];
+  const hotelSuffixes = ["Hotel", "Resort", "Inn", "Suites", "Lodge", "Palace"];
+  const randomName = `${hotelPrefixes[Math.floor(Math.random() * hotelPrefixes.length)]} ${hotelSuffixes[Math.floor(Math.random() * hotelSuffixes.length)]}`;
+
+  // Adresse og byer
+  const streetNames = ["Main Street", "High Street", "Baker Street", "Elm Street", "King's Road", "Queen Street"];
+  const cities = ["Copenhagen", "Aarhus", "Odense", "Aalborg", "Esbjerg"];
+  const countries = ["Denmark", "Sweden", "Norway", "Germany", "UK"];
+  const randomStreet = streetNames[Math.floor(Math.random() * streetNames.length)];
+  const randomCity = cities[Math.floor(Math.random() * cities.length)];
+  const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+  const randomStreetNumber = Math.floor(Math.random() * 200) + 1;
+  const randomZip = Math.floor(1000 + Math.random() * 8000).toString();
+
+  // Email og telefon
+  const randomEmail = `hotel${Math.floor(Math.random() * 10000)}@${randomCity.toLowerCase()}.com`;
+  const randomPhone = "+45" + Math.floor(10000000 + Math.random() * 89999999);
+
+  // Gem variabler
+  bru.setEnvVar("Hotel-Name", randomName);
+  bru.setEnvVar("Hotel-StreetName", randomStreet);
+  bru.setEnvVar("Hotel-StreetNumber", randomStreetNumber.toString());
+  bru.setEnvVar("Hotel-Floor", "1");
+  bru.setEnvVar("Hotel-City", randomCity);
+  bru.setEnvVar("Hotel-ZipCode", randomZip);
+  bru.setEnvVar("Hotel-Country", randomCountry);
+  bru.setEnvVar("Hotel-Email", randomEmail);
+  bru.setEnvVar("Hotel-PhoneNumber", randomPhone);
+
+  console.log("Genereret hoteldata:", {
+    name: randomName,
+    street: randomStreet + " " + randomStreetNumber,
+    city: randomCity,
+    zip: randomZip,
+    country: randomCountry,
+    email: randomEmail,
+    phone: randomPhone
+  });
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Hotel oprettet succesfuldt.");
+    if (res.body.id) {
+      bru.setEnvVar("Hotel-Id", res.body.id);
+      console.log("Hotel ID gemt som variabel: {{Hotel-Id}}");
+    }
+  } else {
+    console.log("Hotel oprettelse fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Hotel creation returnerer 200 Created", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder hotelnavn", function() {
+    expect(res.body.name).to.equal(bru.getEnvVar("Hotel-Name"));
+  });
+}

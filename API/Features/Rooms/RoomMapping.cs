@@ -5,49 +5,65 @@ namespace API.Mapping;
 
 public static class RoomMapping
 {
-    public static RoomResponseDto ToRoomDto(this Room Room)
+    public static RoomResponseDto ToRoomDto(this Room room)
     {
         return new RoomResponseDto
         {
-            Id = Room.Id,
-            CreatedAt = Room.CreatedAt,
-            UpdatedAt = Room.UpdatedAt,
-            Number = Room.Number,
-            Capacity = Room.Capacity,
-            PricePerNight = Room.PricePerNight,
-            Type = RoomType.Standard
+            Id = room.Id,
+            Number = room.Number,
+            Capacity = room.Capacity,
+            PricePerNight = room.PricePerNight,
+            Type = room.Type,
+            Floor = room.Floor,
+            Description = room.Description,
+            IsActive = room.IsActive,
+            CreatedAt = room.CreatedAt,
+            UpdatedAt = room.UpdatedAt
         };
     }
 
-    public static RoomWithBookingsDto ToRoomWithBookingsDto(this Room Room)
+    public static RoomWithBookingsDto ToRoomWithBookingsDto(this Room room)
     {
         return new RoomWithBookingsDto
         {
-            Id = Room.Id,
-            CreatedAt = Room.CreatedAt,
-            UpdatedAt = Room.UpdatedAt,
-            Number = Room.Number,
-            Capacity = Room.Capacity,
-            PricePerNight = Room.PricePerNight,
-            Type = Room.Type,
-            Description = Room.Description,
-            Floor = Room.Floor,
-            IsActive = Room.IsActive,
+            Id = room.Id,
+            Number = room.Number,
+            Capacity = room.Capacity,
+            PricePerNight = room.PricePerNight,
+            Type = room.Type,
+            Floor = room.Floor,
+            Description = room.Description,
+            IsActive = room.IsActive,
+            CreatedAt = room.CreatedAt,
+            UpdatedAt = room.UpdatedAt,
+            Bookings = room.Bookings.Select(b => b.ToBookingDto()).ToList()
         };
     }
 
-    public static Room ToRoom(this RoomCreateDto roomCreateDto)
+    public static Room ToRoom(this RoomCreateDto dto)
     {
         return new Room
         {
-            Number = roomCreateDto.Number,
-            Capacity = roomCreateDto.Capacity,
-            PricePerNight = roomCreateDto.PricePerNight,
-            Type = roomCreateDto.Type,
-            Description = roomCreateDto.Description ?? string.Empty,
-            Floor = roomCreateDto.Floor,
-            IsActive = roomCreateDto.IsActive,
-            HotelId = roomCreateDto.HotelId,
+            Number = dto.Number,
+            Capacity = dto.Capacity,
+            PricePerNight = dto.PricePerNight,
+            Type = dto.Type,
+            Floor = dto.Floor,
+            Description = dto.Description ?? string.Empty,
+            IsActive = dto.IsActive,
+            HotelId = dto.HotelId
         };
+    }
+
+    public static void UpdateRoom(this Room room, RoomUpdateDto dto)
+    {
+        room.Number = dto.Number;
+        room.Capacity = dto.Capacity;
+        room.PricePerNight = dto.PricePerNight;
+        room.Type = dto.Type;
+        room.Floor = dto.Floor;
+        room.Description = dto.Description ?? string.Empty;
+        room.IsActive = dto.IsActive;
+        room.UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

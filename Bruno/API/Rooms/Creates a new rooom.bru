@@ -1,0 +1,84 @@
+meta {
+  name: Creates a new room
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/Rooms
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+body:json {
+  {
+    "number": "{{Room-Number}}",
+    "capacity": {{Room-Capacity}},
+    "pricePerNight": {{Room-Price}},
+    "type": {{Room-Type}},
+    "floor": {{Room-Floor}},
+    "description": "{{Room-Description}}",
+    "isActive": true,
+    "hotelId": "{{Hotel-Id}}"
+  }
+}
+
+script:pre-request {
+  // Tilfældige værdier for værelser
+  const randomNumber = Math.floor(100 + Math.random() * 900); // fx 101, 202
+  const capacities = [1, 2, 3, 4];
+  const randomCapacity = capacities[Math.floor(Math.random() * capacities.length)];
+  const randomPrice = 500 + Math.floor(Math.random() * 1500); // DKK per nat
+  const types = [0, 1, 2]; // enum: 0=Standard, 1=Deluxe, 2=Suite
+  const randomType = types[Math.floor(Math.random() * types.length)];
+  const randomFloor = Math.floor(1 + Math.random() * 5);
+  const descriptions = ["Standard room", "Deluxe room", "Family room", "Luxury suite"];
+  const randomDescription = descriptions[Math.floor(Math.random() * descriptions.length)];
+
+  // Gem variabler
+  bru.setEnvVar("Room-Number", randomNumber.toString());
+  bru.setEnvVar("Room-Capacity", randomCapacity);
+  bru.setEnvVar("Room-Price", randomPrice);
+  bru.setEnvVar("Room-Type", randomType);
+  bru.setEnvVar("Room-Floor", randomFloor);
+  bru.setEnvVar("Room-Description", randomDescription);
+
+  console.log("Genereret værelse:", {
+    number: randomNumber,
+    capacity: randomCapacity,
+    price: randomPrice,
+    type: randomType,
+    floor: randomFloor,
+    description: randomDescription,
+    hotelId: bru.getEnvVar("Hotel-Id")
+  });
+}
+
+script:post-response {
+  if (res.status === 201 && res.body) {
+    console.log("Room oprettet succesfuldt:", res.body);
+    if (res.body.id) {
+      bru.setEnvVar("Room-Id", res.body.id);
+      console.log("Room ID gemt som variabel: {{Room-Id}}");
+    }
+  } else {
+    console.log("Oprettelse af room fejlede. Status:", res.status);
+  }
+}
+
+tests {
+
+  test("Room creation returnerer 201 Created", function() {
+    expect(res.status).to.equal(201);
+  });
+
+//  test("Response indeholder korrekt hotelId", function() {
+//    expect(res.body.hotelId).to.equal(bru.getEnvVar("Hotel-Id"));
+//  });
+  
+}
