@@ -1,6 +1,3 @@
-import { apiFetch } from "@/lib/utilities/apiFetch";
-import { cookies } from "next/headers";
-
 interface LoginRequest {
   email: string;
   password: string;
@@ -15,7 +12,7 @@ export async function login({
   email,
   password,
 }: LoginRequest): Promise<LoginResponse> {
-  const res = await apiFetch("/login", {
+  const res = await fetch("/api/auth/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,19 +23,7 @@ export async function login({
     }),
   });
 
-  if (res.ok) {
-    const token: string = await res.json();
+  if (!res.ok) throw new Error("Invalid credentials");
 
-    const cookieStore = await cookies();
-
-    cookieStore.set("token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-    });
-
-    return { success: true };
-  } else {
-    return { success: false, error: "Invalid email or password" };
-  }
+  return { success: true };
 }
