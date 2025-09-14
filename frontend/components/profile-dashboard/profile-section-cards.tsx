@@ -1,0 +1,178 @@
+import { IconBurger, IconInfoCircle, IconWifi } from "@tabler/icons-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Card, CardDescription, CardHeader } from "@/components/ui/card";
+import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "../ui/button";
+import { CopyButton } from "../ui/shadcn-io/copy-button";
+import { BrushCleaning, DoorClosed } from "lucide-react";
+
+export function ProfileSectionCards() {
+  return (
+    <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      <Card className="@container/card">
+        <CardHeader>
+          <div className="flex justify-between">
+            <Badge className="mb-3" variant="default">
+              Room <DoorClosed />
+            </Badge>
+          </div>
+          <CardDescription className="flex flex-col">
+            <div className="flex flex-col gap-1">
+              <div className="flex gap-2 items-center">
+                <h3 className="text-sm font-semibold text-primary">
+                  Room No.:
+                </h3>
+                <p className="text-sm text-muted-foreground">420</p>
+              </div>
+              <div className="flex gap-2 items-center">
+                <h3 className="text-sm font-semibold text-primary">Floor:</h3>
+                <p className="text-sm text-muted-foreground">4</p>
+              </div>
+              <div className="flex gap-2 items-start">
+                <h3 className="text-sm font-semibold text-primary">Address:</h3>
+                <p className="text-sm text-muted-foreground">
+                  Wadada 2aad ee Bakaro ka soo Horjeedka Dahabshiil Bank,
+                  Mogadishu, Somalia
+                </p>
+              </div>
+            </div>
+          </CardDescription>
+        </CardHeader>
+      </Card>
+
+      <Card className="@container/card">
+        <CardHeader>
+          <div className="flex justify-between">
+            <Badge className="mb-3" variant="default">
+              Wifi <IconWifi />
+            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {/*Adding a span around this to make the trigger area larger*/}
+                <span className="relative inline-flex cursor-pointer">
+                  <IconInfoCircle size={16} className="cursor-pointer" />
+                  {/* Invisible hitbox */}
+                  <span className="absolute inset-0 -m-2" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {/*TODO: This link should go somewhere, however we dont really need it for now...*/}
+                <p>
+                  Having trouble connecting? Click{" "}
+                  <Link className="underline hover:opacity-80" href="/profile">
+                    here
+                  </Link>
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <CardDescription className="flex flex-col">
+            <h3 className="text-lg font-semibold text-primary">
+              Network name (SSID)
+            </h3>
+            <div className="flex items-center gap-2">
+              {/*TODO: Use wifi password from booking here*/}
+              <p className="text-sm text-muted-foreground">SomaliSabuziKabdi</p>
+              <CopyButton
+                content="SomaliSabuziKabdi"
+                variant="ghost"
+                size="sm"
+              />
+            </div>
+
+            {/*TODO: Use wifi network from booking here*/}
+          </CardDescription>
+          <CardDescription className="flex flex-col">
+            <h3 className="text-lg font-semibold text-primary">Password</h3>
+            <div className="flex items-center gap-2">
+              {/*TODO: Use wifi password from booking here*/}
+              <p className="text-sm text-muted-foreground">KabidiKhan1880@#!</p>
+              <CopyButton
+                content="KabidiKhan1880@#!"
+                variant="ghost"
+                size="sm"
+              />
+            </div>
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader>
+          <div className="flex justify-between">
+            <Badge className="mb-3" variant="default">
+              Food <IconBurger />
+            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {/*Adding a span around this to make the trigger area larger*/}
+                <span className="relative inline-flex cursor-pointer">
+                  <IconInfoCircle size={16} className="cursor-pointer" />
+                  {/* Invisible hitbox */}
+                  <span className="absolute inset-0 -m-2" />
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {/*TODO: This link should go somewhere, however we dont really need it for now...*/}
+                <p>If you are hungry between 24:00-06:00, get a grip pleb.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <CardDescription className="grid grid-cols-2 gap-4">
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Breakfast</h3>
+              <p className="text-sm text-muted-foreground">06:00-10:00</p>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Lunch</h3>
+              <p className="text-sm text-muted-foreground">12:00-15:00</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-primary">Dinner</h3>
+              <p className="text-sm text-muted-foreground">18:00-22:00</p>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-primary">
+                Night snack
+              </h3>
+              <p className="text-sm text-muted-foreground">22:00-24:00</p>
+            </div>
+            {/*TODO: Use wifi network from booking here*/}
+          </CardDescription>
+          <CardDescription className="flex flex-col">
+            {/*TODO: Use wifi network from booking here*/}
+          </CardDescription>
+        </CardHeader>
+      </Card>
+      <Card className="@container/card">
+        <CardHeader className="flex flex-col h-full">
+          <div className="flex flex-col">
+            <Badge className="mb-3" variant="default">
+              House keeping <BrushCleaning />
+            </Badge>
+            <p className="mb-3 bg-green-100 p-2 rounded-md text-sm text-primary">
+              Housekeeping is booked for tomorrow at 10:00
+            </p>
+          </div>
+
+          <CardDescription className="mt-auto">
+            <div className="flex items-center gap-2 ">
+              <Button size="sm" variant="outline">
+                Reschedule
+              </Button>
+              <Button size="sm" variant="destructive">
+                Cancel
+              </Button>
+            </div>
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    </div>
+  );
+}
