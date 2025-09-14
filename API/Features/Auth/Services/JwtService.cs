@@ -16,7 +16,7 @@ namespace API.Services
         private readonly string _secretKey;
         private readonly string _issuer;
         private readonly string _audience;
-        private readonly int _expiryInMinutes;
+        public readonly int _expiryInMinutes;
 
         public JwtService(IConfiguration configuration)
         {
@@ -48,7 +48,7 @@ namespace API.Services
             var securityKey = Encoding.ASCII.GetBytes(_secretKey);
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(securityKey),
-                SecurityAlgorithms.HmacSha256Signature);
+                SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -57,6 +57,8 @@ namespace API.Services
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("firstName", user.FirstName),
+                    new Claim("lastName", user.LastName),
                     //TODO: add more claims, like email_verified
                     // new Claim("email_verified", user.EmailVerified.ToString()),
                     new Claim(ClaimTypes.Role, user.Role.Name)

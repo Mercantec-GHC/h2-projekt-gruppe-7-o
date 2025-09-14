@@ -91,17 +91,7 @@ public class AuthController : ControllerBase
         await _context.SaveChangesAsync();
 
         var token = jwtService.GenerateToken(user);
-        //TODO: maybe we want to return more than just the token 
-        return Ok(new
-        {
-            token = token,
-            user = new
-            {
-                user.Id,
-                user.Email,
-                Role = user.Role.Name
-            }
-        });
-
+        //TODO: maybe we want to return more than just the token
+        return Ok(token);
     }
 }

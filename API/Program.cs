@@ -71,6 +71,21 @@ public class Program
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Try to get JWT from cookie
+                        context.Request.Cookies.TryGetValue("session", out var accessToken);
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        // If not found, fallback to Authorization header
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         builder.Services.AddAuthorization();
@@ -121,7 +136,6 @@ public class Program
         });
 
 
-        // Add CORS for specific Blazor WASM domains
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(
@@ -138,6 +152,7 @@ public class Program
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
+                        .AllowCredentials()
                         .WithExposedHeaders("Content-Disposition");
                 }
             );
@@ -194,11 +209,7 @@ public class Program
 
         // Map the Swagger UI
         app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        { 
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
-
-        });
+        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
         app.UseAuthentication();
         app.UseAuthorization();
