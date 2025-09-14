@@ -1,0 +1,33 @@
+meta {
+  name: Gets a specific booking by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/Bookings/{{Booking-Id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-user}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+      console.log("Booking hentet succesfuldt:", res.body);
+  } else {
+      console.log("Hentning af booking fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get booking returnerer 200 OK", function() {
+      expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder korrekt booking ID", function() {
+      expect(res.body.id).to.equal(bru.getEnvVar("Booking-Id"));
+  });
+}

@@ -1,0 +1,74 @@
+meta {
+  name: Updates an existing hotel.
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/Hotels/{{Hotel-Id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+body:json {
+  {
+    "id": "{{Hotel-Id}}",
+    "name": "{{Hotel-UpdatedName}}",
+    "streetName": "{{Hotel-UpdatedStreetName}}",
+    "streetNumber": "{{Hotel-UpdatedStreetNumber}}",
+    "floor": "{{Hotel-UpdatedFloor}}",
+    "city": "{{Hotel-UpdatedCity}}",
+    "zipCode": "{{Hotel-UpdatedZipCode}}",
+    "country": "{{Hotel-UpdatedCountry}}",
+    "email": "{{Hotel-UpdatedEmail}}",
+    "phoneNumber": "{{Hotel-UpdatedPhoneNumber}}"
+  }
+}
+
+script:pre-request {
+  // Lav en opdateret version af hoteldata
+  const randomSuffix = Math.floor(Math.random() * 100);
+
+  bru.setEnvVar("Hotel-UpdatedName", bru.getEnvVar("Hotel-Name") + " Updated " + randomSuffix);
+  bru.setEnvVar("Hotel-UpdatedStreetName", bru.getEnvVar("Hotel-StreetName") + " Updated");
+  bru.setEnvVar("Hotel-UpdatedStreetNumber", (parseInt(bru.getEnvVar("Hotel-StreetNumber")) + 1).toString());
+  bru.setEnvVar("Hotel-UpdatedFloor", "2");
+  bru.setEnvVar("Hotel-UpdatedCity", bru.getEnvVar("Hotel-City"));
+  bru.setEnvVar("Hotel-UpdatedZipCode", bru.getEnvVar("Hotel-ZipCode"));
+  bru.setEnvVar("Hotel-UpdatedCountry", bru.getEnvVar("Hotel-Country"));
+  bru.setEnvVar("Hotel-UpdatedEmail", "updated_" + bru.getEnvVar("Hotel-Email"));
+  bru.setEnvVar("Hotel-UpdatedPhoneNumber", bru.getEnvVar("Hotel-PhoneNumber"));
+
+  console.log("Hoteldata før update:", {
+    oldName: bru.getEnvVar("Hotel-Name"),
+    newName: bru.getEnvVar("Hotel-UpdatedName")
+  });
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Hotel opdateret succesfuldt:", res.body);
+    bru.setEnvVar("Hotel-Name", res.body.name); // opdater navnet globalt
+  } else {
+    console.log("Opdatering fejlede. Status:", res.status);
+  }
+}
+
+script:post-response {
+  if (res.status === 204) {
+    console.log("Hotel opdateret succesfuldt (NoContent)");
+  } else {
+    console.log("Opdatering fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Hotel update returnerer 204 NoContent", function() {
+    expect(res.status).to.equal(204);
+  });
+}

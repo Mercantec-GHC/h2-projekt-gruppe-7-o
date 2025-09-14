@@ -1,0 +1,47 @@
+meta {
+  name: Login med bruger
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/Auth/login
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{User-Email}}",
+    "password": "{{User-Password}}"
+  }
+}
+
+script:post-response {
+  try {
+    if (res.status === 200 && res.body) {
+      const token = res.body.token; 
+      bru.setEnvVar("JWT-User", token);
+      console.log("JWT-token gemt som variabel: JWT-User");
+    } else {
+      console.log("Login fejlede. Status:", res.status);
+      console.log("Response body:", res.body);
+    }
+  } catch (error) {
+    console.log("Fejl ved håndtering af login response:", error.message);
+  }
+}
+
+tests {
+  test("Login returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder token", function() {
+    expect(res.body).to.have.property("token");
+  });
+}

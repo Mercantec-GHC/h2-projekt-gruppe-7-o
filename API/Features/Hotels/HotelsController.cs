@@ -85,16 +85,33 @@ public class HotelsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> PutHotel(Guid id, HotelUpdateDto hotelUpdateDto)
     {
-        _context.Entry(hotelUpdateDto).State = EntityState.Modified;
+        if (id != hotelUpdateDto.Id)
+            return BadRequest("Id mismatch");
+
+        var hotel = await _context.Hotels.FindAsync(id);
+        if (hotel == null)
+            return NotFound();
+
+        
+        hotel.Name = hotelUpdateDto.Name;
+        hotel.StreetName = hotelUpdateDto.StreetName;
+        hotel.StreetNumber = hotelUpdateDto.StreetNumber;
+        hotel.City = hotelUpdateDto.City;
+        hotel.ZipCode = hotelUpdateDto.ZipCode;
+        hotel.Country = hotelUpdateDto.Country;
+        hotel.Email = hotelUpdateDto.Email;
+        hotel.PhoneNumber = hotelUpdateDto.PhoneNumber;
+        hotel.UpdatedAt = DateTime.UtcNow;
 
         try
         {
             await _context.SaveChangesAsync();
-            _cache.Remove("all_hotels");
+            _cache.Remove("all_hotels"); // ryd cache
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!HotelExists(id)) return NotFound();
+            if (!HotelExists(id))
+                return NotFound();
 
             throw;
         }

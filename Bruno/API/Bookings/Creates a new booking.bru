@@ -1,0 +1,81 @@
+meta {
+  name: Creates a new booking
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/Bookings
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-User}}
+}
+
+body:json {
+  {
+    "checkIn": "{{Booking-CheckIn}}",
+    "checkOut": "{{Booking-CheckOut}}",
+    "adults": {{Booking-Adults}},
+    "children": {{Booking-Children}},
+    "roomIds": {{Booking-RoomIds}}
+  }
+}
+
+script:pre-request {
+  // --- Datoer til check-in og check-out ---
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  // Gem datoer som miljøvariabler
+  bru.setEnvVar("Booking-CheckIn", today.toISOString());
+  bru.setEnvVar("Booking-CheckOut", tomorrow.toISOString());
+
+  // --- Vælg antal voksne og børn ---
+  const adults = 2;
+  const children = 0;
+
+  bru.setEnvVar("Booking-Adults", adults);
+  bru.setEnvVar("Booking-Children", children);
+
+  // --- Brug eksisterende roomId fra tidligere oprettelse ---
+  const roomId = bru.getEnvVar("Room-Id");
+  if (!roomId) {
+      console.warn("Ingen Room-Id fundet! Opret først et room og gem Room-Id.");
+  }
+  bru.setEnvVar("Booking-RoomIds", JSON.stringify([roomId]));
+
+  // --- Log til konsol for verificering ---
+  console.log("Booking data klar:", {
+      checkIn: bru.getEnvVar("Booking-CheckIn"),
+      checkOut: bru.getEnvVar("Booking-CheckOut"),
+      adults: bru.getEnvVar("Booking-Adults"),
+      children: bru.getEnvVar("Booking-Children"),
+      roomIds: bru.getEnvVar("Booking-RoomIds")
+  });
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+      console.log("Booking oprettet succesfuldt:", res.body);
+      bru.setEnvVar("Booking-Id", res.body);  // backend returnerer kun GUID
+      console.log("Booking ID gemt som variabel: {{Booking-Id}}");
+  } else {
+      console.log("Oprettelse af booking fejlede. Status:", res.status);
+  }
+}
+
+
+tests {objekt
+  test("Booking creation returnerer 200 Ok", function() {
+      expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder roomIds", function() {
+      expect(res.body.roomIds).to.include(JSON.parse(bru.getEnvVar("Booking-RoomIds"))[0]);
+  });
+}

@@ -83,13 +83,15 @@ public class RoomsController : ControllerBase
     /// <response code="403">If the user doesn't have the Admin role</response>
     [HttpPost]
     [Authorize(Roles = $"{RoleNames.Admin}")]
-    public async Task<ActionResult<Room>> CreateRoom(RoomCreateDto roomCreateDto)
+    public async Task<ActionResult<RoomResponseDto>> CreateRoom(RoomCreateDto roomCreateDto)
     {
-        var room = _context.Rooms.Add(roomCreateDto.ToRoom());
+        var room = roomCreateDto.ToRoom();
+        _context.Rooms.Add(room);
         await _context.SaveChangesAsync();
+
         _cache.Remove("all_rooms");
 
-        return Ok(new { message = "Room created successfully", room.Entity.Id });
+        return CreatedAtAction(nameof(GetRoom), new { id = room.Id }, room.ToRoomDto());
     }
 
 
@@ -98,7 +100,11 @@ public class RoomsController : ControllerBase
     /// </summary>
     /// <param name="id">The unique identifier of the room to update</param>
     /// <param name="roomUpdateDto">The updated room information</param>
-    /// <returns>No content if the update was successful</returns>
+    /// <returns>
+    /// 204 No Content if the update was successful,
+    /// 404 Not Found if no room exists with the specified ID,
+    /// 400 Bad Request if the update violates constraints or fails.
+    /// </returns>
     /// <response code="204">If the room was updated successfully</response>
     /// <response code="400">If the ID in the URL doesn't match the ID in the request body</response>
     /// <response code="401">If the user is not authenticated</response>
@@ -108,18 +114,21 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> PutRoom(Guid id, RoomUpdateDto roomUpdateDto)
     {
-        _context.Entry(roomUpdateDto).State = EntityState.Modified;
+        var room = await _context.Rooms.FindAsync(id);
+        if (room == null) return NotFound();
+
+        // Opdater entity med mapping-metoden
+        room.UpdateRoom(roomUpdateDto);
 
         try
         {
             await _context.SaveChangesAsync();
             _cache.Remove("all_rooms");
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateException ex)
         {
-            if (!RoomExists(id)) return NotFound();
-
-            throw;
+            // F.eks. håndtering af unik constraint på Number
+            return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
         }
 
         return NoContent();

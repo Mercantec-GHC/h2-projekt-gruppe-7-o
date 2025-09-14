@@ -1,0 +1,59 @@
+meta {
+  name: Updates an existing room's information
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/api/Rooms/{{Room-Id}}
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+body:json {
+  {
+    "number": "{{Room-UpdatedNumber}}",
+    "capacity": {{Room-UpdatedCapacity}},
+    "pricePerNight": {{Room-UpdatedPrice}},
+    "type": {{Room-UpdatedType}},
+    "floor": {{Room-UpdatedFloor}},
+    "description": "{{Room-UpdatedDescription}}",
+    "isActive": true
+  }
+}
+
+script:pre-request {
+  // Lav en opdateret version af roomdata
+  const randomSuffix = Math.floor(Math.random() * 100);
+
+  bru.setEnvVar("Room-UpdatedNumber", (parseInt(bru.getEnvVar("Room-Number")) + 1).toString());
+  bru.setEnvVar("Room-UpdatedCapacity", parseInt(bru.getEnvVar("Room-Capacity")));
+  bru.setEnvVar("Room-UpdatedPrice", parseInt(bru.getEnvVar("Room-Price")) + 100);
+  bru.setEnvVar("Room-UpdatedType", parseInt(bru.getEnvVar("Room-Type")));
+  bru.setEnvVar("Room-UpdatedFloor", parseInt(bru.getEnvVar("Room-Floor")));
+  bru.setEnvVar("Room-UpdatedDescription", bru.getEnvVar("Room-Description") + " Updated");
+
+  console.log("Roomdata før update:", {
+    oldNumber: bru.getEnvVar("Room-Number"),
+    newNumber: bru.getEnvVar("Room-UpdatedNumber")
+  });
+}
+
+script:post-response {
+  if (res.status === 204) {
+    console.log("Room opdateret succesfuldt");
+  } else {
+    console.log("Opdatering af room fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Room update returnerer 204 No Content", function() {
+    expect(res.status).to.equal(204);
+  });
+}

@@ -4,17 +4,17 @@ namespace API.Models.Entities;
 
 public class Booking : Entity<Guid>
 {
-    public required DateTime CheckIn { get; init; }
-    public required DateTime CheckOut { get; init; }
-    public required short Adults { get; init; }
-    public required short Children { get; init; }
+    public required DateTime CheckIn { get; set; }
+    public required DateTime CheckOut { get; set; }
+    public required short Adults { get; set; }
+    public required short Children { get; set; }
     public required BookingStatus Status { get; set; } = BookingStatus.Pending;
 
     public Guid UserId { get; init; }
     public User User { get; init; }
 
-    public List<BookingLine> BookingLines { get; init; } = new List<BookingLine>();
-    public ICollection<Room> Rooms { get; init; } = new List<Room>();
+    public List<BookingLine> BookingLines { get; set; } = new List<BookingLine>();
+    public ICollection<Room> Rooms { get; set; } = new List<Room>();
 
     private int Nights => (CheckOut - CheckIn).Days == 0 ? 1 : (CheckOut - CheckIn).Days;
 }

@@ -1,0 +1,33 @@
+meta {
+  name: Retrieves a specific user by their unique identifier
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/Users/{{User-Id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Bruger hentet succesfuldt:", res.body);
+  } else {
+    console.log("Hentning af bruger fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get user returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder korrekt bruger ID", function() {
+    expect(res.body.id).to.equal(bru.getEnvVar("User-Id"));
+  });
+}

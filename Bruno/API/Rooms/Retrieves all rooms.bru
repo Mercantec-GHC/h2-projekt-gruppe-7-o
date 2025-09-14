@@ -1,0 +1,33 @@
+meta {
+  name: Retrieves all rooms
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/Rooms
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Alle rooms hentet succesfuldt. Antal:", res.body.length);
+  } else {
+    console.log("Hentning af rooms fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get all rooms returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response er en liste af rooms", function() {
+    expect(res.body).to.be.an("array");
+  });
+}

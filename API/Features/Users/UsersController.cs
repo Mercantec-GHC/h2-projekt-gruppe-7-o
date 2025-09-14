@@ -110,12 +110,10 @@ public class UsersController : ControllerBase
     // [AuthorizeAdminOrOwner]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = await _userRepository.DeleteByIdAsync(id);
+        var deletedUser = await _userRepository.DeleteByIdAsync(id);
 
-        if (user == null) return NotFound();
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        if (deletedUser == null)
+            return NotFound();
 
         return NoContent();
     }
