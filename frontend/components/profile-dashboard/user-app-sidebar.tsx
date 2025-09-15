@@ -105,12 +105,12 @@ const data = {
   navSecondary: [
     {
       title: "Settings",
-      url: "#",
+      url: "/profile/settings",
       icon: IconSettings,
     },
     {
       title: "Get Help",
-      url: "#",
+      url: "https://www.youtube.com/watch?v=xvFZjo5PgG0&ab_channel=Duran",
       icon: IconHelp,
     },
   ],
