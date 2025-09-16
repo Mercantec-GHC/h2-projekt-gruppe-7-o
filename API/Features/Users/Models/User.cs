@@ -12,7 +12,8 @@ public class User : Entity<Guid>
     [StringLength(255)] public required string FirstName { get; set; }
     [StringLength(255)] public required string LastName { get; set; }
 
-    public required string HashedPassword { get; set; }
+    public string? HashedPassword { get; set; } // AD-brugere har ikke password i DB
+
 
     public DateTimeOffset? LastLogin { get; set; }
 
@@ -22,6 +23,8 @@ public class User : Entity<Guid>
 
     // Navigation to principal
     public Role Role { get; set; } = null!;
+    public bool IsADUser { get; set; } = false;
+
 
     public List<Booking> Bookings { get; init; } = new List<Booking>();
     public List<BookingLine> BookingLines { get; init; } = new List<BookingLine>();

@@ -31,6 +31,8 @@ public class Program
         builder.Services.AddScoped<DevelopmentOnlyFilter>();
         builder.Services.AddScoped<UsersSeeder>();
         builder.Services.AddScoped<HotelsSeeder>();
+        builder.Services.AddScoped<ActiveDirectoryService>();
+        builder.Services.AddScoped<LoginAttemptService>();
 
 
         // Register Repositories
