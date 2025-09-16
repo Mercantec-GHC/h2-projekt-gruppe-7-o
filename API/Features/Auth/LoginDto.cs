@@ -4,9 +4,9 @@ namespace API.Models.Dtos;
 
 public class LoginDto
 {
-    [EmailAddress(ErrorMessage = "Invalid email address"), Required(ErrorMessage = "Email is required")]
-    public required string Email { get; set; }
+    [Required(ErrorMessage = "Username or email is required")]
+    public required string UsernameOrEmail { get; set; }
 
-    [Required(ErrorMessage = "Password is required")]
-    public required string Password { get; set; }
+    // For AD login, password can be optional 
+    public string? Password { get; set; }
 }

@@ -97,7 +97,7 @@ namespace API.Services
                         }
                         catch (LdapException ex)
                         {
-                            _logger.LogWarning("Service konto bind fejlede med format {Format}: {Error}", cred.UserName, ex.Message);
+                            _logger.LogInformation("Service konto bind fejlede med format {Format}: {Error}", cred.UserName, ex.Message);
                         }
                     }
 
@@ -139,15 +139,31 @@ namespace API.Services
                     {
                         try
                         {
-                            userConnection.Credential = userCred;
-                            await Task.Run(() => userConnection.Bind());
-                            userBound = true;
-                            _logger.LogInformation("Bruger bind succesfuldt med format: {Format}", userCred.UserName);
-                            break;
+                            var success = await Task.Run(() =>
+                            {
+                                try
+                                {
+                                    userConnection.Credential = userCred;
+                                    userConnection.Bind(); // LDAP bind
+                                    return true;
+                                }
+                                catch (LdapException ex)
+                                {
+                                    _logger.LogInformation("Bruger bind fejlede med format {Format}: {Error}", userCred.UserName, ex.Message);
+                                    return false;
+                                }
+                            });
+
+                            if (success)
+                            {
+                                userBound = true;
+                                _logger.LogInformation("Bruger bind succesfuldt med format: {Format}", userCred.UserName);
+                                break;
+                            }
                         }
-                        catch (LdapException ex)
+                        catch (Exception ex)
                         {
-                            _logger.LogInformation("Bruger bind fejlede med format {Format}: {Error}", userCred.UserName, ex.Message);
+                            _logger.LogError(ex, "Uventet fejl under AD bind for {Username}", userCred.UserName);
                         }
                     }
 
@@ -156,6 +172,7 @@ namespace API.Services
                         _logger.LogWarning("Alle bruger credential forsøg fejlede for: {Username}", username);
                         return null;
                     }
+
 
                     _logger.LogInformation("AD autentificering succesfuldt for bruger: {Username}", username);
                     return userInfo;
