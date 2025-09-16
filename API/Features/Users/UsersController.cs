@@ -151,6 +151,8 @@ public class UsersController : ControllerBase
             user.Email,
             user.CreatedAt,
             user.LastLogin,
+            user.FirstName,
+            user.LastName,
             Role = user.Role.Name,
             Bookings = user.Bookings.Select(b => new
             {

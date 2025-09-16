@@ -21,6 +21,8 @@ export interface User {
   id: string;
   email: string;
   createdAt: string;
+  firstName: string;
+  lastName: string;
   lastLogin: string;
   role: "Customer" | "Admin" | "Receptionist";
   bookings: Booking[];

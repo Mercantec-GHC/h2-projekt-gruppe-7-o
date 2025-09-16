@@ -1,0 +1,41 @@
+"use client";
+import { useMutation } from "@tanstack/react-query";
+import { logout } from "@/features/auth/lib/logout";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useSessionStore } from "@/lib/stores/session";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
+const AuthenticatedHeader = () => {
+  const router = useRouter();
+  const { logout: logoutSession, user } = useSessionStore();
+  const mutate = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      router.push("/");
+      logoutSession();
+    },
+  });
+  return (
+    <nav className="flex items-center justify-between nav-content-container">
+      <Link className="font-mono" href="/">
+        LOGO HERE
+      </Link>
+
+      <Link href="/profile">
+        <Avatar className="cursor-pointer">
+          <AvatarFallback>
+            {user?.firstName?.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+      </Link>
+
+      {/*<p>LOL</p>*/}
+      {/*<Button isLoading={mutate.isPending} onClick={() => mutate.mutate()}>
+        Logout
+      </Button>*/}
+    </nav>
+  );
+};
+
+export default AuthenticatedHeader;

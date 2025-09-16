@@ -17,5 +17,19 @@
     "ui": "@/components/ui",
     "lib": "@/lib",
     "hooks": "@/hooks"
+  },
+  "registries": {
+    "@shadcndesign": {
+      "url": "https://shadcndesign-registry.vercel.app/api/registry/{name}",
+      "headers": {
+        "X-License-Key": "${SHADCNDESIGN_LICENSE_KEY}"
+      }
+    },
+    "@shadcnblocks": {
+      "url": "https://shadcnblocks.com/r/{name}",
+      "headers": {
+        "Authorization": "Bearer ${SHADCNBLOCKS_API_KEY}"
+      }
+    }
   }
 }
