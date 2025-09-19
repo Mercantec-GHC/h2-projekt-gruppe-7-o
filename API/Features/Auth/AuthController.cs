@@ -99,7 +99,7 @@ public class AuthController : ControllerBase
     {
         var usernameOrEmail = loginDto.UsernameOrEmail;
 
-        // Tjek om kontoen er l�st
+        // Tjek om kontoen er låst
         if (_loginAttemptService.IsLockedOut(usernameOrEmail))
         {
             var remaining = _loginAttemptService.GetRemainingLockoutSeconds(usernameOrEmail);
@@ -170,7 +170,7 @@ public class AuthController : ControllerBase
             });
         }
 
-        // Forkert login -> registrer mislykket fors�g
+        // Forkert login -> registrer mislykket forsøg
         var dbDelay = _loginAttemptService.RecordFailedAttempt(usernameOrEmail);
         if (dbDelay > 0) await Task.Delay(dbDelay * 1000);
         return Unauthorized(new { message = "Incorrect email or password", delayApplied = dbDelay });
@@ -180,7 +180,7 @@ public class AuthController : ControllerBase
 
     /// <summary>
     /// Test endpoint til at verificere AD forbindelse og konfiguration
-    /// Kun tilg�ngelig for administratorer
+    /// Kun tilgængelig for administratorer
     /// </summary>
     /// <returns>AD forbindelsesstatus og konfiguration</returns>
     /// <response code="200">AD status hentet succesfuldt</response>
@@ -206,7 +206,7 @@ public class AuthController : ControllerBase
                 port = 389,
                 useSSL = false,
                 testConnection = testUser != null,
-                testUser = testUser?.SamAccountName ?? "Ikke tilg�ngelig",
+                testUser = testUser?.SamAccountName ?? "Ikke tilgængelig",
                 timestamp = DateTime.UtcNow.AddHours(2)
             };
 
@@ -227,7 +227,7 @@ public class AuthController : ControllerBase
 
 
     /// <summary>
-    /// Henter information om den nuv�rende AD bruger baseret p� JWT token
+    /// Henter information om den nuværende AD bruger baseret på JWT token
     /// </summary>
     /// <returns>Detaljeret AD brugerinformation inklusiv grupper og roller</returns>
     /// <response code="200">AD brugerinformation blev hentet succesfuldt</response>
@@ -252,7 +252,7 @@ public class AuthController : ControllerBase
                 return Unauthorized("Bruger-ID ikke fundet i token.");
             }
 
-            _logger.LogInformation("Henter nuv�rende AD bruger info for: {SamAccountName}", samAccountName);
+            _logger.LogInformation("Henter nuværende AD bruger info for: {SamAccountName}", samAccountName);
 
             return Ok(new
             {
@@ -267,7 +267,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Fejl ved hentning af nuv�rende AD bruger");
+            _logger.LogError(ex, "Fejl ved hentning af nuværende AD bruger");
             return StatusCode(500, "Der opstod en intern serverfejl ved hentning af AD brugerinfo");
         }
     }

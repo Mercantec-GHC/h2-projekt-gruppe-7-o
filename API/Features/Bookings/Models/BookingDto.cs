@@ -30,6 +30,7 @@ public sealed class BookingCreateDto
     public required short Adults { get; init; }
     public required short Children { get; init; }
     public List<Guid>? RoomIds { get; init; }
+    public List<BookingLineCreateDto>? Addons { get; init; } // Ekstra services/fees/discounts
 }
 
 public sealed class BookingUpdateDto
@@ -39,4 +40,12 @@ public sealed class BookingUpdateDto
     public required short Adults { get; set; }
     public required short Children { get; set; }
     public List<Guid>? RoomIds { get; init; } // make nullable if partial updates
+    public List<BookingLineCreateDto>? Addons { get; init; } // Ekstra services/fees/discounts
+}
+
+public sealed class BookingLineCreateDto
+{
+    public BookingLineType Type { get; init; }
+    public string? Description { get; init; }
+    public decimal Amount { get; init; }
 }

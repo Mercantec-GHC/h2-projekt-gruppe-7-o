@@ -2,6 +2,7 @@ using API.Data;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
+using API.Features.Bookings.Services;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,14 +22,16 @@ namespace API.Controllers;
 public class BookingsController : ControllerBase
 {
     private readonly AppDBContext _context;
+    private readonly BookingService _bookingService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BookingsController"/> class.
     /// </summary>
     /// <param name="context">The database context.</param>
-    public BookingsController(AppDBContext context)
+    public BookingsController(AppDBContext context, BookingService bookingService)
     {
         _context = context;
+        _bookingService = bookingService;
     }
 
     /// <summary>
@@ -109,7 +112,7 @@ public class BookingsController : ControllerBase
 
         return NoContent();
     }
-  
+
 
     /// <summary>
     /// Creates a new booking.
@@ -120,27 +123,21 @@ public class BookingsController : ControllerBase
     /// <response code="400">If the request is invalid.</response>
     [HttpPost]
     [Authorize] // sørg for, at JWT er påkrævet
-    public async Task<ActionResult<Guid>> CreateBooking(BookingCreateDto bookingCreateDto)
+    public async Task<ActionResult<Guid>> CreateBooking(BookingCreateDto dto)
     {
-        // Få UserId fra JWT token
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out var userId))
             return Unauthorized();
 
-        // Hent rum fra DB som matcher roomIds
-        var rooms = await _context.Rooms
-            .Where(r => bookingCreateDto.RoomIds.Contains(r.Id))
-            .ToListAsync();
-
-        if (rooms.Count != bookingCreateDto.RoomIds.Count)
-            return BadRequest("Some roomIds do not exist.");
-
-        var booking = bookingCreateDto.ToBooking(userId, rooms);
-
-        _context.Bookings.Add(booking);
-        await _context.SaveChangesAsync();
-
-        return Ok(booking.Id);
+        try
+        {
+            var bookingId = await _bookingService.CreateBookingAsync(dto, userId);
+            return Ok(bookingId);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>

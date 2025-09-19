@@ -33,11 +33,14 @@ public class Program
         builder.Services.AddScoped<HotelsSeeder>();
         builder.Services.AddScoped<ActiveDirectoryService>();
         builder.Services.AddScoped<LoginAttemptService>();
+        builder.Services.AddScoped<RoomService>();
+
 
 
         // Register Repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+        builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
 
         // Configure JWT Authentication

@@ -35,4 +35,26 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
     {
         throw new NotImplementedException();
     }
+
+    public async Task<List<Room>> GetRoomsByIdsAsync(List<Guid> roomIds, CancellationToken ct = default)
+    {
+        return await _context.Rooms
+            .Where(r => roomIds.Contains(r.Id))
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<Booking>> GetOverlappingBookingsAsync(List<Guid> roomIds, DateTime checkIn, DateTime checkOut, CancellationToken ct = default)
+    {
+        // Konverter til UTC
+        var startUtc = checkIn.Kind == DateTimeKind.Utc ? checkIn : checkIn.ToUniversalTime();
+        var endUtc = checkOut.Kind == DateTimeKind.Utc ? checkOut : checkOut.ToUniversalTime();
+        return await _context.Bookings
+            .Include(b => b.Rooms)
+            .Where(b =>
+                b.Status != BookingStatus.Cancelled &&
+                b.CheckIn < endUtc &&
+                b.CheckOut > startUtc &&
+                b.Rooms.Any(r => roomIds.Contains(r.Id)))
+            .ToListAsync(ct);
+    }
 }

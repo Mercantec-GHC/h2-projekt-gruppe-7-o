@@ -36,7 +36,6 @@
 
     <ItemGroup>
         <Folder Include="Database\Diagrams\" />
-        <Folder Include="Features\Bookings\Services\" />
         <Folder Include="Migrations\" />
     </ItemGroup>
 
