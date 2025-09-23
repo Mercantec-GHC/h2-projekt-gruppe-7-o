@@ -9,4 +9,5 @@ public interface IRoomRepository
     Task AddAsync(Room room, CancellationToken ct = default);
     Task DeleteByIdAsync(Guid id, CancellationToken ct = default);
     Task SaveChangesAsync(CancellationToken ct = default);
+
 }

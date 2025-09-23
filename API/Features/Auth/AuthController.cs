@@ -1,8 +1,10 @@
 using API.Data;
+using API.Features.Mail.Services;
 using API.Models.Entities;
 using API.Repositories;
 using API.Services;
 using API.Services.Password;
+using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,7 @@ public class AuthController : ControllerBase
     private readonly ActiveDirectoryService _adService;
     private readonly LoginAttemptService _loginAttemptService;
     private readonly ILogger<AuthController> _logger;
+    private readonly MailService _mailService;
 
     public AuthController(
         AppDBContext context, 
@@ -30,7 +33,8 @@ public class AuthController : ControllerBase
         JwtService jwtService,
         ActiveDirectoryService adService,
         LoginAttemptService loginAttemptService,
-        ILogger<AuthController> logger
+        ILogger<AuthController> logger, 
+        MailService mailService
         )
     {
         _context = context;
@@ -40,6 +44,7 @@ public class AuthController : ControllerBase
         _adService = adService;
         _loginAttemptService = loginAttemptService;
         _logger = logger;
+        _mailService = mailService;
     }
 
     /// <summary>
@@ -77,11 +82,26 @@ public class AuthController : ControllerBase
 
         await _userRepository.AddAsync(user);
 
+        bool emailSent = false;
+        try
+        {
+            var userName = $"{registerDto.FirstName} {registerDto.LastName}";
+            await _mailService.SendWelcomeEmailAsync(registerDto.Email, userName);
+            _logger.LogInformation("Velkomst e-mail er sendt til {Email}", registerDto.Email);
+            emailSent = true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Fejl ved afsendelse af velkomst e-mail til {Email}", registerDto.Email);
+        }
+
         return new RegisterResponseDto
         {
             Message = "User registered successfully",
             Email = user.Email,
-            Id = user.Id
+            Id = user.Id,
+            EmailSent = emailSent,
+
         };
     }
 

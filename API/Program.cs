@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Text;
 using API.Data;
 using API.Data.Seeders;
+using API.Features.Bookings.Services;
+using API.Features.Mail.Services;
 using API.Repositories;
 using API.Services;
 using API.Services.Password;
@@ -34,6 +36,8 @@ public class Program
         builder.Services.AddScoped<ActiveDirectoryService>();
         builder.Services.AddScoped<LoginAttemptService>();
         builder.Services.AddScoped<RoomService>();
+        builder.Services.AddScoped<MailService>();
+        builder.Services.AddScoped<BookingService>();
 
 
 

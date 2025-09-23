@@ -69,7 +69,7 @@ export type NormalizedTokenPayload = {
 
 const DASHBOARD_ALLOWED_ROLES = ["Admin", "Cleaning", "Receptionist", "Customer"];
 
-export function hasDashboardRole(roleClaim: NormalizedTokenPayload["roles"]) {
+export function hasDashboardRole(roleClaim: NormalizedTokenPayload["role"]) {
   if (!roleClaim) return false;
   if (Array.isArray(roleClaim)) {
     return roleClaim.some((r) => DASHBOARD_ALLOWED_ROLES.includes(r));

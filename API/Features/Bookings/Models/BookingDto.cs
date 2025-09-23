@@ -27,10 +27,8 @@ public sealed class BookingCreateDto
 {
     public required DateTime CheckIn { get; init; }
     public required DateTime CheckOut { get; init; }
-    public required short Adults { get; init; }
-    public required short Children { get; init; }
-    public List<Guid>? RoomIds { get; init; }
-    public List<BookingLineCreateDto>? Addons { get; init; } // Ekstra services/fees/discounts
+    public Guid? HotelId { get; set; } // Valgfrit, hvis bookingen kun gælder for ét hotel
+    public List<RoomBookingDto> RoomBookings { get; set; } // En liste med hvert værelse og dets tilvalg
 }
 
 public sealed class BookingUpdateDto
@@ -41,6 +39,23 @@ public sealed class BookingUpdateDto
     public required short Children { get; set; }
     public List<Guid>? RoomIds { get; init; } // make nullable if partial updates
     public List<BookingLineCreateDto>? Addons { get; init; } // Ekstra services/fees/discounts
+}
+
+public class RoomBookingDto
+{
+    public RoomType RoomType { get; set; }
+    public required short Adults { get; init; }
+    public required short Children { get; init; }
+
+    public List<AddonDto> Addons { get; set; }
+}
+
+
+public class AddonDto
+{
+    public BookingLineType Type { get; set; }
+    public string? Description { get; set; }
+    public decimal Amount { get; set; }
 }
 
 public sealed class BookingLineCreateDto

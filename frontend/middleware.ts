@@ -62,7 +62,7 @@ export async function middleware(req: NextRequest) {
     if (!session) {
       return redirectWithCookieClear("/dashboard/login");
     }
-    if (!hasDashboardRole(session?.roles)) {
+    if (!hasDashboardRole(session?.role)) {
       //TODO: this is a bit tricky - what if a user is already logged in as a customer, but now they want to access the dashboard (since they are working at the company)
       // With the below, you can basically not be logged in as a user and also as an employee at the same time.
       return redirect("/dashboard/login");
@@ -72,7 +72,7 @@ export async function middleware(req: NextRequest) {
   // TODO: this is a bit tricky - what if a user is already logged in as a customer, but now they want to access the dashboard (since they are working at the company)
   // With the below, you can basically not be logged in as a user and also try to login as an employee at the same time.
   if (isAuthRoute && session) {
-    if (hasDashboardRole(session?.roles) && pathname === "/dashboard/login") {
+    if (hasDashboardRole(session?.role) && pathname === "/dashboard/login") {
       return NextResponse.redirect("/dashboard");
     } else {
       return redirect("/profile");

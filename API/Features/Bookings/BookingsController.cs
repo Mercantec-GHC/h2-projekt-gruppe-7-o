@@ -1,8 +1,9 @@
 using API.Data;
+using API.Features.Bookings.Services;
+using API.Features.Mail.Services;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
-using API.Features.Bookings.Services;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,15 +24,19 @@ public class BookingsController : ControllerBase
 {
     private readonly AppDBContext _context;
     private readonly BookingService _bookingService;
+    
+    private readonly ILogger<BookingsController> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BookingsController"/> class.
     /// </summary>
     /// <param name="context">The database context.</param>
-    public BookingsController(AppDBContext context, BookingService bookingService)
+    public BookingsController(AppDBContext context, BookingService bookingService, ILogger<BookingsController> logger)
     {
         _context = context;
         _bookingService = bookingService;
+       
+        _logger = logger;
     }
 
     /// <summary>
@@ -129,14 +134,31 @@ public class BookingsController : ControllerBase
         if (!Guid.TryParse(userIdString, out var userId))
             return Unauthorized();
 
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userName = User.FindFirstValue("firstName");
+        if (string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(userName))
+        {
+            return Unauthorized("Missing user email or name claim.");
+        }
+
         try
         {
-            var bookingId = await _bookingService.CreateBookingAsync(dto, userId);
-            return Ok(bookingId);
+            var bookingId = await _bookingService.CreateBookingAsync(dto, userId, userEmail, userName);
+
+            return Ok(new
+            {
+                BookingId = bookingId,
+                Message = "Booking created successfully and confirmation email sent."
+            });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(ex.Message);
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            _logger.LogError(ex, "An unexpected error occurred during booking creation.");
+            return StatusCode(500, "An internal server error occurred.");
         }
     }
 

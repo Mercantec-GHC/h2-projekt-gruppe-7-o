@@ -34,4 +34,5 @@ public class RegisterResponseDto
     public required string Message { get; set; }
     public required string Email { get; set; }
     public required Guid Id { get; set; }
+    public required bool EmailSent { get; set; }
 }
