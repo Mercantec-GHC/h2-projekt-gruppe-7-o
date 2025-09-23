@@ -46,3 +46,10 @@ public sealed class RoomUpdateDto
 
     public bool IsActive { get; set; }
 }
+
+public class AvailabilityResponseDto
+{
+    public DateTime CheckIn { get; set; }
+    public DateTime CheckOut { get; set; }
+    public IEnumerable<RoomResponseDto> Rooms { get; set; } = new List<RoomResponseDto>();
+}

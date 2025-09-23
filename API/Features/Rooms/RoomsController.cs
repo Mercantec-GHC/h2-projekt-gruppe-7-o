@@ -1,15 +1,13 @@
-using System.Security.Claims;
-using System.Text;
 using API.Data;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
+using API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace API.Controllers;
 
@@ -19,11 +17,13 @@ public class RoomsController : ControllerBase
 {
     private readonly AppDBContext _context;
     private readonly IMemoryCache _cache;
+    private readonly RoomService _roomService;
 
-    public RoomsController(AppDBContext context, IMemoryCache cache)
+    public RoomsController(AppDBContext context, IMemoryCache cache, RoomService roomService)
     {
         _context = context;
         _cache = cache;
+        _roomService = roomService;
     }
 
     /// <summary>
@@ -96,6 +96,52 @@ public class RoomsController : ControllerBase
 
 
     /// <summary>
+    /// Gets available rooms in a given hotel for a specific date range
+    /// </summary>
+    /// <param name="hotelId">The unique identifier of the hotel</param>
+    /// <param name="startDate">The start date of the booking</param>
+    /// <param name="endDate">The end date of the booking</param>
+    /// <returns>A list of available rooms</returns>
+    /// <response code="200">Returns a list of available rooms</response>
+    /// <response code="400">If the parameters are invalid</response>
+    /// <response code="404">If no rooms exist for the given hotel</response>
+    [HttpGet("availability")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
+    public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetAvailableRooms(
+        [FromQuery] Guid? hotelId = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var rooms = await _roomService.GetAvailableRoomsAsync(hotelId, startDate, endDate);
+        return Ok(rooms);
+    }
+
+
+    /// <summary>
+    /// Gets booked (unavailable) rooms in a given hotel for a specific date range
+    /// </summary>
+    /// <param name="hotelId">The unique identifier of the hotel</param>
+    /// <param name="startDate">The start date of the booking</param>
+    /// <param name="endDate">The end date of the booking</param>
+    /// <returns>A list of unavailable rooms</returns>
+    /// <response code="200">Returns a list of unavailable rooms</response>
+    /// <response code="400">If the parameters are invalid</response>
+    /// <response code="404">If no rooms exist for the given hotel</response>
+    [HttpGet("unavailable")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
+    public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetUnavailableRooms(
+        [FromQuery] Guid? hotelId = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
+    {
+        var rooms = await _roomService.GetUnavailableRoomsAsync(hotelId, startDate, endDate);
+        return Ok(rooms);
+    }
+
+
+
+
+    /// <summary>
     /// Updates an existing room's information
     /// </summary>
     /// <param name="id">The unique identifier of the room to update</param>
@@ -111,7 +157,7 @@ public class RoomsController : ControllerBase
     /// <response code="403">If the user doesn't have the Admin role</response>
     /// <response code="404">If no room is found with the specified ID</response>
     [HttpPut("{id}")]
-    [Authorize(Roles = $"{RoleNames.Admin}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<IActionResult> PutRoom(Guid id, RoomUpdateDto roomUpdateDto)
     {
         var room = await _context.Rooms.FindAsync(id);
@@ -148,14 +194,8 @@ public class RoomsController : ControllerBase
     [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> DeleteRoom(Guid id)
     {
-        Room? room = await _context.Rooms.FindAsync(id);
-        if (room == null) return NotFound();
-
-        _context.Rooms.Remove(room);
-        await _context.SaveChangesAsync();
-
-        _cache.Remove("all_rooms");
-
+        var success = await _roomService.DeleteRoomAsync(id);
+        if (!success) return NotFound();
         return NoContent();
     }
 
