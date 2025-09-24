@@ -59,13 +59,16 @@ public class RoomService
     }
 
     public async Task<AvailabilityResponseDto> GetAvailableRoomsAsync(
-     Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
+        Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null, int adults = 1, int children = 0)
     {
         // Sæt standarddatoer, hvis der ikke er angivet nogen
         var start = checkIn ?? DateTime.Today;
         var end = checkOut ?? DateTime.Today.AddDays(365);
         if (start >= end)
             throw new InvalidOperationException("Start date must be before end date.");
+
+        // Beregn antal gæster
+        var guestCount = adults + children;
 
         // Hent alle rum
         var rooms = await _repository.GetAllAsync();
@@ -85,7 +88,8 @@ public class RoomService
             .ToList();
 
         var available = hotelRooms
-            .Where(r => !bookedRoomIds.Contains(r.Id))
+            .Where(r => !bookedRoomIds.Contains(r.Id) && r.Capacity >= guestCount)
+            .Where(r => r.Capacity >= guestCount)
             .Select(r => r.ToRoomDto())
             .ToList();
 
@@ -98,9 +102,8 @@ public class RoomService
     }
 
 
-
     public async Task<AvailabilityResponseDto> GetUnavailableRoomsAsync(
-       Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
+        Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
     {
         // Sæt standarddatoer, hvis der ikke er angivet nogen
         var start = checkIn ?? DateTime.Today;
@@ -146,5 +149,4 @@ public class RoomService
             Rooms = unavailable
         };
     }
-
 }
