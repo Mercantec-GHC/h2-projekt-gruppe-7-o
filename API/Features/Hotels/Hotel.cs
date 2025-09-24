@@ -12,4 +12,5 @@ public class Hotel : Entity<Guid>
     public required string Email { get; set; }
     public required string PhoneNumber { get; set; }
     public List<Room> Rooms { get; set; } = new List<Room>();
+    public string? ImageUrl { get; set; }
 }

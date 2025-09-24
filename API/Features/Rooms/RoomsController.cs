@@ -116,8 +116,19 @@ public class RoomsController : ControllerBase
     )
 
     {
-        var rooms = await _roomService.GetAvailableRoomsAsync(hotelId, checkIn, checkOut, adults, children);
-        return Ok(rooms);
+        try
+        {
+            var rooms = await _roomService.GetAvailableRoomsAsync(hotelId, checkIn, checkOut, adults, children);
+            return Ok(rooms);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
     }
 
 
@@ -138,8 +149,19 @@ public class RoomsController : ControllerBase
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
     {
-        var rooms = await _roomService.GetUnavailableRoomsAsync(hotelId, startDate, endDate);
-        return Ok(rooms);
+        try
+        {
+            var rooms = await _roomService.GetUnavailableRoomsAsync(hotelId, startDate, endDate);
+            return Ok(rooms);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
     }
 
 
