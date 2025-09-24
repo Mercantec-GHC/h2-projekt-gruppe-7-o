@@ -13,6 +13,7 @@ public class Room : Entity<Guid>
     public required RoomType Type { get; set; } = RoomType.Standard;
     public required short Floor { get; set; }
     public string Description { get; set; } = string.Empty;
+   // public string ImgageUrl { get; set; } 
     public bool IsActive { get; set; } = false;
 
 
@@ -21,6 +22,7 @@ public class Room : Entity<Guid>
     public Hotel? Hotel { get; init; }
 
     public ICollection<Booking> Bookings { get; init; } = new List<Booking>();
+    public string? ImageUrl { get; set; }
 }
 
 public enum RoomType
@@ -29,5 +31,8 @@ public enum RoomType
 
     [PgName("deluxe")] Deluxe,
 
+    [PgName("family")] Family,
+
     [PgName("suite")] Suite
+
 }
