@@ -44,14 +44,14 @@ public class HotelsController : ControllerBase
         var cacheKey = "all_hotels";
 
         // try to get from cache
-        if (_cache.TryGetValue(cacheKey, out List<Hotel> cachedHotels))
-        {
-            return Ok(cachedHotels);
-        }
+        // if (_cache.TryGetValue(cacheKey, out List<Hotel> cachedHotels))
+        // {
+        //     return Ok(cachedHotels);
+        // }
 
         var hotels = await _context.Hotels.ToListAsync();
 
-        _cache.Set(cacheKey, cachedHotels, TimeSpan.FromSeconds(60));
+        // _cache.Set(cacheKey, cachedHotels, TimeSpan.FromSeconds(60));
 
         return hotels.Select(u => u.ToHotelDto()).ToList();
     }
@@ -92,7 +92,7 @@ public class HotelsController : ControllerBase
         if (hotel == null)
             return NotFound();
 
-        
+
         hotel.Name = hotelUpdateDto.Name;
         hotel.StreetName = hotelUpdateDto.StreetName;
         hotel.StreetNumber = hotelUpdateDto.StreetNumber;
