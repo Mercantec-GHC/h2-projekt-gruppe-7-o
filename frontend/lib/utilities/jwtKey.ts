@@ -67,7 +67,12 @@ export type NormalizedTokenPayload = {
   };
 };
 
-const DASHBOARD_ALLOWED_ROLES = ["Admin", "Cleaning", "Receptionist", "Customer"];
+const DASHBOARD_ALLOWED_ROLES = [
+  "Admin",
+  "Cleaning",
+  "Receptionist",
+  "Customer",
+];
 
 export function hasDashboardRole(roleClaim: NormalizedTokenPayload["roles"]) {
   if (!roleClaim) return false;

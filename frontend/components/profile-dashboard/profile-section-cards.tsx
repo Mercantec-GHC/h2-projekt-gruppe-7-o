@@ -11,6 +11,7 @@ import {
 import { Button } from "../ui/button";
 import { CopyButton } from "../ui/shadcn-io/copy-button";
 import { BrushCleaning, DoorClosed } from "lucide-react";
+import { toast } from "sonner";
 
 export function ProfileSectionCards() {
   return (
@@ -73,13 +74,12 @@ export function ProfileSectionCards() {
             </Tooltip>
           </div>
           <CardDescription className="flex flex-col">
-            <h3 className="text-lg font-semibold text-primary">
-              Network name (SSID)
-            </h3>
+            <h3 className="text-lg font-semibold text-primary">Name (SSID)</h3>
             <div className="flex items-center gap-2">
               {/*TODO: Use wifi password from booking here*/}
               <p className="text-sm text-muted-foreground">SomaliSabuziKabdi</p>
               <CopyButton
+                onClick={() => toast.success("WiFi name copied to clipboard")}
                 content="SomaliSabuziKabdi"
                 variant="ghost"
                 size="sm"
@@ -94,6 +94,9 @@ export function ProfileSectionCards() {
               {/*TODO: Use wifi password from booking here*/}
               <p className="text-sm text-muted-foreground">KabidiKhan1880@#!</p>
               <CopyButton
+                onClick={() =>
+                  toast.success("WiFi password copied to clipboard")
+                }
                 content="KabidiKhan1880@#!"
                 variant="ghost"
                 size="sm"
