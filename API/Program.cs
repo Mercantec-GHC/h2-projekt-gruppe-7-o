@@ -40,6 +40,9 @@ public class Program
         builder.Services.AddScoped<BookingService>();
 
 
+        builder.Services.AddScoped<BookingService>();
+
+
 
         // Register Repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();

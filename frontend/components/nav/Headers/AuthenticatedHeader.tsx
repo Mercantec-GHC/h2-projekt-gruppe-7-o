@@ -3,8 +3,8 @@ import { useMutation } from "@tanstack/react-query";
 import { logout } from "@/features/auth/lib/logout";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useSessionStore } from "@/lib/stores/session";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useSessionStore } from "@/features/auth/stores/sessionStore";
 
 const AuthenticatedHeader = () => {
   const router = useRouter();
@@ -29,11 +29,6 @@ const AuthenticatedHeader = () => {
           </AvatarFallback>
         </Avatar>
       </Link>
-
-      {/*<p>LOL</p>*/}
-      {/*<Button isLoading={mutate.isPending} onClick={() => mutate.mutate()}>
-        Logout
-      </Button>*/}
     </nav>
   );
 };

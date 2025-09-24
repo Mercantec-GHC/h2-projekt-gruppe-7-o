@@ -10,6 +10,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { getSession } from "@/features/auth/lib/getSession";
 import SessionHydrator from "@/features/auth/components/SessionHydrator";
 import Header from "@/components/nav/Headers/Header";
+import AuthDialog from "@/features/auth/components/AuthDialog";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -54,6 +55,7 @@ export default async function RootLayout({
           <>
             <Header />
             {children}
+            <AuthDialog />
             <Footer />
           </>
         </QueryProvider>

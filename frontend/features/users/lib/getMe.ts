@@ -1,4 +1,4 @@
-import { User } from "@/lib/types/user";
+import { User } from "@/features/users/types/user";
 import { apiFetch } from "@/lib/utilities/apiFetch";
 
 // TODO: How do we fetch and handle errors in the best way? Look at others implementations
