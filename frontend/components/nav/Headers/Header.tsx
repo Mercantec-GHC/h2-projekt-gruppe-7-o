@@ -1,9 +1,9 @@
 "use client";
-import { useSessionStore } from "@/lib/stores/session";
 import UnauthenticatedHeader from "./UnauthenticatedHeader";
 import AuthenticatedHeader from "./AuthenticatedHeader";
 import { cn } from "@/lib/utils";
 import { usePathname } from "next/navigation";
+import { useSessionStore } from "@/features/auth/stores/sessionStore";
 
 export default function Header() {
   const { isAuthenticated } = useSessionStore();

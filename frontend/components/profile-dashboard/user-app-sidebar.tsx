@@ -4,20 +4,16 @@ import * as React from "react";
 import {
   IconBook,
   IconCamera,
-  IconChartBar,
   IconDatabase,
   IconFileAi,
   IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
   IconReceipt,
   IconReport,
-  IconSearch,
   IconSettings,
   IconUser,
-  IconUsers,
 } from "@tabler/icons-react";
 
 import { NavSecondary } from "@/components/nav-secondary";
@@ -35,6 +31,7 @@ import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "@/features/users/lib/getMe";
 import { UserNavMain } from "./user-nav-main";
+import { useMe } from "@/features/users/hooks/useMe";
 
 const data = {
   navMain: [
@@ -114,34 +111,13 @@ const data = {
       icon: IconHelp,
     },
   ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
 };
 
 export function UserAppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { data: userData } = useQuery({
-    queryFn: getMe,
-    queryKey: ["me"],
-  });
+  const { data: userData } = useMe();
 
-  console.log(userData);
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

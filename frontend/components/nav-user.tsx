@@ -27,19 +27,11 @@ import {
 import { logout } from "@/features/auth/lib/logout";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useSessionStore } from "@/lib/stores/session";
 import { getUserInitials } from "@/features/users/lib/utilts";
 import Link from "next/link";
+import { useSessionStore } from "@/features/auth/stores/sessionStore";
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string;
-    email: string;
-    avatar: string;
-  };
-}) {
+export function NavUser() {
   const router = useRouter();
   const { logout: sessionLogout, user: sessionUser } = useSessionStore();
   const { isMobile } = useSidebar();

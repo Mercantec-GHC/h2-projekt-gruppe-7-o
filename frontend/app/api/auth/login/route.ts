@@ -8,9 +8,7 @@ export async function POST(req: Request) {
   const apiRes = await apiFetch(`/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-    // If your API requires same-origin cookies for CSRF, you might add credentials, but most JWT flows don't:
-    // credentials: "include",
+    body: JSON.stringify({ usernameOrEmail: email, password }),
   });
 
   if (!apiRes.ok) {
@@ -20,7 +18,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const token = await apiRes.text();
+  const data = await apiRes.json();
+
+  const token = data.token;
 
   const res = NextResponse.json({ ok: true });
   res.cookies.set("session", token, {
