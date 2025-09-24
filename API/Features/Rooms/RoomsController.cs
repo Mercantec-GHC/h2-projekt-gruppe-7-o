@@ -107,38 +107,26 @@ public class RoomsController : ControllerBase
     /// <response code="404">If no rooms exist for the given hotel</response>
     [HttpGet("availability")]
     // [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
-    public async Task<ActionResult<IEnumerable<AvailabilityResponseDto>>> GetAvailableRooms(
-        [FromQuery] Guid hotelId,
+    public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetAvailableRooms(
+        [FromQuery] Guid? hotelId = null,
         [FromQuery] DateTime? checkIn = null,
         [FromQuery] DateTime? checkOut = null
     )
 
     {
-        var rooms = await _roomService.GetAvailableRoomsAsync(hotelId, checkIn, checkOut);
-        return Ok(rooms);
-    }
-
-    /// <summary>
-    /// Gets available rooms in a given hotel for a specific date range
-    /// </summary>
-    /// <param name="hotelId">The unique identifier of the hotel</param>
-    /// <param name="checkIn">The check-in date of the booking</param>
-    /// <param name="checkOut">Thecheck-out date of the booking</param>
-    /// <returns>A list of available rooms</returns>
-    /// <response code="200">Returns a list of available rooms</response>
-    /// <response code="400">If the parameters are invalid</response>
-    /// <response code="404">If no rooms exist for the given hotel</response>
-    [HttpGet("availability/types")]
-    // [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
-    public async Task<ActionResult<IEnumerable<RoomTypesAvailablityResponseDto>>> GetAvailableRoomTypes(
-        [FromQuery] Guid hotelId,
-        [FromQuery] DateTime checkIn,
-        [FromQuery] DateTime checkOut
-    )
-
-    {
-        var rooms = await _roomService.GetAvailableRoomTypesAsync(hotelId, checkIn, checkOut);
-        return Ok(rooms);
+        try
+        {
+            var rooms = await _roomService.GetAvailableRoomsAsync(hotelId, checkIn, checkOut);
+            return Ok(rooms);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
     }
 
 
@@ -159,8 +147,19 @@ public class RoomsController : ControllerBase
         [FromQuery] DateTime? startDate = null,
         [FromQuery] DateTime? endDate = null)
     {
-        var rooms = await _roomService.GetUnavailableRoomsAsync(hotelId, startDate, endDate);
-        return Ok(rooms);
+        try
+        {
+            var rooms = await _roomService.GetUnavailableRoomsAsync(hotelId, startDate, endDate);
+            return Ok(rooms);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred.");
+        }
     }
 
 
