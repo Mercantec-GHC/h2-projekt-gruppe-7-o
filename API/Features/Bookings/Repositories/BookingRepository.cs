@@ -26,14 +26,21 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
         return booking;
     }
 
-    public Task<Booking> CreateAsync(Booking entity, CancellationToken ct = default)
+    public async Task<Booking> CreateAsync(Booking entity, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _context.Bookings.Add(entity);
+        await _context.SaveChangesAsync(ct);
+        return entity;
     }
 
-    public Task DeleteByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteByIdAsync(Guid id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var booking = await _context.Bookings.FindAsync(new object[] { id }, ct);
+        if (booking != null)
+        {
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync(ct);
+        }
     }
 
     public async Task<List<Room>> GetRoomsByIdsAsync(List<Guid> roomIds, CancellationToken ct = default)
@@ -56,5 +63,25 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
                 b.CheckOut > startUtc &&
                 b.Rooms.Any(r => roomIds.Contains(r.Id)))
             .ToListAsync(ct);
+    }
+
+    public async Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId)
+    {
+        var query = _context.Rooms
+            .Where(r => r.Type == roomType);
+
+        if (hotelId.HasValue)
+        {
+            query = query.Where(r => r.HotelId == hotelId.Value);
+        }
+
+        var availableRoom = await query
+            .Where(r => !r.Bookings.Any(b =>
+                b.Status != BookingStatus.Cancelled &&
+                b.CheckIn < checkOut &&
+                b.CheckOut > checkIn))
+            .FirstOrDefaultAsync();
+
+        return availableRoom;
     }
 }

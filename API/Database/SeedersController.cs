@@ -145,6 +145,7 @@ public class SeedersController : ControllerBase
                 CheckOut = checkOutDate,
                 Adults = faker.Random.Short(1, room.Capacity),
                 Children = faker.Random.Short(0, room.Capacity),
+                TotalPrice = room.PricePerNight * nights,
                 Status = faker.PickRandom(BookingStatus.Pending, BookingStatus.Confirmed, BookingStatus.Cancelled)
             });
         }

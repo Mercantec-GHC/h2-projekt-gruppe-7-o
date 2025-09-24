@@ -10,13 +10,13 @@ public class Booking : Entity<Guid>
     public required short Children { get; set; }
     public required BookingStatus Status { get; set; } = BookingStatus.Pending;
 
+    public required decimal TotalPrice { get; set; }
     public Guid UserId { get; init; }
     public User User { get; init; }
 
     public List<BookingLine> BookingLines { get; set; } = new List<BookingLine>();
     public ICollection<Room> Rooms { get; set; } = new List<Room>();
 
-    private int Nights => (CheckOut - CheckIn).Days == 0 ? 1 : (CheckOut - CheckIn).Days;
 }
 
 // TODO: do we need to add a active and done status?

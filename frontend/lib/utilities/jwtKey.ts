@@ -74,7 +74,7 @@ const DASHBOARD_ALLOWED_ROLES = [
   "Customer",
 ];
 
-export function hasDashboardRole(roleClaim: NormalizedTokenPayload["roles"]) {
+export function hasDashboardRole(roleClaim: NormalizedTokenPayload["role"]) {
   if (!roleClaim) return false;
   if (Array.isArray(roleClaim)) {
     return roleClaim.some((r) => DASHBOARD_ALLOWED_ROLES.includes(r));
