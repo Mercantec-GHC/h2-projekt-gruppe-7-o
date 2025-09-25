@@ -1,10 +1,8 @@
 import BackButton from "@/components/utils/BackButton";
-import { getHotel } from "@/features/hotels/lib/getHotel";
-import { getHotels } from "@/features/hotels/lib/getHotels";
-import { IconArrowLeft } from "@tabler/icons-react";
+import HotelApi from "@/features/hotel/api/hotel-api";
 
 export async function generateStaticParams() {
-  const hotels = await getHotels();
+  const hotels = await HotelApi.getHotels();
   return hotels.map((hotel) => ({ id: hotel.id }));
 }
 
@@ -15,7 +13,7 @@ export default async function HotelPage({
 }) {
   const { id } = await params;
 
-  const hotel = await getHotel(id);
+  const hotel = await HotelApi.getHotel(id);
 
   const background =
     "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/photos/simone-hutsch-gDmVqxZt1hg-unsplash.jpg";

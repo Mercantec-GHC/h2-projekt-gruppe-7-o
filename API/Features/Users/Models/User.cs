@@ -20,7 +20,6 @@ public class User : Entity<Guid>
     // Explicit FK to Role (guid assumed from Entity.Id)
     public int RoleId { get; set; }
 
-
     // Navigation to principal
     public Role Role { get; set; } = null!;
     public bool IsADUser { get; set; } = false;

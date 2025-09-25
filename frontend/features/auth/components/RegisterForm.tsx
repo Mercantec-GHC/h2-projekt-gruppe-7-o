@@ -16,7 +16,7 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { PasswordField } from "@/components/PasswordFormField";
 import { useRouter } from "next/navigation";
-import { register } from "../lib/register";
+import AuthApi from "@/features/auth/api/auth-api";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
@@ -62,12 +62,13 @@ export default function RegisterForm() {
   });
 
   const mutate = useMutation({
-    mutationFn: (values: z.infer<typeof formSchema>) => register(values),
+    mutationFn: (values: z.infer<typeof formSchema>) =>
+      AuthApi.register(values),
     onSuccess: () => {
       toast.success("Your account has been created successfully!");
       router.push("/profile");
     },
-    onError: (error) => {
+    onError: () => {
       // TODO: handle error messages coming from the backend and display them here
       // form.setError("email", { message: "Invalid email or password" });
       // form.setError("password", { message: "Invalid email or password" });

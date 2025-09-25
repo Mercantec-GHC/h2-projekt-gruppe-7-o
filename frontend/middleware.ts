@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextRequest, NextResponse } from "next/server";
 import { CONSTANTS } from "./lib/constants";
-import { hasDashboardRole, verifyJWT } from "./lib/utilities/jwtKey";
+import { hasDashboardRole, verifyJWT } from "./api/jwt";
 
 // Allowed dashboard roles
 const PROTECTED_ROUTES = ["/profile"];

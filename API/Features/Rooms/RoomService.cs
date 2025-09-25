@@ -58,8 +58,33 @@ public class RoomService
         return true;
     }
 
+    public async Task<RoomTypesAvailablityResponseDto> GetAvailableRoomTypesAsync(
+        Guid hotelId, DateTime checkIn, DateTime checkOut)
+    {
+        if (checkIn >= checkOut)
+        {
+            throw new InvalidOperationException("Start date must be before end date.");
+        }
+
+        var availableRooms = await this.GetAvailableRoomsAsync(hotelId, checkIn, checkOut);
+
+        var roomTypes = availableRooms.Rooms.GroupBy(r => r.Type);
+
+        var roomTypeAvailabilities = roomTypes.Select(g => new RoomTypeAvailability
+        {
+            Type = g.Key,
+            AvailableRoomsCount = g.Count()
+        });
+
+
+        return new RoomTypesAvailablityResponseDto
+        {
+            RoomTypeAvailabilities = roomTypeAvailabilities
+        };
+    }
+
     public async Task<AvailabilityResponseDto> GetAvailableRoomsAsync(
-        Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null, int adults = 1, int children = 0)
+        Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
     {
         // Sæt standarddatoer, hvis der ikke er angivet nogen
         var start = checkIn ?? DateTime.Today;
@@ -68,7 +93,6 @@ public class RoomService
             throw new InvalidOperationException("Start date must be before end date.");
 
         // Beregn antal gæster
-        var guestCount = adults + children;
 
         // Hent alle rum
         var rooms = await _repository.GetAllAsync();
@@ -88,8 +112,7 @@ public class RoomService
             .ToList();
 
         var available = hotelRooms
-            .Where(r => !bookedRoomIds.Contains(r.Id) && r.Capacity >= guestCount)
-            .Where(r => r.Capacity >= guestCount)
+            .Where(r => !bookedRoomIds.Contains(r.Id))
             .Select(r => r.ToRoomDto())
             .ToList();
 

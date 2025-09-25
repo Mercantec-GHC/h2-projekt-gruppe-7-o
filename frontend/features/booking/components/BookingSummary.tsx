@@ -17,7 +17,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useBookingStore } from "../bookingStore";
 import { differenceInDays } from "date-fns";
-import { useCreateBooking } from "../hooks/useBooking";
+import { useCreateBooking } from "../queries/useBooking";
 import Link from "next/link";
 
 export default function BookingSummary() {
@@ -27,7 +27,7 @@ export default function BookingSummary() {
     checkInDate,
     guestCount,
     checkOutDate,
-    selectedRoom,
+    selectedRoomBookings: selectedRoom,
   } = useBookingStore();
   const { isAuthenticated } = useSessionStore();
   const { openModal } = useAuthModalStore();

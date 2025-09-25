@@ -24,7 +24,7 @@ public class BookingsController : ControllerBase
 {
     private readonly AppDBContext _context;
     private readonly BookingService _bookingService;
-    
+
     private readonly ILogger<BookingsController> _logger;
 
     /// <summary>
@@ -35,7 +35,7 @@ public class BookingsController : ControllerBase
     {
         _context = context;
         _bookingService = bookingService;
-       
+
         _logger = logger;
     }
 
@@ -128,7 +128,7 @@ public class BookingsController : ControllerBase
     /// <response code="400">If the request is invalid.</response>
     [HttpPost]
     [Authorize] // sørg for, at JWT er påkrævet
-    public async Task<ActionResult<Guid>> CreateBooking(BookingCreateDto dto)
+    public async Task<ActionResult<Guid>> CreateBooking([FromBody] BookingCreateDto dto)
     {
         var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (!Guid.TryParse(userIdString, out var userId))

@@ -1,18 +1,11 @@
 // app/api/logout/route.ts
+import { apiClient } from "@/api/client";
 import { CONSTANTS } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 export async function POST() {
-  // 1) Call your ASP.NET Core logout endpoint (optional)
-  // If your backend invalidates refresh tokens or keeps a server session,
-  // do it here. If your backend is stateless and only issues JWTs, you can skip this.
   try {
-    await fetch(`${process.env.API_BASE_URL}/auth/logout`, {
-      method: "POST",
-      // If your ASP.NET Core logout requires auth, forward headers here.
-      // Since we’re on the server, you can read the cookie if needed via next/headers.
-      // For a pure stateless JWT flow, many backends don’t require a logout call.
-    });
+    await apiClient.post("/auth/logout");
   } catch {
     // Swallow errors to keep logout resilient
   }

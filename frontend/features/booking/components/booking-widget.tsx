@@ -4,7 +4,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { defineStepper } from "@/components/stepper";
 import { BookingSearch } from "@/features/booking/components/BookingSearch";
-import BookingChooseRoom from "./BookingChooseRoom";
+import BookingChooseRoom from "./BookingChooseRooms";
 import BookingSummary from "./BookingSummary";
 
 interface BookingWidgetEnhancedProps {

@@ -17,6 +17,17 @@ public class RoomResponseDto
     public DateTimeOffset UpdatedAt { get; set; }
 }
 
+public class RoomTypeAvailability
+{
+    public RoomType Type { get; set; }
+    public int AvailableRoomsCount { get; set; }
+}
+
+public class RoomTypesAvailablityResponseDto
+{
+    public IEnumerable<RoomTypeAvailability> RoomTypeAvailabilities { get; set; } = new List<RoomTypeAvailability>();
+}
+
 public sealed class RoomWithBookingsDto : RoomResponseDto
 {
     public List<BookingResponseDto> Bookings { get; set; } = new List<BookingResponseDto>();

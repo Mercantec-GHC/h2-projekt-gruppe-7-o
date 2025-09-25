@@ -4,14 +4,11 @@ import * as React from "react";
 import {
   IconBook,
   IconCamera,
-  IconDatabase,
   IconFileAi,
   IconFileDescription,
-  IconFileWord,
   IconHelp,
   IconInnerShadowTop,
   IconReceipt,
-  IconReport,
   IconSettings,
   IconUser,
 } from "@tabler/icons-react";
@@ -28,10 +25,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
-import { useQuery } from "@tanstack/react-query";
-import { getMe } from "@/features/users/lib/getMe";
 import { UserNavMain } from "./user-nav-main";
-import { useMe } from "@/features/users/hooks/useMe";
 
 const data = {
   navMain: [
@@ -116,8 +110,6 @@ const data = {
 export function UserAppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { data: userData } = useMe();
-
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>

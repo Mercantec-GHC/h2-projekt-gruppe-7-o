@@ -1,7 +1,7 @@
 import { Testimonial7 } from "@/components/shadcnblocks/testimonails/Testimonial7";
 import { RoomAvailability } from "@/features/booking/types/booking";
 import BookingWidget from "@/features/booking/components/booking-widget";
-import { HotelCards } from "@/features/hotels/components/HotelCards";
+import { HotelCards } from "@/features/hotel/components/HotelCards";
 
 export default function HomePage() {
   // TODO: get user from session

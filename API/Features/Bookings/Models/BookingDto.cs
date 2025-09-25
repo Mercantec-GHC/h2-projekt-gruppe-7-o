@@ -23,12 +23,12 @@ public class BookingWithRoomsDto : BookingResponseDto
     public List<RoomResponseDto> Rooms { get; set; } = new List<RoomResponseDto>();
 }
 
-public sealed class BookingCreateDto
+public class BookingCreateDto
 {
     public required DateTime CheckIn { get; init; }
     public required DateTime CheckOut { get; init; }
-    public Guid? HotelId { get; set; } // Valgfrit, hvis bookingen kun gælder for ét hotel
-    public List<RoomBookingDto> RoomBookings { get; set; } // En liste med hvert værelse og dets tilvalg
+    public Guid? HotelId { get; set; } // Valgfrit, hvis bookingen kun gï¿½lder for ï¿½t hotel
+    public List<RoomBookingDto> RoomBookings { get; set; } // En liste med hvert vï¿½relse og dets tilvalg
 }
 
 public sealed class BookingUpdateDto
@@ -49,7 +49,6 @@ public class RoomBookingDto
 
     public List<AddonDto> Addons { get; set; }
 }
-
 
 public class AddonDto
 {
