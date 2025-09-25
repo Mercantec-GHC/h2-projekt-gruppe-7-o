@@ -85,27 +85,30 @@ public class HotelsSeeder(AppDBContext context)
 
     private static string GetHotelImageUrl(string city)
     {
-        return city switch
+        // Using static Pexels links for reliable hotel images (1600x900)
+        return city switch
         {
-            "København" => "https://source.unsplash.com/1600x900/?copenhagen-hotel",
-            "Aarhus" => "https://source.unsplash.com/1600x900/?aarhus-hotel",
-            "Odense" => "https://source.unsplash.com/1600x900/?odense-hotel",
-            "Aalborg" => "https://source.unsplash.com/1600x900/?aalborg-hotel",
-            _ => "https://source.unsplash.com/1600x900/?hotel"
+            "København" => "https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
+            "Aarhus" => "https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
+            "Odense" => "https://images.pexels.com/photos/2034335/pexels-photo-2034335.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
+            "Aalborg" => "https://images.pexels.com/photos/1457842/pexels-photo-1457842.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
+            _ => "https://images.pexels.com/photos/338504/pexels-photo-338504.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop"
         };
     }
 
     private static string GetRoomImageUrl(RoomType roomType)
     {
-        return roomType switch
+        // Using static Pexels links for reliable room images (800x600)
+        return roomType switch
         {
-            RoomType.Standard => "https://source.unsplash.com/800x600/?hotel-standard-room",
-            RoomType.Deluxe => "https://source.unsplash.com/800x600/?hotel-deluxe-room",
-            RoomType.Family => "https://source.unsplash.com/800x600/?hotel-family-room",
-            RoomType.Suite => "https://source.unsplash.com/800x600/?hotel-suite",
-            _ => "https://source.unsplash.com/800x600/?hotel-room"
+            RoomType.Standard => "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
+            RoomType.Deluxe => "https://images.pexels.com/photos/271643/pexels-photo-271643.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
+            RoomType.Family => "https://images.pexels.com/photos/6489083/pexels-photo-6489083.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
+            RoomType.Suite => "https://images.pexels.com/photos/262047/pexels-photo-262047.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
+            _ => "https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop"
         };
     }
+
 
     private static string GetRoomDescription(Faker faker, RoomType roomType)
     {
