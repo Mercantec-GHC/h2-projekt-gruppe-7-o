@@ -14,12 +14,11 @@ public static class BookingMapping
             CheckOut = Booking.CheckOut,
             Adults = Booking.Adults,
             Children = Booking.Children,
-            TotalPrice = Booking.TotalPrice, // Use the stored TotalPrice
-            Status = Booking.Status,
+            TotalPrice = Booking.TotalPrice,
+            Status = Booking.Status.ToString(),
             CreatedAt = Booking.CreatedAt,
             UpdatedAt = Booking.UpdatedAt,
             User = Booking.User?.ToUserDto(),
-            // You should get rooms from the booking lines, not the Rooms collection
             Rooms = Booking.BookingLines?
                 .Where(bl => bl.Type == BookingLineType.Room && bl.Room != null)
                 .Select(bl => bl.Room.ToRoomDto())

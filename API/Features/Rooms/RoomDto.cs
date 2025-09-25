@@ -8,9 +8,10 @@ public class RoomResponseDto
     public required string Number { get; init; }
     public required short Capacity { get; init; }
     public required decimal PricePerNight { get; set; }
-    public required RoomType Type { get; set; }
+    public required string Type { get; set; }
     public short? Floor { get; init; }
     public string? Description { get; set; }
+    public string? ImageUrl { get; set; }
     public bool IsActive { get; set; } = false;
 
     public DateTimeOffset CreatedAt { get; set; }
@@ -19,8 +20,13 @@ public class RoomResponseDto
 
 public class RoomTypeAvailability
 {
-    public RoomType Type { get; set; }
+    public string Type { get; set; }
+    public short Capacity { get; set; }
     public int AvailableRoomsCount { get; set; }
+    public decimal PricePerNight { get; set; }
+    public decimal TotalPrice { get; set; }
+    public string? RoomImageUrl { get; set; }
+    public string? RoomDescription { get; set; }
 }
 
 public class RoomTypesAvailablityResponseDto

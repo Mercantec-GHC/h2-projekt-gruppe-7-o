@@ -19,7 +19,7 @@ public class BookingService
         _mailService = mailService;
     }
 
-    public async Task<Guid> CreateBookingAsync(BookingCreateDto dto, Guid userId, string userEmail, string userName)
+    public async Task<BookingResponseDto> CreateBookingAsync(BookingCreateDto dto, Guid userId, string userEmail, string userName)
     {
         if (dto.CheckOut <= dto.CheckIn)
             throw new InvalidOperationException("Check-out must be after check-in.");
@@ -144,6 +144,6 @@ public class BookingService
             _logger.LogError(ex, "Failed to send confirmation email for booking {BookingId}", booking.Id);
         }
 
-        return booking.Id;
+        return booking.ToBookingDto();
     }
 }

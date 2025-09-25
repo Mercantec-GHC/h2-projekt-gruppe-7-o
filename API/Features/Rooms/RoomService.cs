@@ -66,15 +66,32 @@ public class RoomService
             throw new InvalidOperationException("Start date must be before end date.");
         }
 
-        var availableRooms = await this.GetAvailableRoomsAsync(hotelId, checkIn, checkOut);
+        // 1. Brug den nye hjælpefunktion til at hente de rå Room-entiteter.
+        var availableRoomsEntities = await this.GetAvailableRoomEntitiesAsync(hotelId, checkIn, checkOut);
 
-        var roomTypes = availableRooms.Rooms.GroupBy(r => r.Type);
+        // Beregn antal nætter for at kunne udregne TotalPrice
+        int numberOfNights = (int)(checkOut - checkIn).TotalDays;
 
-        var roomTypeAvailabilities = roomTypes.Select(g => new RoomTypeAvailability
-        {
-            Type = g.Key,
-            AvailableRoomsCount = g.Count()
-        });
+        // 2. Gruppér efter Type og udfyld RoomTypeAvailability DTO'en
+        var roomTypeAvailabilities = availableRoomsEntities
+            .GroupBy(r => r.Type)
+            .Select(g =>
+            {
+                // Vælg det første værelse i gruppen for at hente de statiske oplysninger (pris, beskrivelse, billede)
+                var sampleRoom = g.First();
+
+                return new RoomTypeAvailability
+                {
+                    Type = g.Key.ToString(),
+                    Capacity = sampleRoom.Capacity,
+                    AvailableRoomsCount = g.Count(),
+                    PricePerNight = sampleRoom.PricePerNight,
+                    TotalPrice = sampleRoom.PricePerNight * numberOfNights,
+                    RoomImageUrl = sampleRoom.ImageUrl,
+                    RoomDescription = sampleRoom.Description
+                };
+            })
+            .ToList();
 
 
         return new RoomTypesAvailablityResponseDto
@@ -83,44 +100,60 @@ public class RoomService
         };
     }
 
-    public async Task<AvailabilityResponseDto> GetAvailableRoomsAsync(
+    private async Task<List<Room>> GetAvailableRoomEntitiesAsync(
         Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
     {
-        // Sæt standarddatoer, hvis der ikke er angivet nogen
         var start = checkIn ?? DateTime.Today;
         var end = checkOut ?? DateTime.Today.AddDays(365);
         if (start >= end)
             throw new InvalidOperationException("Start date must be before end date.");
 
-        // Beregn antal gæster
-
         // Hent alle rum
         var rooms = await _repository.GetAllAsync();
 
-        // Filtrér på hotelId, hvis det er angivet, ellers brug alle rum
+        // Filtrér på hotelId, hvis det er angivet
         var hotelRooms = hotelId.HasValue ? rooms.Where(r => r.HotelId == hotelId.Value).ToList() : rooms.ToList();
 
         // Hent bookinger, der overlapper perioden
         var overlappingBookings = await _bookingRepository.GetOverlappingBookingsAsync(
             hotelRooms.Select(r => r.Id).ToList(), start, end);
 
-        // Find alle rum, som allerede er booket
+        // Find alle rum-ID'er, som allerede er booket
         var bookedRoomIds = overlappingBookings
             .SelectMany(b => b.Rooms)
             .Select(r => r.Id)
             .Distinct()
             .ToList();
 
+        // Returner de FULDE Room-entiteter, som er ledige
         var available = hotelRooms
             .Where(r => !bookedRoomIds.Contains(r.Id))
-            .Select(r => r.ToRoomDto())
             .ToList();
+
+        return available;
+    }
+
+
+
+    public async Task<AvailabilityResponseDto> GetAvailableRoomsAsync(
+        Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
+    {
+        var start = checkIn ?? DateTime.Today;
+        var end = checkOut ?? DateTime.Today.AddDays(365);
+        if (start >= end)
+            throw new InvalidOperationException("Start date must be before end date.");
+
+        
+        var availableEntities = await this.GetAvailableRoomEntitiesAsync(hotelId, checkIn, checkOut);
+
+        // Konverter entiteterne til DTO'er
+        var availableDtos = availableEntities.Select(r => r.ToRoomDto()).ToList();
 
         return new AvailabilityResponseDto
         {
             CheckIn = start,
             CheckOut = end,
-            Rooms = available
+            Rooms = availableDtos
         };
     }
 
