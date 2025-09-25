@@ -1,21 +1,11 @@
 "use client";
-import { useMutation } from "@tanstack/react-query";
-import { logout } from "@/features/auth/lib/logout";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useSessionStore } from "@/features/auth/stores/sessionStore";
 
 const AuthenticatedHeader = () => {
-  const router = useRouter();
-  const { logout: logoutSession, user } = useSessionStore();
-  const mutate = useMutation({
-    mutationFn: logout,
-    onSuccess: () => {
-      router.push("/");
-      logoutSession();
-    },
-  });
+  const { user } = useSessionStore();
+
   return (
     <nav className="flex items-center justify-between nav-content-container">
       <Link className="font-mono" href="/">

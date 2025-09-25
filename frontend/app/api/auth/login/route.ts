@@ -1,34 +1,32 @@
-import { apiFetch } from "@/lib/utilities/apiFetch";
+import { apiClient } from "@/api/client";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  // throw new Error("Not implemented");
-  const { email, password } = await req.json();
+  try {
+    const { email, password } = await req.json();
 
-  const apiRes = await apiFetch(`/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ usernameOrEmail: email, password }),
-  });
+    const apiRes = await apiClient.post("/auth/login", {
+      email: email,
+      password: password,
+    });
 
-  if (!apiRes.ok) {
+    const token = apiRes.data.token;
+
+    const res = NextResponse.json({ ok: true });
+    res.cookies.set("session", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+    });
+
+    return res;
+
+    //TODO: how do we type this properly?
+  } catch (err: any) {
     return NextResponse.json(
-      { error: "Invalid credentials" },
-      { status: apiRes.status },
+      { error: err.response.data?.message ?? "Something went wrong" },
+      { status: err.response.status },
     );
   }
-
-  const data = await apiRes.json();
-
-  const token = data.token;
-
-  const res = NextResponse.json({ ok: true });
-  res.cookies.set("session", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-  });
-
-  return res;
 }

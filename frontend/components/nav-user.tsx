@@ -4,11 +4,10 @@ import {
   IconCreditCard,
   IconDotsVertical,
   IconLogout,
-  IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,19 +23,19 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { logout } from "@/features/auth/lib/logout";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { getUserInitials } from "@/features/users/lib/utilts";
+import { getUserInitials } from "@/features/user/lib/utilts";
 import Link from "next/link";
 import { useSessionStore } from "@/features/auth/stores/sessionStore";
+import AuthApi from "@/features/auth/api/auth-api";
 
 export function NavUser() {
   const router = useRouter();
   const { logout: sessionLogout, user: sessionUser } = useSessionStore();
   const { isMobile } = useSidebar();
   const mutation = useMutation({
-    mutationFn: logout,
+    mutationFn: AuthApi.logout,
     onSuccess: () => {
       sessionLogout();
       router.refresh();

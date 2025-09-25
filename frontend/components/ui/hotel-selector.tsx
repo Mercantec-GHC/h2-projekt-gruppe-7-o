@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { MapPinIcon, ChevronDownIcon } from "lucide-react";
+import { MapPinIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import {
@@ -12,9 +12,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useHotels } from "@/features/hotels/useHotels";
 import { useBookingStore } from "@/features/booking/bookingStore";
-import { Hotel } from "@/features/hotels/types/Hotel";
+import { useHotels } from "@/features/hotel/queries/useGetHotels";
 
 interface HotelSelectorProps {
   placeholder?: string;

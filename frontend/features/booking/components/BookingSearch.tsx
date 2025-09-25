@@ -18,7 +18,6 @@ import {
   AlertCircleIcon,
   XIcon,
   SearchIcon,
-  MapPinIcon,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -29,7 +28,13 @@ import { useEffect, useState } from "react";
 import { useStepper } from "@/features/booking/components/booking-widget";
 import { HotelSelector } from "@/components/ui/hotel-selector";
 import { useBookingStore } from "../bookingStore";
-import { useSearchAvailableRooms } from "../hooks/useBooking";
+import {
+  formatDateRange,
+  foundAvailableRooms,
+  getGuestsCountText,
+  getTotalGuestsText,
+} from "../domain";
+import { useSearchAvailableRooms } from "../queries/useSearchAvailableRooms";
 
 export const BookingSearch = () => {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -39,12 +44,14 @@ export const BookingSearch = () => {
   const {
     selectedHotel,
     guestCount,
+    roomCount: roomAmount,
     setCheckInDate,
     setCheckOutDate,
     checkInDate,
     checkOutDate,
     updateAdults,
     updateChildren,
+    updateRoomAmount,
   } = useBookingStore();
 
   const canSearch =
@@ -55,40 +62,24 @@ export const BookingSearch = () => {
     guestCount.adults !== undefined &&
     guestCount.children !== undefined;
 
-  const {
-    data,
-    refetch: searchForRooms,
-    isFetching,
-    isError: searchError,
-  } = useSearchAvailableRooms(
+  const availableRooms = useSearchAvailableRooms(
     {
       hotelId: selectedHotel?.id,
+      //TODO: fix this type, it is date when passed to the useSearchAvailableRooms, and is then parsed to a string before the request is sent off
       checkIn: checkInDate,
       checkOut: checkOutDate,
       adults: guestCount.adults,
       children: guestCount.children,
+      roomAmount,
     },
     false,
   );
 
   useEffect(() => {
-    if (data?.rooms && data?.rooms.length > 0) {
+    if (foundAvailableRooms(availableRooms?.data)) {
       methods.next();
     }
-  }, [data]);
-
-  const getGuestText = () => {
-    const totalGuests = guestCount.adults + guestCount.children;
-    if (totalGuests === 1) return "1 Guest";
-    return `${totalGuests} Guests`;
-  };
-
-  const formatDateRange = () => {
-    if (checkInDate && checkOutDate) {
-      return `${checkInDate.toLocaleDateString("da-DK")} - ${checkOutDate.toLocaleDateString("da-DK")}`;
-    }
-    return "Select dates";
-  };
+  }, [availableRooms.data, methods]);
 
   // Show validation errors or search errors
 
@@ -104,13 +95,12 @@ export const BookingSearch = () => {
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Hotel Selection */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Select Hotel</Label>
-          <HotelSelector placeholder="Choose a hotel..." />
-        </div>
-
-        <div className="flex items-base gap-4">
+        <div className="flex items-baseline gap-8">
+          {/* Hotel Selection */}
+          <div className="space-y-2 h-full">
+            <Label className="text-sm font-medium">Select Hotel</Label>
+            <HotelSelector placeholder="Choose a hotel..." />
+          </div>
           {/* Date Selection */}
           <div className="space-y-2 w-full">
             <Label className="text-sm font-medium">Check-in & Check-out</Label>
@@ -122,7 +112,9 @@ export const BookingSearch = () => {
                 >
                   <div className="flex items-center gap-2">
                     <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{formatDateRange()}</span>
+                    <span className="text-sm">
+                      {formatDateRange(checkInDate, checkOutDate)}
+                    </span>
                   </div>
                   <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -149,8 +141,43 @@ export const BookingSearch = () => {
               </PopoverContent>
             </Popover>
           </div>
+        </div>
 
+        <div className="flex items-base gap-4">
           {/* Guest Selection */}
+          <div className="space-y-2 w-96">
+            <Label className="text-sm font-medium">Rooms</Label>
+            <div className="flex items-center gap-3 h-12 px-3 border border-input rounded-md">
+              <div className="flex items-center gap-2 flex-1">
+                <span className="text-sm text-muted-foreground">Rooms:</span>
+                <span className="text-sm font-medium">{roomAmount}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => updateRoomAmount("decrement")}
+                  disabled={roomAmount <= 1}
+                >
+                  <MinusIcon className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 w-8 p-0"
+                  onClick={() => updateRoomAmount("increment")}
+                  disabled={roomAmount >= 10}
+                >
+                  <PlusIcon className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground select-none">
+              {roomAmount} room{roomAmount !== 1 ? "s" : ""}
+            </p>
+          </div>
+          {/* Rooms Selection */}
           <div className="space-y-2 w-full">
             <Label className="text-sm font-medium">Guests</Label>
             <Popover open={isGuestsOpen} onOpenChange={setIsGuestsOpen}>
@@ -161,7 +188,9 @@ export const BookingSearch = () => {
                 >
                   <div className="flex items-center gap-2">
                     <UsersIcon className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{getGuestText()}</span>
+                    <span className="text-sm">
+                      {getTotalGuestsText(guestCount)}
+                    </span>
                   </div>
                   <ChevronDownIcon className="h-4 w-4 text-muted-foreground" />
                 </Button>
@@ -263,16 +292,14 @@ export const BookingSearch = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <p className="text-xs text-muted-foreground">
-              {guestCount.adults} adult{guestCount.adults !== 1 ? "s" : ""}
-              {guestCount.children > 0 &&
-                `, ${guestCount.children} child${guestCount.children !== 1 ? "ren" : ""}`}
+            <p className="text-xs text-muted-foreground select-none">
+              {getGuestsCountText(guestCount)}
             </p>
           </div>
         </div>
 
         {/* Error Display */}
-        {searchError && (
+        {availableRooms.error && (
           <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-md">
             <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm">
@@ -288,32 +315,22 @@ export const BookingSearch = () => {
           </div>
         )}
 
-        {/* Search Results Count */}
-        {data?.rooms && data?.rooms.length > 0 && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-            <p className="text-sm text-green-800">
-              Found {data?.rooms.length} available room
-              {data?.rooms.length !== 1 ? "s" : ""} for your dates!
-            </p>
-          </div>
-        )}
-
-        {data?.rooms && data?.rooms.length === 0 && (
+        {/*{data?.rooms && data?.rooms.length === 0 && (
           <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
             <p className="text-sm text-amber-800">
               No rooms available for your selected dates and guest count. Try
               different dates or fewer guests.
             </p>
           </div>
-        )}
+        )}*/}
 
         {/* Search Button */}
         <Button
           className="w-full h-12 text-base font-medium"
-          disabled={!canSearch || isFetching}
-          onClick={() => searchForRooms()}
+          disabled={!canSearch || availableRooms.isFetching}
+          onClick={() => availableRooms.refetch()}
         >
-          {isFetching ? (
+          {availableRooms.isFetching ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
               Searching...
@@ -325,18 +342,6 @@ export const BookingSearch = () => {
             </div>
           )}
         </Button>
-
-        {/* Booking Summary */}
-        {/*{selectedHotelId && dateRange?.from && dateRange?.to && (
-          <div className="text-sm text-muted-foreground text-center">
-            <span className="inline-flex items-center gap-1">
-              <MapPinIcon className="h-3 w-3" />
-              {getHotelById(selectedHotelId)?.name}
-            </span>
-            {" • "}
-            {nights} night{nights !== 1 ? "s" : ""} • {getGuestText()}
-          </div>
-        )}*/}
       </CardContent>
     </Card>
   );

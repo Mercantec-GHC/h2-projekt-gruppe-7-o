@@ -14,16 +14,16 @@ import { Input } from "@/components/ui/input";
 
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/features/auth/lib/login";
 import { PasswordField } from "@/components/PasswordFormField";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { login } from "../api/auth-api";
 
 export default function LoginForm() {
   const router = useRouter();
   const formSchema = z.object({
-    email: z.email({
-      message: "Please enter a valid email address",
+    emailOrUsername: z.string().min(1, {
+      message: "Please enter a valid email address or username",
     }),
     password: z.string().min(1, "Please enter a password"),
   });
@@ -32,7 +32,7 @@ export default function LoginForm() {
     resolver: zodResolver(formSchema),
     // Since FormField is using a controlled component, you need to provide a default value for the field
     defaultValues: {
-      email: "",
+      emailOrUsername: "",
       password: "",
     },
   });
@@ -44,8 +44,10 @@ export default function LoginForm() {
       // Refresh server components to pick up new HttpOnly session cookie (triggers middleware redirects)
       router.refresh();
     },
-    onError: (error) => {
-      form.setError("email", { message: "Invalid email or password" });
+    onError: () => {
+      form.setError("emailOrUsername", {
+        message: "Invalid email or password",
+      });
       form.setError("password", { message: "Invalid email or password" });
     },
   });
@@ -60,7 +62,7 @@ export default function LoginForm() {
         <div className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="emailOrUsername"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>

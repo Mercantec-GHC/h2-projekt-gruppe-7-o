@@ -1,25 +1,28 @@
 import { create } from "zustand";
-import { Hotel } from "../hotels/types/Hotel";
-import { GuestCount } from "./types/booking";
-import { AvailableRoom } from "./services/bookingService";
+import { GuestCount, RoomBooking } from "./types/booking";
 import { differenceInDays } from "date-fns";
+import { Hotel } from "../hotel/domain";
 
 interface BookingStore {
   selectedHotel?: Hotel;
   guestCount: GuestCount;
+  roomCount: number;
   checkInDate?: Date;
   checkOutDate?: Date;
   totalGuests: number;
-  selectedRoom?: AvailableRoom;
+  selectedRoomBookings: RoomBooking[];
 
   // Actions
   setSelectedHotel: (hotel: Hotel | undefined) => void;
   updateAdults: (increment: boolean) => void;
   updateChildren: (increment: boolean) => void;
+  updateRoomAmount: (increment: "increment" | "decrement") => void;
   setGuestCount: (guestCount: GuestCount) => void;
   setCheckInDate: (date: Date | undefined) => void;
   setCheckOutDate: (date: Date | undefined) => void;
-  setSelectedRoom: (room: AvailableRoom | undefined) => void;
+  setSelectedRoomBookings: (rooms: RoomBooking[] | undefined) => void;
+  addRoom: (room: RoomBooking) => void;
+  removeRoomAtIndex: (index: number) => void;
 }
 
 export const useBookingStore = create<BookingStore>((set, get) => ({
@@ -27,7 +30,8 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
   guestCount: { adults: 1, children: 0 },
   checkInDate: undefined,
   checkOutDate: undefined,
-  selectedRoom: undefined,
+  selectedRoomBookings: [],
+  roomCount: 1,
 
   get totalGuests() {
     const state = get();
@@ -58,5 +62,24 @@ export const useBookingStore = create<BookingStore>((set, get) => ({
   setGuestCount: (guestCount: GuestCount) => set({ guestCount }),
   setCheckInDate: (date: Date | undefined) => set({ checkInDate: date }),
   setCheckOutDate: (date: Date | undefined) => set({ checkOutDate: date }),
-  setSelectedRoom: (room: Room | undefined) => set({ selectedRoom: room }),
+  setSelectedRoomBookings: (rooms: RoomBooking[] | undefined) =>
+    set({ selectedRoomBookings: rooms }),
+  addRoom: (room: RoomBooking) => {
+    set((state) => ({
+      selectedRoomBookings: [...state.selectedRoomBookings, room],
+    }));
+  },
+  removeRoomAtIndex: (index: number) => {
+    set((state) => ({
+      selectedRoomBookings: state.selectedRoomBookings.filter(
+        (_, i) => i !== index,
+      ),
+    }));
+  },
+  updateRoomAmount: (increment: "increment" | "decrement") => {
+    set((state) => ({
+      roomCount:
+        increment === "increment" ? state.roomCount + 1 : state.roomCount - 1,
+    }));
+  },
 }));
