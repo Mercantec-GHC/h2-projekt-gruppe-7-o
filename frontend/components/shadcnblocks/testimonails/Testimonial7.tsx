@@ -131,9 +131,9 @@ const Testimonial7 = () => {
   return (
     <section className="content-container-y">
       <div className=" flex flex-col items-center gap-6">
-        <h2 className="font-mono text-center font-bold text-5xl">GUEST BOOK</h2>
+        <h2 className="font-mono text-center font-bold text-5xl">GÆSTEBOG</h2>
         <p className="font-mono text-muted-foreground text-lg">
-          Meet our happy guests
+          MØD VORES GLADE GÆSTER!
         </p>
       </div>
       <div className="">

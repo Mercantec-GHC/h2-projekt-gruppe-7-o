@@ -1,8 +1,13 @@
 import { RoomType } from "../api/dto";
-import { GuestCount } from "../types/booking";
+import { SelectedRoomBookings } from "../bookingStore";
 
 export interface RoomTypeAvailability {
   type: RoomType;
+  capacity: number;
+  roomDescription: string;
+  roomImageUrl: string;
+  pricePerNight: number;
+  totalPrice: number;
   availableRoomsCount: number;
 }
 
@@ -12,21 +17,40 @@ export interface RoomTypeAvailabilityFormData {
   checkOutDate: Date;
 }
 
-export interface RoomBookingAddons {
+// TODO: Implement RoomBookingAddon - not done in the backend yet
+export interface RoomBookingAddon {
   type: number;
   description: string;
   amount: number;
 }
 
-export interface RoomBooking {
-  roomType: RoomType;
+export interface CreateBooking {
+  hotelId: string;
+  checkIn: Date;
+  checkOut: Date;
+  bookings: SelectedRoomBookings;
+}
+
+export interface RoomBooking extends RoomTypeAvailability {
   adults: number;
   children: number;
-  addons: RoomBookingAddons[];
+  addons: RoomBookingAddon[];
+}
+
+export interface GuestCount {
+  adults: number;
+  children: number;
 }
 
 export function foundAvailableRooms(availableRooms?: RoomTypeAvailability[]) {
   return availableRooms?.some((room) => room.availableRoomsCount > 0) ?? false;
+}
+
+export function getTotalRoomBookingCapacity(roomBookings: RoomBooking[]) {
+  return roomBookings.reduce(
+    (total, roomBooking) => total + roomBooking.capacity,
+    0,
+  );
 }
 
 export function getTotalAvailableRoomsCount(
@@ -42,16 +66,23 @@ export function getTotalAvailableRoomsCount(
 
 export function getTotalGuestsText(guestCount: GuestCount) {
   const totalGuests = guestCount.adults + guestCount.children;
-  if (totalGuests === 1) return "1 Guest";
-  return `${totalGuests} Guests`;
+  if (totalGuests === 1) return "1 Gæst";
+  return `${totalGuests} Gæster`;
+}
+
+export function getTotalNightsStayText(nightCount: number) {
+  const text = nightCount === 1 ? "nat" : "nætter";
+  return `${nightCount} ${text}`;
 }
 
 export function getAdultsCountText(adults: number) {
-  return `${adults} adult${adults === 1 ? "" : "s"}`;
+  const text = adults === 1 ? "voksen" : "voksne";
+  return `${adults} ${text}`;
 }
 
 export function getChildrenCountText(children: number) {
-  return `${children} child${children === 1 ? "" : "ren"}`;
+  const text = children === 1 ? "barn" : "børn";
+  return `${children} ${text}`;
 }
 
 export function getGuestsCountText(guestCount: GuestCount) {
@@ -61,8 +92,32 @@ export function getGuestsCountText(guestCount: GuestCount) {
 }
 
 export const formatDateRange = (checkInDate?: Date, checkOutDate?: Date) => {
+  if (!checkInDate || !checkOutDate) {
+    return null;
+  }
+
   if (checkInDate && checkOutDate) {
     return `${checkInDate.toLocaleDateString("da-DK")} - ${checkOutDate.toLocaleDateString("da-DK")}`;
   }
-  return "Select dates";
+};
+
+export const getPriceText = ({
+  pricePerNight,
+  totalPrice,
+}: {
+  pricePerNight: number;
+  totalPrice: number;
+}) => {
+  const currency = new Intl.NumberFormat("da-DK", {
+    style: "currency",
+    currency: "DKK",
+    currencyDisplay: "symbol",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  });
+
+  const priceText = `${currency.format(pricePerNight)}/nat`;
+  const totalPriceText = currency.format(totalPrice);
+
+  return `${priceText} (${totalPriceText})`;
 };

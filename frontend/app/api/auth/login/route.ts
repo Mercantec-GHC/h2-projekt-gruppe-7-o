@@ -1,19 +1,24 @@
 import { apiClient } from "@/api/client";
+import { CONSTANTS } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  try {
-    const { email, password } = await req.json();
+  const { usernameOrEmail, password } = await req.json();
 
-    const apiRes = await apiClient.post("/auth/login", {
-      email: email,
+  try {
+    const apiRes = await apiClient.post(`/auth/login`, {
+      usernameOrEmail: usernameOrEmail, // Backend expects 'usernameOrEmail', not 'emailOrUsername'
       password: password,
     });
 
-    const token = apiRes.data.token;
+    const { token, user } = apiRes.data;
 
-    const res = NextResponse.json({ ok: true });
-    res.cookies.set("session", token, {
+    const res = NextResponse.json({
+      ok: true,
+      user: user,
+    });
+
+    res.cookies.set(CONSTANTS.SESSION_COOKIE_NAME, token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -21,12 +26,19 @@ export async function POST(req: Request) {
     });
 
     return res;
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "response" in err) {
+      const axiosError = err as {
+        response: { data?: { message?: string }; status: number };
+      };
+      // Non-2xx response from server
+      return NextResponse.json(
+        { error: axiosError.response.data?.message ?? "Something went wrong" },
+        { status: axiosError.response.status },
+      );
+    }
 
-    //TODO: how do we type this properly?
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err.response.data?.message ?? "Something went wrong" },
-      { status: err.response.status },
-    );
+    // Network error / timeout / no response
+    return NextResponse.json({ error: "Network error" }, { status: 502 });
   }
 }

@@ -22,8 +22,8 @@ import { login } from "../api/auth-api";
 export default function LoginForm() {
   const router = useRouter();
   const formSchema = z.object({
-    emailOrUsername: z.string().min(1, {
-      message: "Please enter a valid email address or username",
+    usernameOrEmail: z.string().min(1, {
+      message: "Please enter a valid username or email",
     }),
     password: z.string().min(1, "Please enter a password"),
   });
@@ -32,7 +32,7 @@ export default function LoginForm() {
     resolver: zodResolver(formSchema),
     // Since FormField is using a controlled component, you need to provide a default value for the field
     defaultValues: {
-      emailOrUsername: "",
+      usernameOrEmail: "",
       password: "",
     },
   });
@@ -45,7 +45,7 @@ export default function LoginForm() {
       router.refresh();
     },
     onError: () => {
-      form.setError("emailOrUsername", {
+      form.setError("usernameOrEmail", {
         message: "Invalid email or password",
       });
       form.setError("password", { message: "Invalid email or password" });
@@ -62,7 +62,7 @@ export default function LoginForm() {
         <div className="space-y-4">
           <FormField
             control={form.control}
-            name="emailOrUsername"
+            name="usernameOrEmail"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Email</FormLabel>
