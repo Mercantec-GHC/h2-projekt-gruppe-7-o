@@ -19,35 +19,25 @@ services:
     networks:
       - h2-network
 
-
-  # Bruno API Tests
-  bruno-tests:
-    image: node:20-alpine
-    working_dir: /app
-    volumes:
-      - ./Bruno:/app/Bruno
-      - ./test-results:/app/test-results
+  # Blazor WASM App
+  blazor:
+    build:
+      context: .
+      dockerfile: Blazor/Dockerfile
+      args:
+        BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
+        VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}
+    container_name: h2-blazor
+    ports:
+      - "8052:80"
+    env_file:
+      - .env
     environment:
-      - NODE_ENV=production
-    command: >
-      sh -c "
-        echo '🚀 Installing Bruno CLI...' &&
-        npm install -g @usebruno/cli &&
-        echo '⏳ Waiting for API to be ready...' &&
-        sleep 30 &&
-        echo '🧪 Running Bruno API Tests...' &&
-        cd Bruno/API &&
-        npx @usebruno/cli run --env KAbdiKhan --output /app/test-results/test-report-$$(date +%Y-%m-%d_%H-%M-%S).html --format html &&
-        npx @usebruno/cli run --env KAbdiKhan --output /app/test-results/test-results-$$(date +%Y-%m-%d_%H-%M-%S).json --format json &&
-        echo '✅ Tests completed! Results saved to test-results/ folder' &&
-        echo '📊 Test Summary:' &&
-        ls -la /app/test-results/
-      "
+      - ASPNETCORE_ENVIRONMENT=Development
     depends_on:
       - api
     networks:
       - h2-network
-    restart: "no"
 
 networks:
   h2-network:
