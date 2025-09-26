@@ -12,7 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBookingStore } from "@/features/booking/bookingStore";
+import {
+  useBookingActions,
+  useBookingStore,
+  useSelectedHotel,
+} from "@/features/booking/bookingStore";
 import { useHotels } from "@/features/hotel/queries/useGetHotels";
 
 interface HotelSelectorProps {
@@ -27,8 +31,9 @@ export function HotelSelector({
   disabled = false,
 }: HotelSelectorProps) {
   const { data, isLoading, error } = useHotels();
+  const selectedHotel = useSelectedHotel();
+  const { setSelectedHotel } = useBookingActions();
 
-  const { selectedHotel, setSelectedHotel } = useBookingStore();
   if (error) {
     return (
       <div className="flex items-center space-x-2 p-3 border rounded-md bg-destructive/10">

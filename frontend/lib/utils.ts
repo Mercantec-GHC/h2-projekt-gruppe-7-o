@@ -10,7 +10,18 @@ export function toUtcIsoZ(input: string): string {
   return d.toISOString(); // always UTC with 'Z'
 }
 
-export function formatDateToLocaleString(date: Date, locale = "da-DK"): string {
+export function formatDateToLocaleString(
+  date?: Date,
+  locale = "da-DK",
+): string {
+  if (!date) return "";
   const formattedDate = date.toLocaleDateString(locale);
   return formattedDate;
+}
+
+export function formatCurrency(amount: number, currency = "DKK"): string {
+  return new Intl.NumberFormat("da-DK", {
+    style: "currency",
+    currency,
+  }).format(amount);
 }

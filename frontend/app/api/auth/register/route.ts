@@ -27,12 +27,15 @@ export async function POST(req: Request) {
 
     return res;
     // TODO: how do we type this error?
-  } catch (err: any) {
-    if (err.response) {
+  } catch (err: unknown) {
+    if (err && typeof err === "object" && "response" in err) {
+      const axiosError = err as {
+        response: { data?: { message?: string }; status: number };
+      };
       // Non-2xx response from server
       return NextResponse.json(
-        { error: err.response.data?.message ?? "Something went wrong" },
-        { status: err.response.status },
+        { error: axiosError.response.data?.message ?? "Something went wrong" },
+        { status: axiosError.response.status },
       );
     }
 

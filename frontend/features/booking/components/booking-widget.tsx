@@ -1,31 +1,42 @@
 "use client";
+import { motion } from "framer-motion";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { defineStepper } from "@/components/stepper";
 import { BookingSearch } from "@/features/booking/components/BookingSearch";
 import BookingChooseRoom from "./BookingChooseRooms";
-import BookingSummary from "./BookingSummary";
+import { BookingAssignGuestsToRooms } from "./BookingAssignGuestsToRooms";
+import BookingConfirmation from "./BookingConfirmation";
 
 interface BookingWidgetEnhancedProps {
   className?: string;
 }
 
 export const { Stepper, useStepper } = defineStepper(
-  { id: "step-1", title: "Search Hotels" },
-  { id: "step-2", title: "Choose Room" },
-  { id: "step-3", title: "Confirm Booking" },
+  { id: "step-1", title: "Find Rum" },
+  { id: "step-2", title: "Vælg Rum" },
+  { id: "step-3", title: "Tildel Rum" },
+  { id: "step-4", title: "Bekræft Booking" },
 );
 
 export default function BookingWidget({
   className = "",
 }: BookingWidgetEnhancedProps) {
   return (
-    <div className={`space-y-6 w-full ${className}`}>
+    <div className={`w-full ${className}`}>
       <Stepper.Provider className="space-y-8">
         {({ methods }) => (
-          <>
-            <Stepper.Navigation>
+          <motion.div
+            animate={{
+              opacity: 1,
+              top: methods.current.id !== "step-1" ? -20 : "auto",
+            }}
+            initial={{ opacity: 0 }}
+            style={{
+              position: methods.current.id !== "step-1" ? "relative" : "static",
+            }}
+          >
+            <Stepper.Navigation className="mb-8">
               {methods.all.map((step) => (
                 <Stepper.Step
                   key={step.id}
@@ -37,11 +48,13 @@ export default function BookingWidget({
               ))}
             </Stepper.Navigation>
             {methods.switch({
+              // "step-1": (step) => <BookingConfirmation />,
               "step-1": (step) => <BookingSearch />,
               "step-2": (step) => <BookingChooseRoom />,
-              "step-3": (step) => <BookingSummary />,
+              "step-3": (step) => <BookingAssignGuestsToRooms />,
+              "step-4": (step) => <BookingConfirmation />,
             })}
-            <Stepper.Controls>
+            {/*<Stepper.Controls>
               {!methods.isLast && (
                 <Button
                   type="button"
@@ -55,8 +68,8 @@ export default function BookingWidget({
               <Button onClick={methods.isLast ? methods.reset : methods.next}>
                 {methods.isLast ? "Reset" : "Next"}
               </Button>
-            </Stepper.Controls>
-          </>
+            </Stepper.Controls>*/}
+          </motion.div>
         )}
       </Stepper.Provider>
     </div>

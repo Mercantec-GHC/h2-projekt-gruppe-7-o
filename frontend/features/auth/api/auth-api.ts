@@ -8,7 +8,7 @@ import {
 
 // This calls our own NextJS API that works as a proxy to our .NET API
 export async function login({
-  emailOrUsername,
+  usernameOrEmail,
   password,
 }: LoginRequestDto): Promise<LoginResponseDto> {
   const res = await fetch("/api/auth/login", {
@@ -17,7 +17,7 @@ export async function login({
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      emailOrUsername,
+      usernameOrEmail,
       password,
     }),
   });

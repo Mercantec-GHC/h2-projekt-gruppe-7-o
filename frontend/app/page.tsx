@@ -1,7 +1,8 @@
 import { Testimonial7 } from "@/components/shadcnblocks/testimonails/Testimonial7";
-import { RoomAvailability } from "@/features/booking/types/booking";
+import { Button } from "@/components/ui/button";
 import BookingWidget from "@/features/booking/components/booking-widget";
 import { HotelCards } from "@/features/hotel/components/HotelCards";
+import Link from "next/link";
 
 export default function HomePage() {
   // TODO: get user from session
@@ -15,11 +16,15 @@ export default function HomePage() {
             KABDIKHAN
           </h1>
           <h2 className="text-sm sm:text-xl text-center font-mono text-muted-foreground mb-8">
-            BEST SOMALI HOTEL IN THE WORLD
+            BEST SOMALISKE HOTELKÆDE I HELE DANMARK
           </h2>
         </div>
         <div className="flex items-center mx-auto max-w-4xl justify-center mb-12">
-          <BookingWidget />
+          <Link href="/booking" className="w-full flex justify-center">
+            <Button size="lg" className="w-full max-w-52">
+              Book Nu
+            </Button>
+          </Link>
         </div>
       </div>
 

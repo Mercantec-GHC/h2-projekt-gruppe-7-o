@@ -18,6 +18,9 @@ import {
   AlertCircleIcon,
   XIcon,
   SearchIcon,
+  Moon,
+  User,
+  DoorOpen,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -27,12 +30,24 @@ import { Separator } from "@/components/ui/separator";
 import { useEffect, useState } from "react";
 import { useStepper } from "@/features/booking/components/booking-widget";
 import { HotelSelector } from "@/components/ui/hotel-selector";
-import { useBookingStore } from "../bookingStore";
+import {
+  useBookingActions,
+  useCanSearch,
+  useCheckInDate,
+  useCheckOutDate,
+  useGuestCount,
+  useNightsCount,
+  useRoomCount,
+  useSelectedHotel,
+} from "../bookingStore";
 import {
   formatDateRange,
-  foundAvailableRooms,
+  getAdultsCountText,
+  getChildrenCountText,
   getGuestsCountText,
+  getTotalAvailableRoomsCount,
   getTotalGuestsText,
+  getTotalNightsStayText,
 } from "../domain";
 import { useSearchAvailableRooms } from "../queries/useSearchAvailableRooms";
 
@@ -41,26 +56,28 @@ export const BookingSearch = () => {
   const [isGuestsOpen, setIsGuestsOpen] = useState(false);
   const methods = useStepper();
 
+  const selectedHotel = useSelectedHotel();
+  const guestCount = useGuestCount();
+  const roomCount = useRoomCount();
+  const nightCount = useNightsCount();
+  const checkInDate = useCheckInDate();
+  const checkOutDate = useCheckOutDate();
+
   const {
-    selectedHotel,
-    guestCount,
-    roomCount: roomAmount,
-    setCheckInDate,
-    setCheckOutDate,
-    checkInDate,
-    checkOutDate,
+    reset,
     updateAdults,
     updateChildren,
     updateRoomAmount,
-  } = useBookingStore();
+    setCheckInDate,
+    setCheckOutDate,
+  } = useBookingActions();
 
-  const canSearch =
-    !!selectedHotel?.id &&
-    !!checkInDate &&
-    !!checkOutDate &&
-    // Other required fields
-    guestCount.adults !== undefined &&
-    guestCount.children !== undefined;
+  useEffect(() => {
+    // when this component mounts, its means we are at the first screen again, so we can reset the form
+    reset();
+  }, []);
+
+  const canSearch = useCanSearch();
 
   const availableRooms = useSearchAvailableRooms(
     {
@@ -68,42 +85,31 @@ export const BookingSearch = () => {
       //TODO: fix this type, it is date when passed to the useSearchAvailableRooms, and is then parsed to a string before the request is sent off
       checkIn: checkInDate,
       checkOut: checkOutDate,
-      adults: guestCount.adults,
-      children: guestCount.children,
-      roomAmount,
     },
     false,
   );
-
-  useEffect(() => {
-    if (foundAvailableRooms(availableRooms?.data)) {
-      methods.next();
-    }
-  }, [availableRooms.data, methods]);
-
-  // Show validation errors or search errors
 
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <CalendarIcon className="size-5" />
-          Book Your Stay
+          Book dit ophold
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Select your hotel, dates and number of guests to find available rooms
+          Vælg dit hotel, datoer og antal gæster for at finde ledige værelser
         </p>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="flex items-baseline gap-8">
           {/* Hotel Selection */}
           <div className="space-y-2 h-full">
-            <Label className="text-sm font-medium">Select Hotel</Label>
-            <HotelSelector placeholder="Choose a hotel..." />
+            <Label className="text-sm font-medium">Vælg hotel</Label>
+            <HotelSelector placeholder="Vælg hotel..." />
           </div>
           {/* Date Selection */}
           <div className="space-y-2 w-full">
-            <Label className="text-sm font-medium">Check-in & Check-out</Label>
+            <Label className="text-sm font-medium">Check ind & Check ud</Label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -140,17 +146,25 @@ export const BookingSearch = () => {
                 />
               </PopoverContent>
             </Popover>
+            {nightCount && nightCount > 0 && (
+              <p className="text-xs text-muted-foreground select-none flex items-baseline-end gap-2">
+                <Moon size={14} />
+                {getTotalNightsStayText(nightCount)}
+              </p>
+            )}
           </div>
         </div>
 
         <div className="flex items-base gap-4">
           {/* Guest Selection */}
           <div className="space-y-2 w-96">
-            <Label className="text-sm font-medium">Rooms</Label>
+            <Label className="text-sm font-medium">Rum</Label>
             <div className="flex items-center gap-3 h-12 px-3 border border-input rounded-md">
               <div className="flex items-center gap-2 flex-1">
-                <span className="text-sm text-muted-foreground">Rooms:</span>
-                <span className="text-sm font-medium">{roomAmount}</span>
+                <span className="text-sm text-muted-foreground">
+                  Antal rum:
+                </span>
+                <span className="text-sm font-medium">{roomCount}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Button
@@ -158,7 +172,7 @@ export const BookingSearch = () => {
                   variant="outline"
                   className="h-8 w-8 p-0"
                   onClick={() => updateRoomAmount("decrement")}
-                  disabled={roomAmount <= 1}
+                  disabled={roomCount <= 1}
                 >
                   <MinusIcon className="h-4 w-4" />
                 </Button>
@@ -167,19 +181,22 @@ export const BookingSearch = () => {
                   variant="outline"
                   className="h-8 w-8 p-0"
                   onClick={() => updateRoomAmount("increment")}
-                  disabled={roomAmount >= 10}
+                  disabled={roomCount >= 10}
                 >
                   <PlusIcon className="h-4 w-4" />
                 </Button>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground select-none">
-              {roomAmount} room{roomAmount !== 1 ? "s" : ""}
-            </p>
+            {/*<div className="text-xs text-muted-foreground select-none">
+              <p className="flex items-baseline-end gap-1">
+                <DoorOpen size={14} />
+                {roomCount} rum
+              </p>
+            </div>*/}
           </div>
           {/* Rooms Selection */}
           <div className="space-y-2 w-full">
-            <Label className="text-sm font-medium">Guests</Label>
+            <Label className="text-sm font-medium">Gæster</Label>
             <Popover open={isGuestsOpen} onOpenChange={setIsGuestsOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -198,9 +215,11 @@ export const BookingSearch = () => {
               <PopoverContent className="w-80" align="start">
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <h4 className="font-medium leading-none">Select Guests</h4>
+                    <h4 className="font-medium leading-none">
+                      Vælg antal gæster
+                    </h4>
                     <p className="text-sm text-muted-foreground">
-                      Choose the number of adults and children for your stay.
+                      Vælg antallet af voksne og børn for dit ophold.
                     </p>
                   </div>
 
@@ -210,9 +229,9 @@ export const BookingSearch = () => {
                       <div className="flex items-center gap-3">
                         <UsersIcon className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">Adults</p>
+                          <p className="font-medium">Voksne</p>
                           <p className="text-sm text-muted-foreground">
-                            Ages 13+
+                            Alder 13+
                           </p>
                         </div>
                       </div>
@@ -221,7 +240,7 @@ export const BookingSearch = () => {
                           size="sm"
                           variant="outline"
                           className="h-8 w-8 p-0"
-                          onClick={() => updateAdults(false)}
+                          onClick={() => updateAdults("decrement")}
                           disabled={guestCount.adults <= 1}
                         >
                           <MinusIcon className="h-4 w-4" />
@@ -233,7 +252,7 @@ export const BookingSearch = () => {
                           size="sm"
                           variant="outline"
                           className="h-8 w-8 p-0"
-                          onClick={() => updateAdults(true)}
+                          onClick={() => updateAdults("increment")}
                           disabled={guestCount.adults >= 10}
                         >
                           <PlusIcon className="h-4 w-4" />
@@ -248,9 +267,9 @@ export const BookingSearch = () => {
                       <div className="flex items-center gap-3">
                         <BabyIcon className="h-5 w-5 text-muted-foreground" />
                         <div>
-                          <p className="font-medium">Children</p>
+                          <p className="font-medium">Børn</p>
                           <p className="text-sm text-muted-foreground">
-                            Ages 0-12
+                            Alder 0-12
                           </p>
                         </div>
                       </div>
@@ -292,9 +311,15 @@ export const BookingSearch = () => {
                 </div>
               </PopoverContent>
             </Popover>
-            <p className="text-xs text-muted-foreground select-none">
-              {getGuestsCountText(guestCount)}
-            </p>
+            <div className="text-xs text-muted-foreground select-none flex items-center gap-2">
+              <p className="flex items-baseline-end gap-1">
+                <User size={14} /> {getAdultsCountText(guestCount.adults)}
+              </p>
+              <p className="flex items-baseline-end gap-1">
+                <BabyIcon size={14} />
+                {getChildrenCountText(guestCount.children)}
+              </p>
+            </div>
           </div>
         </div>
 
@@ -303,7 +328,7 @@ export const BookingSearch = () => {
           <div className="flex items-center gap-2 p-3 bg-destructive/10 text-destructive rounded-md">
             <AlertCircleIcon className="h-4 w-4 flex-shrink-0" />
             <p className="text-sm">
-              Something went wrong while searching for available rooms.
+              Noget gik galt under søgningen efter ledige rum.
             </p>
             <Button
               variant="ghost"
@@ -315,30 +340,26 @@ export const BookingSearch = () => {
           </div>
         )}
 
-        {/*{data?.rooms && data?.rooms.length === 0 && (
-          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-            <p className="text-sm text-amber-800">
-              No rooms available for your selected dates and guest count. Try
-              different dates or fewer guests.
-            </p>
-          </div>
-        )}*/}
-
         {/* Search Button */}
         <Button
           className="w-full h-12 text-base font-medium"
           disabled={!canSearch || availableRooms.isFetching}
-          onClick={() => availableRooms.refetch()}
+          onClick={async () => {
+            const res = await availableRooms.refetch();
+            if (res.isSuccess && getTotalAvailableRoomsCount(res.data) > 0) {
+              methods.next();
+            }
+          }}
         >
           {availableRooms.isFetching ? (
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              Searching...
+              Søger...
             </div>
           ) : (
             <div className="flex items-center gap-2">
               <SearchIcon className="h-4 w-4" />
-              Search Available Rooms
+              Søg efter ledige rum
             </div>
           )}
         </Button>

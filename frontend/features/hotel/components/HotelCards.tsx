@@ -38,12 +38,11 @@ const HotelCards = async () => {
     <section className="content-container">
       <div className="mb-16">
         <h2 className="text-foreground font-mono font-bold text-6xl mb-8 text-center">
-          OUR HOTELS
+          VORES HOTELLER
         </h2>
         <p className="text-muted-foreground text-center text-lg max-w-4xl mx-auto font-mono">
-          We have a wide range of hotels to choose from. Our hotels are located
-          in the heart Mogadishu, providing you with the best possible
-          experience.
+          Vi har et bredt udvalg af hoteller i de største byer i Kongeriget. Det
+          er som om træde direkte ind i Mogadishu men på dansk grund.
         </p>
       </div>
       <div className="">

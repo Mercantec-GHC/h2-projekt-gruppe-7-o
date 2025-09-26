@@ -1,6 +1,6 @@
 // This is the request to our own NEXT API that acts as a proxy to the backend API
 export interface LoginRequestDto {
-  emailOrUsername: string;
+  usernameOrEmail: string;
   password: string;
 }
 

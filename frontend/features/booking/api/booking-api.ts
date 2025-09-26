@@ -1,14 +1,30 @@
 import { apiClient } from "@/api/client";
 import { toUtcIsoZ } from "@/lib/utils";
 import {
+  CreateBookingRequestDto,
+  CreateBookingResponseDto,
   RoomTypesAvailablityRequestDto,
   RoomTypesAvailablityResponseDto,
 } from "./dto";
-import { roomTypeAvailabilityDtoToRoomTypeAvailability } from "./transform";
+import {
+  roomBookingsToBookingDto,
+  roomTypeAvailabilityDtoToRoomTypeAvailability,
+} from "./transform";
+import { CreateBooking, RoomBooking } from "../domain";
+import { SelectedRoomBookings } from "../bookingStore";
+import { AxiosResponse } from "axios";
 
 async function searchAvailableRooms(
   searchParams: RoomTypesAvailablityRequestDto,
 ) {
+  if (
+    !searchParams.hotelId ||
+    !searchParams.checkIn ||
+    !searchParams.checkOut
+  ) {
+    throw new Error("Hotel ID, check-in, and check-out dates are required");
+  }
+
   const checkIn = toUtcIsoZ(searchParams.checkIn);
   const checkOut = toUtcIsoZ(searchParams.checkOut);
 
@@ -28,25 +44,26 @@ async function searchAvailableRooms(
   }
 }
 
-async function createBooking(
-  bookingData: BookingReservationRequest,
-): Promise<BookingReservation> {
-  const { checkIn, checkOut } = bookingData;
-  const formattedCheckin = toUtcIsoZ(checkIn);
-  const formattedCheckout = toUtcIsoZ(checkOut);
-
-  bookingData = {
-    ...bookingData,
-    checkIn: formattedCheckin,
-    checkOut: formattedCheckout,
-  };
+async function createBooking({
+  hotelId,
+  checkIn,
+  checkOut,
+  bookings,
+}: CreateBooking): Promise<CreateBookingResponseDto> {
+  const bookingDataDto = roomBookingsToBookingDto({
+    hotelId,
+    checkIn,
+    checkOut,
+    bookings,
+  });
 
   try {
-    const res = await apiClient.post<BookingReservation>(
+    const res = await apiClient.post<CreateBookingResponseDto>(
       "/bookings",
-      bookingData,
+      bookingDataDto,
     );
     return res.data;
+
     //TODO: throw the error from the backend here as well, instead of a string literal
   } catch (err) {
     throw new Error("Failed to create reservation");
