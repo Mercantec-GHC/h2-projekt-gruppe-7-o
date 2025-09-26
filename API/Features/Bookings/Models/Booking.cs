@@ -19,7 +19,7 @@ public class Booking : Entity<Guid>
 
 }
 
-// TODO: do we need to add a active and done status?
+
 public enum BookingStatus
 {
     [PgName("pending")] Pending,

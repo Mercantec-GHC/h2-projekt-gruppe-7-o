@@ -11,7 +11,7 @@ public class BookingResponseDto : Entity<Guid>
 
     public required decimal TotalPrice { get; init; }
 
-    //TODO: we need to return the name of the status here instead of the enum value (0,1,2 etc.)
+
     public required string Status { get; set; }
 
     public UserReponseDto User { get; init; }
@@ -27,8 +27,8 @@ public class BookingCreateDto
 {
     public required DateTime CheckIn { get; init; }
     public required DateTime CheckOut { get; init; }
-    public Guid? HotelId { get; set; } // Valgfrit, hvis bookingen kun g�lder for �t hotel
-    public List<RoomBookingDto> RoomBookings { get; set; } // En liste med hvert v�relse og dets tilvalg
+    public Guid? HotelId { get; set; }
+    public List<RoomBookingDto> RoomBookings { get; set; } // En liste med hvert værelse og dets tilvalg
 }
 
 public sealed class BookingUpdateDto
@@ -37,7 +37,7 @@ public sealed class BookingUpdateDto
     public required DateTime CheckOut { get; set; }
     public required short Adults { get; set; }
     public required short Children { get; set; }
-    public List<Guid>? RoomIds { get; init; } // make nullable if partial updates
+    public List<Guid>? RoomIds { get; init; } 
     public List<BookingLineCreateDto>? Addons { get; init; } // Ekstra services/fees/discounts
 }
 

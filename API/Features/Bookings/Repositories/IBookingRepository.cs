@@ -11,5 +11,5 @@ public interface IBookingRepository
 
     Task<List<Room>> GetRoomsByIdsAsync(List<Guid> roomIds, CancellationToken ct = default);
     Task<List<Booking>> GetOverlappingBookingsAsync(List<Guid> roomIds, DateTime checkIn, DateTime checkOut, CancellationToken ct = default);
-    Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId);
+    Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId, List<Guid>? excludeRoomIds = null);
 }

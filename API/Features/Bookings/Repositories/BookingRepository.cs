@@ -65,7 +65,7 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
             .ToListAsync(ct);
     }
 
-    public async Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId)
+    public async Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId, List<Guid>? excludeRoomIds = null)
     {
         var query = _context.Rooms
             .Where(r => r.Type == roomType);
@@ -75,11 +75,17 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
             query = query.Where(r => r.HotelId == hotelId.Value);
         }
 
+        if (excludeRoomIds != null && excludeRoomIds.Count > 0)
+        {
+            query = query.Where(r => !excludeRoomIds.Contains(r.Id));
+        }
+
         var availableRoom = await query
             .Where(r => !r.Bookings.Any(b =>
                 b.Status != BookingStatus.Cancelled &&
                 b.CheckIn < checkOut &&
                 b.CheckOut > checkIn))
+            .OrderBy(r => r.Number) // så vi altid får et deterministisk værelse
             .FirstOrDefaultAsync();
 
         return availableRoom;

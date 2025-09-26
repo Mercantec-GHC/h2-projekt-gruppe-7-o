@@ -22,7 +22,6 @@ services:
   # Bruno API Tests
   bruno-tests:
     image: node:20-alpine
-    container_name: h2-bruno-tests-mags25
     working_dir: /app
     volumes:
       - ./Bruno:/app/Bruno
@@ -48,7 +47,6 @@ services:
     networks:
       - h2-network
     restart: "no"
-
 
 networks:
   h2-network:

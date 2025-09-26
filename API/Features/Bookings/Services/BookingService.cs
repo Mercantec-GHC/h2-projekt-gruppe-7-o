@@ -24,13 +24,13 @@ public class BookingService
         if (dto.CheckOut <= dto.CheckIn)
             throw new InvalidOperationException("Check-out must be after check-in.");
 
-        // Initialize totals and lists before the loop
+        // Init totals and lists before the loop
         short totalAdults = 0;
         short totalChildren = 0;
         decimal totalPrice = 0;
         var allRoomNumbers = new List<string>();
 
-        // **Create the single Booking object here, BEFORE the loop**
+        // Create the single Booking object here, BEFORE the loop 
         var booking = new Booking
         {
             Id = Guid.NewGuid(),
@@ -38,18 +38,18 @@ public class BookingService
             CheckOut = dto.CheckOut,
             Status = BookingStatus.Pending,
             UserId = userId,
-            // These will be updated inside the loop, but need initial values or defaults
             Adults = 0,
             Children = 0,
             TotalPrice = 0,
-            Rooms = new List<Room>(), // Initialize the collection
-            BookingLines = new List<BookingLine>() // Initialize the collection
+            Rooms = new List<Room>(),
+            BookingLines = new List<BookingLine>() 
         };
 
         // Calculate nights once for the whole booking duration
         var bookingNights = (dto.CheckOut.Date - dto.CheckIn.Date).Days;
         if (bookingNights <= 0) bookingNights = 1;
 
+        var usedRoomIds = new List<Guid>();
 
         foreach (var roomBookingDto in dto.RoomBookings)
         {
@@ -57,11 +57,13 @@ public class BookingService
                 roomBookingDto.RoomType,
                 dto.CheckIn,
                 dto.CheckOut,
-                dto.HotelId
+                dto.HotelId,
+                usedRoomIds
             );
 
             if (room == null)
                 throw new InvalidOperationException($"No rooms of type '{roomBookingDto.RoomType}' are available for the period.");
+            usedRoomIds.Add(room.Id);
 
             if (room.Capacity < (roomBookingDto.Adults + roomBookingDto.Children))
             {
@@ -81,12 +83,12 @@ public class BookingService
                 Type = BookingLineType.Room,
                 Description = $"Room {room.Number} - {room.Type}",
                 RoomId = room.Id,
-                Amount = room.PricePerNight * bookingNights, // Use bookingNights here
+                Amount = room.PricePerNight * bookingNights, 
                 Status = BookingLineStatus.Unpaid,
                 CreatedBy = userId,
                 UpdatedBy = userId,
-                BookingId = booking.Id, // Link to the main booking
-                Booking = booking // Link to the main booking instance
+                BookingId = booking.Id, 
+                Booking = booking 
             };
             totalPrice += roomBookingLine.Amount;
             booking.BookingLines.Add(roomBookingLine);
@@ -102,11 +104,11 @@ public class BookingService
                         Description = addonDto.Description,
                         Amount = addonDto.Amount,
                         Status = BookingLineStatus.Unpaid,
-                        BookingId = booking.Id, // Link to the main booking
+                        BookingId = booking.Id,
                         CreatedBy = userId,
                         UpdatedBy = userId,
                         RoomId = room.Id,
-                        Booking = booking // Link to the main booking instance
+                        Booking = booking 
                     };
                     totalPrice += addonBookingLine.Amount;
                     booking.BookingLines.Add(addonBookingLine);
