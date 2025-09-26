@@ -1,3 +1,4 @@
+using API.Features.Chat;
 using API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -16,10 +17,11 @@ public class AppDBContext : DbContext
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Hotel> Hotels { get; set; }
-    
+    public DbSet<Ticket> Tickets { get; set; }
+    public DbSet<TicketStatus> TicketStatuses { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
 
         // User -> Role (many Users to one Role)
         modelBuilder.Entity<User>()
@@ -60,6 +62,22 @@ public class AppDBContext : DbContext
             .HasOne(b => b.User)
             .WithMany(u => u.Bookings)
             .HasForeignKey(b => b.UserId);
+
+
+        modelBuilder.Entity<Ticket>()
+            .HasOne(t => t.Status)
+            .WithMany(s => s.Tickets)
+            .HasForeignKey(t => t.StatusId);
+
+        // Seeding af statusser
+        modelBuilder.Entity<TicketStatus>().HasData(
+            new TicketStatus { Id = 1, Name = "Open", CreatedAt = DateTimeOffset.Now, UpdatedAt = DateTimeOffset.Now },
+            new TicketStatus { Id = 2, Name = "In Progress", CreatedAt = DateTimeOffset.Now, UpdatedAt = DateTimeOffset.Now },
+            new TicketStatus { Id = 3, Name = "Closed", CreatedAt = DateTimeOffset.Now, UpdatedAt = DateTimeOffset.Now }
+        );
+
+
+        base.OnModelCreating(modelBuilder);
 
     }
 
