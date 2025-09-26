@@ -1,6 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Text;
 using API.Data;
 using API.Data.Seeders;
 using API.Features.Bookings.Services;
@@ -14,6 +11,10 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Text;
+using API.Hubs;
 
 namespace API;
 
@@ -38,9 +39,9 @@ public class Program
         builder.Services.AddScoped<RoomService>();
         builder.Services.AddScoped<MailService>();
         builder.Services.AddScoped<BookingService>();
-
-
         builder.Services.AddScoped<BookingService>();
+       
+        builder.Services.AddSignalR();
 
 
 
@@ -48,6 +49,7 @@ public class Program
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<IRoomRepository, RoomRepository>();
+
 
 
         // Configure JWT Authentication
@@ -228,51 +230,13 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.Map("/ws", async context =>
-        {
-            if (context.WebSockets.IsWebSocketRequest)
-            {
-                using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
-                Console.WriteLine("WebSocket connection established."); // Tilføj til debug
-                await HandleWebSocket(webSocket);
-            }
-            else
-            {
-                context.Response.StatusCode = 400; // Bad Request
-            }
-        });
-
 
         app.MapControllers();
+        app.MapHub<ChatHub>("/chathub");
+        app.MapHub<TicketHub>("/tickethub");
+
 
         app.Run();
     }
-    private static async Task HandleWebSocket(System.Net.WebSockets.WebSocket webSocket)
-    {
-        var buffer = new byte[1024 * 4];
-        var receiveResult = await webSocket.ReceiveAsync(
-            new ArraySegment<byte>(buffer), CancellationToken.None);
-
-        while (!receiveResult.CloseStatus.HasValue)
-        {
-            // Du kan håndtere indgående beskeder her, men for nu fokuserer vi på at lytte og sende.
-            // I et rigtigt system ville du sandsynligvis have en service til at broadcast-beskeder
-            // til alle tilsluttede klienter, når en booking opdateres.
-
-            // Send den samme besked tilbage for at bekræfte modtagelse
-            await webSocket.SendAsync(
-                new ArraySegment<byte>(buffer, 0, receiveResult.Count),
-                receiveResult.MessageType,
-                receiveResult.EndOfMessage,
-                CancellationToken.None);
-
-            receiveResult = await webSocket.ReceiveAsync(
-                new ArraySegment<byte>(buffer), CancellationToken.None);
-        }
-
-        await webSocket.CloseAsync(
-            receiveResult.CloseStatus.Value,
-            receiveResult.CloseStatusDescription,
-            CancellationToken.None);
-    }
+    
 }
