@@ -1,14 +1,17 @@
+version: '3.8'
+
 services:
-  # API Service
+  # API Service (Backend)
   api:
     build:
       context: .
       dockerfile: API/Dockerfile
       args:
         BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
-    container_name: h2-api
+    container_name: h2-api-kabdikahn
+    # GRUPPE 7 PORTE: 9031 (Host) -> 8080 (Container)
     ports:
-      - "8051:8080"
+      - "9031:8080"
     env_file:
       - .env
     environment:
@@ -19,7 +22,7 @@ services:
     networks:
       - h2-network
 
-  # Blazor WASM App
+  # Blazor WASM App (Frontend)
   blazor:
     build:
       context: .
@@ -27,9 +30,10 @@ services:
       args:
         BUILD_DATE: ${BUILD_DATE:-$(date -u +'%Y-%m-%dT%H:%M:%SZ')}
         VCS_REF: ${VCS_REF:-$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')}
-    container_name: h2-blazor
+    container_name: h2-blazor-kabdikahn
+    # GRUPPE 7 PORTE: 9032 (Host) -> 80 (Container)
     ports:
-      - "8052:80"
+      - "9032:80"
     env_file:
       - .env
     environment:
