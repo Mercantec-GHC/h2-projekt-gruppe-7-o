@@ -1,7 +1,6 @@
 import { apiClient } from "@/api/client";
 import { toUtcIsoZ } from "@/lib/utils";
 import {
-  CreateBookingRequestDto,
   CreateBookingResponseDto,
   RoomTypesAvailablityRequestDto,
   RoomTypesAvailablityResponseDto,
@@ -10,9 +9,7 @@ import {
   roomBookingsToBookingDto,
   roomTypeAvailabilityDtoToRoomTypeAvailability,
 } from "./transform";
-import { CreateBooking, RoomBooking } from "../domain";
-import { SelectedRoomBookings } from "../bookingStore";
-import { AxiosResponse } from "axios";
+import { CreateBooking } from "../domain";
 
 async function searchAvailableRooms(
   searchParams: RoomTypesAvailablityRequestDto,
@@ -70,4 +67,7 @@ async function createBooking({
   }
 }
 
-export default { searchAvailableRooms, createBooking };
+export default {
+  searchAvailableRooms,
+  createBooking,
+};
