@@ -7,7 +7,6 @@ import { GuestCount, RoomBooking } from "./domain";
 import { RoomType } from "./api/dto";
 import { differenceInDays } from "date-fns";
 import { CONSTANTS } from "@/lib/constants";
-import { B612_Mono } from "next/font/google";
 import { useMemo } from "react";
 
 export type SelectedRoomBookings = Record<RoomType, RoomBooking[]>;
@@ -373,36 +372,3 @@ export const useGetSelectedRoomBookingsCount = () =>
 
 export const useBookingActions = () =>
   useBookingStore((state) => state.actions);
-
-// // Get count for a specific room type - O(1) lookup
-// export const useSelectedRoomCountByType = (roomType: RoomType) =>
-//   useBookingStore((state) => state.selectedRoomBookings[roomType].length);
-
-// // Get total count across all room types
-// export const useGetTotalSelectedRooms = () =>
-//   useBookingStore((state) => {
-//     return Object.values(state.selectedRoomBookings).reduce(
-//       (total, bookings) => total + bookings.length,
-//       0,
-//     );
-//   });
-
-// // Get array of room types that have bookings
-// export const useGetSelectedRoomTypes = () =>
-//   useBookingStore((state) => {
-//     return (Object.keys(state.selectedRoomBookings) as RoomType[]).filter(
-//       (roomType) => state.selectedRoomBookings[roomType].length > 0,
-//     );
-//   });
-
-// Get flat array of all bookings (for when you need to iterate over all)
-// export const useGetSelectedRoomBookingsArray = () =>
-//   useBookingStore((state) => {
-//     return Object.entries(state.selectedRoomBookings).flatMap(
-//       ([roomType, bookings]) =>
-//         bookings.map((booking) => ({
-//           ...booking,
-//           roomType: roomType as RoomType,
-//         })),
-//     );
-//   });
