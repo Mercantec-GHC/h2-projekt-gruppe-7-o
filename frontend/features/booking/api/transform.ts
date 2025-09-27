@@ -1,5 +1,4 @@
 import { toUtcIsoZ } from "@/lib/utils";
-import { SelectedRoomBookings } from "../bookingStore";
 import { CreateBooking, RoomTypeAvailability } from "../domain";
 import {
   CreateBookingRequestDto,
@@ -39,7 +38,7 @@ export function roomBookingsToBookingDto({
   const roomBookingsDto: RoomBookingRequestDto[] = roomBookings.map(
     (booking) => {
       return {
-        // TODO @Karl @Abdi - vi burde bare sende typen som string måske, det her er giga usikkert....
+        // TODO @Karl @Abdi - vi burde bare sende typen som string måske, det er her giga usiikert at finde en value fra indexOf..
         roomType: CONSTANTS.ROOM_TYPES.indexOf(booking.type),
         adults: booking.adults,
         children: booking.children,

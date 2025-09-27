@@ -15,7 +15,9 @@ export interface RoomTypesAvailablityResponseDto {
 }
 
 export interface RoomBookingRequestDto {
-  roomType: RoomType;
+  //TODO: the backend currently expects a number, but should receive a string of RoomType?
+  roomType: number;
+  // roomType: RoomType;
   adults: number;
   children: number;
   addons: RoomBookingAddon[];
