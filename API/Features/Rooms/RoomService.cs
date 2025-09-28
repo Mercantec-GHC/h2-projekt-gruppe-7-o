@@ -118,8 +118,8 @@ public class RoomService
         var overlappingBookings = await _bookingRepository.GetOverlappingBookingsAsync(
             hotelRooms.Select(r => r.Id).ToList(), start, end);
 
-        // Find alle rum-ID'er, som allerede er booket
-        var bookedRoomIds = overlappingBookings
+        // Find alle rum-ID'er, som allerede er booket og som ikke er annulleret
+        var bookedRoomIds = overlappingBookings.Where(b => b.Status != BookingStatus.Cancelled)
             .SelectMany(b => b.Rooms)
             .Select(r => r.Id)
             .Distinct()
@@ -134,7 +134,6 @@ public class RoomService
     }
 
 
-
     public async Task<AvailabilityResponseDto> GetAvailableRoomsAsync(
         Guid? hotelId = null, DateTime? checkIn = null, DateTime? checkOut = null)
     {
@@ -143,7 +142,7 @@ public class RoomService
         if (start >= end)
             throw new InvalidOperationException("Start date must be before end date.");
 
-        
+
         var availableEntities = await this.GetAvailableRoomEntitiesAsync(hotelId, checkIn, checkOut);
 
         // Konverter entiteterne til DTO'er
