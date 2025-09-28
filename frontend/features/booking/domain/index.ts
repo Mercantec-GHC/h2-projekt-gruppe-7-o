@@ -91,9 +91,20 @@ export function getGuestsCountText(guestCount: GuestCount) {
   return `${adultsText}, ${childrenText}`;
 }
 
-export const formatDateRange = (checkInDate?: Date, checkOutDate?: Date) => {
+export const formatDateRange = (
+  checkInDate?: Date | string,
+  checkOutDate?: Date | string,
+) => {
   if (!checkInDate || !checkOutDate) {
     return null;
+  }
+
+  if (typeof checkInDate === "string") {
+    checkInDate = new Date(checkInDate);
+  }
+
+  if (typeof checkOutDate === "string") {
+    checkOutDate = new Date(checkOutDate);
   }
 
   if (checkInDate && checkOutDate) {

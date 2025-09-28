@@ -1,6 +1,7 @@
 import { apiClient } from "@/api/client";
 import { toUtcIsoZ } from "@/lib/utils";
 import {
+  BookingDto,
   CreateBookingResponseDto,
   RoomTypesAvailablityRequestDto,
   RoomTypesAvailablityResponseDto,
@@ -67,7 +68,34 @@ async function createBooking({
   }
 }
 
+async function getAllBookings() {
+  try {
+    const res = await apiClient.get<BookingDto[]>(`/bookings`);
+    return res.data;
+  } catch (error) {
+    throw new Error("Failed to fetch bookings");
+  }
+}
+
+async function getBookingById(bookingId: string) {
+  try {
+    const res = await apiClient.get<BookingDto>(`/bookings/${bookingId}`);
+    return res.data;
+  } catch (error) {
+    throw new Error("Failed to fetch booking");
+  }
+}
+
+async function cancelBooking(bookingId: string) {
+  const res = await apiClient.put(`/bookings/cancel/${bookingId}`);
+  return res;
+}
+
 export default {
   searchAvailableRooms,
   createBooking,
+  getAllBookings,
+  getBookingById,
+
+  cancelBooking,
 };

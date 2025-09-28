@@ -1,3 +1,5 @@
+import { BookingDto } from "@/features/booking/api/dto";
+
 export interface UserDto {
   id: string;
   email: string;
@@ -5,6 +7,10 @@ export interface UserDto {
   firstName: string;
   lastName: string;
   roleName: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MeResponseDto extends UserDto {
+  bookings: BookingDto[];
 }
