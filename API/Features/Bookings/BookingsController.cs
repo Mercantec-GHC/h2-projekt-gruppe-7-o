@@ -182,6 +182,54 @@ public class BookingsController : ControllerBase
     }
 
     /// <summary>
+    /// Updates an existing booking.
+    /// </summary>
+    /// <param name="id">The booking ID.</param>
+    /// <returns>No content if successful.</returns>
+    /// <response code="204">Booking updated successfully.</response>
+    /// <response code="404">If the booking is not found.</response>
+    /// <response code="400">If the request is invalid.</response>
+    [HttpPut("cancel/{id}")]
+    [Authorize] // sørg for, at JWT er påkrævet
+    public async Task<IActionResult> CancelBooking(Guid id, CancellationToken ct)
+    {
+        // Hent booking inkl. Rooms
+        var booking = await _context.Bookings
+            .Include(b => b.Rooms)
+            .FirstOrDefaultAsync(b => b.Id == id, ct);
+
+        if (booking == null)
+            return NotFound();
+
+        // Validering af datoer
+        if (booking.CheckOut <= booking.CheckIn)
+            return BadRequest("Check-out date must be after check-in date.");
+
+
+        var nowUtc = DateTime.UtcNow;
+        var checkInUtc = booking.CheckIn.Kind == DateTimeKind.Utc
+            ? booking.CheckIn
+            : booking.CheckIn.ToUniversalTime();
+
+        TimeSpan untilCheckIn = checkInUtc - nowUtc;
+
+        if (untilCheckIn <= TimeSpan.FromHours(24))
+        {
+            throw new InvalidOperationException("Cannot cancel the booking within 24 hours of check-in.");
+        }
+
+        booking.Status = BookingStatus.Cancelled;
+
+
+        // Opdater rum, hvis RoomIds er givet
+
+        await _context.SaveChangesAsync(ct);
+
+        return NoContent();
+    }
+
+
+    /// <summary>
     /// Checks if a booking exists by ID.
     /// </summary>
     /// <param name="id">The booking ID.</param>
