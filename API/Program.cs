@@ -40,16 +40,14 @@ public class Program
         builder.Services.AddScoped<MailService>();
         builder.Services.AddScoped<BookingService>();
         builder.Services.AddScoped<BookingService>();
-       
-        builder.Services.AddSignalR();
 
+        builder.Services.AddSignalR();
 
 
         // Register Repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<IRoomRepository, RoomRepository>();
-
 
 
         // Configure JWT Authentication
@@ -105,7 +103,12 @@ public class Program
         builder.Services.AddAuthorization();
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            // Optional: case-insensitive or naming policy tweaks:
+            // o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
 
         builder.Services.AddMemoryCache();
 
@@ -238,5 +241,4 @@ public class Program
 
         app.Run();
     }
-    
 }
