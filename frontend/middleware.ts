@@ -5,7 +5,7 @@ import { hasDashboardRole, verifyJWT } from "./api/jwt";
 
 // Allowed dashboard roles
 const PROTECTED_ROUTES = ["/profile"];
-const AUTH_ROUTES = ["/login", "/register", "/dashboard/login"];
+const AUTH_ROUTES = ["/login", "/register"];
 
 export async function middleware(req: NextRequest) {
   const { pathname, searchParams } = req.nextUrl;
@@ -18,7 +18,6 @@ export async function middleware(req: NextRequest) {
   );
 
   // allows us to protected all dashboard routes except the login route
-  const isDashboardProtected = isDashboard && pathname !== "/dashboard/login";
 
   // Validate token if present, to ensure it's valid and not expired
   const session = await verifyJWT(token);
@@ -58,22 +57,20 @@ export async function middleware(req: NextRequest) {
   }
 
   // Dashboard protection (auth + allowed role)
-  if (isDashboardProtected) {
+  if (isDashboard) {
     if (!session) {
-      return redirectWithCookieClear("/dashboard/login");
+      return redirectWithCookieClear("/login");
     }
     if (!hasDashboardRole(session?.role)) {
       //TODO: this is a bit tricky - what if a user is already logged in as a customer, but now they want to access the dashboard (since they are working at the company)
       // With the below, you can basically not be logged in as a user and also as an employee at the same time.
-      return redirect("/dashboard/login");
+      return redirect("/");
     }
   }
 
-  // TODO: this is a bit tricky - what if a user is already logged in as a customer, but now they want to access the dashboard (since they are working at the company)
-  // With the below, you can basically not be logged in as a user and also try to login as an employee at the same time.
   if (isAuthRoute && session) {
-    if (hasDashboardRole(session?.role) && pathname === "/dashboard/login") {
-      return NextResponse.redirect("/dashboard");
+    if (hasDashboardRole(session?.role)) {
+      return redirect("/dashboard");
     } else {
       return redirect("/profile");
     }

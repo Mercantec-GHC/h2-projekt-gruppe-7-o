@@ -1,7 +1,7 @@
 "use client";
 
-import ProfileMyBookings from "@/components/profile-dashboard/profile-my-bookings";
-import { ProfileSectionCards } from "@/components/profile-dashboard/profile-section-cards";
+import ProfileMyBookings from "@/components/dashboard/profile-dashboard/profile-my-bookings";
+import { ProfileSectionCards } from "@/components/dashboard/profile-dashboard/profile-section-cards";
 
 export default function ProfilePage() {
   return (

@@ -57,7 +57,8 @@ namespace API.Services
             {
                 try
                 {
-                    _logger.LogInformation("Forsøger AD autentificering for bruger: {Username} (forsøg {Attempt}/{MaxRetries})",
+                    _logger.LogInformation(
+                        "Forsøger AD autentificering for bruger: {Username} (forsøg {Attempt}/{MaxRetries})",
                         username, attempt, _maxRetries);
 
                     // Test service account connection først
@@ -92,12 +93,14 @@ namespace API.Services
                             connection.Credential = cred;
                             await Task.Run(() => connection.Bind());
                             serviceBound = true;
-                            _logger.LogInformation("Service konto bind succesfuldt med format: {Username}", cred.UserName);
+                            _logger.LogInformation("Service konto bind succesfuldt med format: {Username}",
+                                cred.UserName);
                             break;
                         }
                         catch (LdapException ex)
                         {
-                            _logger.LogInformation("Service konto bind fejlede med format {Format}: {Error}", cred.UserName, ex.Message);
+                            _logger.LogInformation("Service konto bind fejlede med format {Format}: {Error}",
+                                cred.UserName, ex.Message);
                         }
                     }
 
@@ -149,7 +152,8 @@ namespace API.Services
                                 }
                                 catch (LdapException ex)
                                 {
-                                    _logger.LogInformation("Bruger bind fejlede med format {Format}: {Error}", userCred.UserName, ex.Message);
+                                    _logger.LogInformation("Bruger bind fejlede med format {Format}: {Error}",
+                                        userCred.UserName, ex.Message);
                                     return false;
                                 }
                             });
@@ -157,7 +161,8 @@ namespace API.Services
                             if (success)
                             {
                                 userBound = true;
-                                _logger.LogInformation("Bruger bind succesfuldt med format: {Format}", userCred.UserName);
+                                _logger.LogInformation("Bruger bind succesfuldt med format: {Format}",
+                                    userCred.UserName);
                                 break;
                             }
                         }
@@ -180,7 +185,8 @@ namespace API.Services
                 catch (LdapException ex)
                 {
                     var errorMessage = GetLDAPErrorMessage(ex.ErrorCode);
-                    _logger.LogError(ex, "LDAP fejl ved autentificering af bruger: {Username}. Error: {ErrorCode} - {ErrorMessage} (forsøg {Attempt}/{MaxRetries})",
+                    _logger.LogError(ex,
+                        "LDAP fejl ved autentificering af bruger: {Username}. Error: {ErrorCode} - {ErrorMessage} (forsøg {Attempt}/{MaxRetries})",
                         username, ex.ErrorCode, errorMessage, attempt, _maxRetries);
 
                     if (attempt < _maxRetries)
@@ -188,11 +194,13 @@ namespace API.Services
                         await Task.Delay(_retryDelayMs * attempt);
                         continue;
                     }
+
                     return null;
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Generel fejl ved AD autentificering for bruger: {Username} (forsøg {Attempt}/{MaxRetries})",
+                    _logger.LogError(ex,
+                        "Generel fejl ved AD autentificering for bruger: {Username} (forsøg {Attempt}/{MaxRetries})",
                         username, attempt, _maxRetries);
 
                     if (attempt < _maxRetries)
@@ -200,6 +208,7 @@ namespace API.Services
                         await Task.Delay(_retryDelayMs * attempt);
                         continue;
                     }
+
                     return null;
                 }
             }
@@ -239,7 +248,8 @@ namespace API.Services
                     }
                     catch (LdapException ex)
                     {
-                        _logger.LogWarning("Service konto test fejlede med format {Format}: {Error}", cred.UserName, ex.Message);
+                        _logger.LogWarning("Service konto test fejlede med format {Format}: {Error}", cred.UserName,
+                            ex.Message);
                     }
                 }
 
@@ -262,12 +272,11 @@ namespace API.Services
         {
             try
             {
-                
                 var baseDn = $"DC={_domain.Replace(".", ",DC=")}";
 
                 var searchFilter = $"(|(sAMAccountName={username})(mail={username})(userPrincipalName={username}))";
                 var searchRequest = new SearchRequest(
-                    baseDn, 
+                    baseDn,
                     searchFilter,
                     SearchScope.Subtree,
                     "sAMAccountName", "mail", "displayName", "givenName", "sn", "memberOf", "userPrincipalName"
@@ -313,6 +322,7 @@ namespace API.Services
             {
                 return entry.Attributes[attributeName][0].ToString() ?? string.Empty;
             }
+
             return string.Empty;
         }
 
@@ -394,7 +404,8 @@ namespace API.Services
         {
             try
             {
-                _logger.LogInformation("Prøver LDAP forbindelse til {Server}:{Port} (SSL: {UseSSL})", server, port, useSSL);
+                _logger.LogInformation("Prøver LDAP forbindelse til {Server}:{Port} (SSL: {UseSSL})", server, port,
+                    useSSL);
 
                 using var connection = new LdapConnection(new LdapDirectoryIdentifier(server, port));
                 connection.SessionOptions.ProtocolVersion = 3;
@@ -407,7 +418,8 @@ namespace API.Services
 
                 await Task.Run(() => connection.Bind());
 
-                _logger.LogInformation("LDAP forbindelse til {Server}:{Port} (SSL: {UseSSL}) succesfuldt", server, port, useSSL);
+                _logger.LogInformation("LDAP forbindelse til {Server}:{Port} (SSL: {UseSSL}) succesfuldt", server, port,
+                    useSSL);
                 return true;
             }
             catch (LdapException ex)
@@ -441,7 +453,6 @@ namespace API.Services
         }
 
 
-
         /// <summary>
         /// Mapper AD grupper til applikationsroller
         /// </summary>
@@ -451,7 +462,7 @@ namespace API.Services
         {
             // Mapping logik - tilpas efter jeres AD gruppestruktur
             if (adGroups.Any(g => g.Contains("Admin", StringComparison.OrdinalIgnoreCase) ||
-                                 g.Contains("Administrator", StringComparison.OrdinalIgnoreCase)))
+                                  g.Contains("Administrator", StringComparison.OrdinalIgnoreCase)))
             {
                 return "Admin";
             }
@@ -462,7 +473,7 @@ namespace API.Services
             }
 
             if (adGroups.Any(g => g.Contains("Receptionist", StringComparison.OrdinalIgnoreCase) ||
-                                 g.Contains("Reception", StringComparison.OrdinalIgnoreCase)))
+                                  g.Contains("Reception", StringComparison.OrdinalIgnoreCase)))
             {
                 return "Receptionist";
             }
@@ -476,9 +487,6 @@ namespace API.Services
             return "Receptionist";
         }
     }
-
-
-
 
 
     /// <summary>

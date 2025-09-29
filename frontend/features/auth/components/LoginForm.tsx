@@ -39,7 +39,7 @@ export default function LoginForm() {
 
   const mutate = useMutation({
     mutationFn: (values: z.infer<typeof formSchema>) => login(values),
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success("You have been logged in successfully!");
       // Refresh server components to pick up new HttpOnly session cookie (triggers middleware redirects)
       router.refresh();

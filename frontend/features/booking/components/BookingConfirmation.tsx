@@ -65,7 +65,7 @@ export default function BookingConfirmation() {
     } else {
       // TODO: we should probably handle this better.
       if (!selectedHotel?.id || !checkInDate || !checkOutDate) {
-        toast.error("Something went wrong");
+        toast.error("Noget gik galt");
         return;
       }
       try {
@@ -80,6 +80,7 @@ export default function BookingConfirmation() {
         const axiosErr = err as import("axios").AxiosError<any>;
         const status = axiosErr.response?.status;
 
+        console.log(JSON.stringify(err));
         if (status === 401) {
           openModal(); // unauthorized, ask to login
           return;

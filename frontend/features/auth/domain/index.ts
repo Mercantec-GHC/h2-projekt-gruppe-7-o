@@ -1,3 +1,5 @@
+import { UserRole } from "@/features/user/domain";
+
 export type Session =
   | { isAuthenticated: false; user: null }
   | {
@@ -7,7 +9,7 @@ export type Session =
         email?: string;
         firstName?: string;
         lastName?: string;
-        role?: string;
+        role?: UserRole;
       };
       exp: number;
     };

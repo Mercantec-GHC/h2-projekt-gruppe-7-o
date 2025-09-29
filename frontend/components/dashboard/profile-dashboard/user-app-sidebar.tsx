@@ -35,10 +35,16 @@ const data = {
       icon: IconUser,
     },
     {
-      title: "Mine bookninger",
+      title: "Mine bookinger",
       url: "/profile/bookings",
       icon: IconBook,
     },
+    {
+      title: "Mine sager",
+      url: "/profile/tickets",
+      icon: IconReceipt,
+    },
+
     // {
     //   title: "Receipts",
     //   url: "/profile/receipts",

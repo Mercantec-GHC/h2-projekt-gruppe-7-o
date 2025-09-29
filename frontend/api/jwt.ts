@@ -1,3 +1,5 @@
+import { UserRole } from "@/features/user/domain";
+import { CONSTANTS } from "@/lib/constants";
 import { jwtVerify } from "jose";
 
 export async function importHS256KeyFromUtf8(secret: string) {
@@ -38,7 +40,7 @@ type DotNetPayload = {
   // ...rest of JWT fields
 };
 
-export function normalizeDotNetClaims(p: Record<string, any>) {
+export function normalizeDotNetClaims(p: Record<string, unknown>) {
   const roleClaim = (p as DotNetPayload)[ROLE_URI];
   const userId = p.sub ?? (p as DotNetPayload)[NAMEID_URI];
 
@@ -47,7 +49,7 @@ export function normalizeDotNetClaims(p: Record<string, any>) {
     email: p.email as string | undefined,
     firstName: p.firstName as string | undefined,
     lastName: p.lastName as string | undefined,
-    role: roleClaim,
+    role: roleClaim as UserRole | undefined,
     raw: p,
   };
 }
@@ -57,7 +59,7 @@ export type NormalizedTokenPayload = {
   email?: string;
   firstName?: string;
   lastName?: string;
-  role?: string; // support single or multiple roles
+  role?: UserRole;
   raw?: {
     aud: string;
     iss: string;
@@ -67,19 +69,9 @@ export type NormalizedTokenPayload = {
   };
 };
 
-const DASHBOARD_ALLOWED_ROLES = [
-  "Admin",
-  "Cleaning",
-  "Receptionist",
-  "Customer",
-];
-
 export function hasDashboardRole(roleClaim: NormalizedTokenPayload["role"]) {
   if (!roleClaim) return false;
-  if (Array.isArray(roleClaim)) {
-    return roleClaim.some((r) => DASHBOARD_ALLOWED_ROLES.includes(r));
-  }
-  return DASHBOARD_ALLOWED_ROLES.includes(roleClaim);
+  return (CONSTANTS.DASHBOARD_ROLES as readonly UserRole[]).includes(roleClaim);
 }
 
 export async function verifyJWT(token?: string) {
@@ -93,7 +85,7 @@ export async function verifyJWT(token?: string) {
       audience: process.env.JWT_AUDIENCE,
     });
     return normalizeDotNetClaims(payload);
-  } catch (e) {
+  } catch {
     return null;
   }
 }
