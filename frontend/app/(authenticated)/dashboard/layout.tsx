@@ -1,9 +1,8 @@
 import { AdminAppSidebar } from "@/components/dashboard/admin-dashboard/admin-app-sidebar";
-import { UserAppSidebar } from "@/components/dashboard/profile-dashboard/user-app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-export default function ProfileLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
