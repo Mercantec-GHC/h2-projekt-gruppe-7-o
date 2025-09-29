@@ -27,12 +27,18 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { getUserInitials } from "@/features/user/lib/utilts";
 import Link from "next/link";
-import { useSessionStore } from "@/features/auth/stores/sessionStore";
+import {
+  useHasDashboardAccess,
+  useSessionStore,
+} from "@/features/auth/stores/sessionStore";
 import AuthApi from "@/features/auth/api/auth-api";
+import { Badge } from "./ui/badge";
 
 export function NavUser() {
   const router = useRouter();
   const { logout: sessionLogout, user: sessionUser } = useSessionStore();
+
+  const hasDashboardAccess = useHasDashboardAccess();
   const { isMobile } = useSidebar();
   const mutation = useMutation({
     mutationFn: AuthApi.logout,
@@ -62,9 +68,15 @@ export function NavUser() {
                 {UserAvatarFallback}
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {sessionUser?.firstName}
-                </span>
+                <div className="flex items-end justify-between gap-2">
+                  <span className="truncate font-medium">
+                    {sessionUser?.firstName}{" "}
+                  </span>
+                  {hasDashboardAccess && (
+                    <Badge size="sm">{sessionUser?.role}</Badge>
+                  )}
+                </div>
+
                 <span className="text-muted-foreground truncate text-xs">
                   {sessionUser?.email}
                 </span>
@@ -84,9 +96,14 @@ export function NavUser() {
                   {UserAvatarFallback}
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">
-                    {sessionUser?.firstName}
-                  </span>
+                  <div className="flex items-end justify-between gap-2">
+                    <span className="truncate font-medium">
+                      {sessionUser?.firstName}{" "}
+                    </span>
+                    {hasDashboardAccess && (
+                      <Badge size="sm">{sessionUser?.role}</Badge>
+                    )}
+                  </div>
                   <span className="text-muted-foreground truncate text-xs">
                     {sessionUser?.email}
                   </span>

@@ -1,20 +1,13 @@
+import { AdminAppSidebar } from "@/components/dashboard/admin-dashboard/admin-app-sidebar";
 import { UserAppSidebar } from "@/components/dashboard/profile-dashboard/user-app-sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { useQuery } from "@tanstack/react-query";
-import data from "./data.json";
 
 export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // const { data: me, isLoading } = useQuery({
-  //   queryFn: getMe,
-  //   queryKey: ["me"],
-  //   // staleTime: Infinity, // We don't need to refetch the user data automatically, instead it is only going to be when we update or mutate the user
-  // });
-
   return (
     <SidebarProvider
       style={
@@ -24,7 +17,7 @@ export default function ProfileLayout({
         } as React.CSSProperties
       }
     >
-      <UserAppSidebar variant="inset" />
+      <AdminAppSidebar variant="inset" />
       <SidebarInset>
         <SiteHeader />
         <div className="flex flex-1 flex-col">

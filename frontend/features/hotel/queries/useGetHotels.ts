@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { type HotelResponse } from "@/features/hotel/types/Hotel";
 import HotelApi from "../api/hotel-api";
 
 // Query keys for consistent caching

@@ -4,7 +4,11 @@ export interface User {
   phone: string;
   firstName: string;
   lastName: string;
-  role: "Customer" | "Admin" | "Receptionist";
+  role: UserRole;
   createdAt: Date;
   updatedAt: Date;
 }
+
+export type UserRole = "Admin" | "Cleaning" | "Receptionist" | "Customer";
+
+export type DashboardRole = Exclude<UserRole, "Customer">;

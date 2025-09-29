@@ -1,10 +1,9 @@
-import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { DashboardBodyWrapper } from "@/components/dashboard/DashboardBodyWrapper";
 
-export default function DashboardPage() {
+export default function DashboardTasksPage() {
   return (
     <DashboardBodyWrapper>
-      <ChartAreaInteractive />
+      <p>My Tasks</p>
     </DashboardBodyWrapper>
   );
 }

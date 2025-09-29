@@ -8,8 +8,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Button } from "../ui/button";
-import { CopyButton } from "../ui/shadcn-io/copy-button";
+import { Button } from "../../ui/button";
+import { CopyButton } from "../../ui/shadcn-io/copy-button";
 import { BrushCleaning, DoorClosed } from "lucide-react";
 import { toast } from "sonner";
 import { useUserBookings } from "@/features/user/queries/useUserBookings";

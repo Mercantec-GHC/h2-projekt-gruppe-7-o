@@ -7,7 +7,7 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "generate:api": "openapi-generator-cli generate -i http://localhost:8051/swagger/v1/swagger.json -g typescript-axios -o ./api-client"
+    "generate:api": "openapi-generator-cli generate -i http://localhost:7087/swagger/v1/swagger.json -g typescript-axios -o ./api-client"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
