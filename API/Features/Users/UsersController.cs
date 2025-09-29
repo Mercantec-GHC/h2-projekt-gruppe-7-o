@@ -175,6 +175,63 @@ public class UsersController : ControllerBase
         // 3. Return the users information
     }
 
+    /// <summary>
+    /// Retrieves the current authenticated user's bookings
+    /// </summary>
+    /// <returns>The current user's information</returns>
+    /// <response code="200">Returns the current user's information</response>
+    /// <response code="401">If the user is not authenticated</response>
+    [Authorize]
+    [HttpGet("me/bookings")]
+    public async Task<IActionResult> GetCurrentUserBookings()
+    {
+        // 1. Get user id from token
+        // TODO: couldn't get getting the id to work with the JwtRegisteredClaimNames.Sub, can we fix this?
+        // TODO: can we get the current user id in an easier way than having to constantly look it up in the token? Can we extract this to some kind of service?
+        var userId =
+            User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+            return Unauthorized("UserId missing from token");
+
+        if (!Guid.TryParse(userId, out var guid)) return BadRequest("Invalid user id");
+        // 2. Find the user in the database
+
+        var user = await _userRepository.GetByIdAsync(guid);
+
+        if (user == null)
+            return NotFound("User Not found");
+
+        // 3. Return the users bookings
+        return Ok(user.Bookings.Select(b => new
+        {
+            b.Id,
+            b.CheckIn,
+            b.CheckOut,
+            b.Adults,
+            b.Children,
+            // TODO: this should return a string
+            b.Status,
+            b.TotalPrice,
+            b.BookingLines,
+            b.CreatedAt,
+            b.UpdatedAt,
+            Rooms = b.Rooms.Select(r => new
+            {
+                r.Id,
+                r.Type,
+                r.Floor,
+                r.Number,
+                r.Capacity,
+                r.ImageUrl,
+                r.PricePerNight,
+                r.Description
+            })
+        }).ToList());
+    }
+
+
     private bool UserExists(Guid id)
     {
         return _context.Users.Any(e => e.Id == id);

@@ -30,20 +30,20 @@ import { UserNavMain } from "./user-nav-main";
 const data = {
   navMain: [
     {
-      title: "Profile",
+      title: "Profil",
       url: "/profile",
       icon: IconUser,
     },
     {
-      title: "Bookings",
+      title: "Mine bookninger",
       url: "/profile/bookings",
       icon: IconBook,
     },
-    {
-      title: "Receipts",
-      url: "/profile/receipts",
-      icon: IconReceipt,
-    },
+    // {
+    //   title: "Receipts",
+    //   url: "/profile/receipts",
+    //   icon: IconReceipt,
+    // },
   ],
   navClouds: [
     {
@@ -95,12 +95,12 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Indstillinger",
       url: "/profile/settings",
       icon: IconSettings,
     },
     {
-      title: "Get Help",
+      title: "Få hjælp",
       url: "https://www.youtube.com/watch?v=xvFZjo5PgG0&ab_channel=Duran",
       icon: IconHelp,
     },

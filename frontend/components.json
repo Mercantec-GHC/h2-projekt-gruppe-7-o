@@ -30,6 +30,7 @@
       "headers": {
         "Authorization": "Bearer ${SHADCNBLOCKS_API_KEY}"
       }
-    }
+    },
+    "@animate-ui": "https://animate-ui.com/r/{name}.json"
   }
 }
