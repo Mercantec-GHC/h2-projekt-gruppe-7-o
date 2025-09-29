@@ -152,22 +152,24 @@ export function ProfileSectionCards() {
             <CardDescription className="grid grid-cols-2 gap-4">
               <div>
                 <h3 className="text-lg font-semibold text-primary">
-                  Breakfast
+                  Morgenmad
                 </h3>
                 <p className="text-sm text-muted-foreground">06:00-10:00</p>
               </div>
 
               <div>
-                <h3 className="text-lg font-semibold text-primary">Lunch</h3>
+                <h3 className="text-lg font-semibold text-primary">Frokost</h3>
                 <p className="text-sm text-muted-foreground">12:00-15:00</p>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-primary">Dinner</h3>
+                <h3 className="text-lg font-semibold text-primary">
+                  Aftensmad
+                </h3>
                 <p className="text-sm text-muted-foreground">18:00-22:00</p>
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-primary">
-                  Night snack
+                  Nat snack
                 </h3>
                 <p className="text-sm text-muted-foreground">22:00-24:00</p>
               </div>
@@ -182,10 +184,10 @@ export function ProfileSectionCards() {
           <CardHeader className="flex flex-col h-full">
             <div className="flex flex-col">
               <Badge className="mb-3" variant="default">
-                House keeping <BrushCleaning />
+                Rengøring <BrushCleaning />
               </Badge>
               <p className="mb-3 bg-green-100 p-2 rounded-md text-sm text-primary">
-                Housekeeping is booked for tomorrow at 10:00
+                Rengøring er booket til i morgen kl 10:00
               </p>
             </div>
 
