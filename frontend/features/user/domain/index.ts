@@ -9,6 +9,6 @@ export interface User {
   updatedAt: Date;
 }
 
-export type UserRole = "Admin" | "Cleaning" | "Receptionist" | "Customer";
+export type UserRole = "Customer" | "Admin" | "Receptionist" | "HousekeepingManager" | "Cleaner";
 
 export type DashboardRole = Exclude<UserRole, "Customer">;

@@ -63,13 +63,25 @@ const data = {
       title: "Rengøring",
       url: "/dashboard/cleaning",
       icon: BrushCleaning,
-      roles: ["Admin", "Cleaning"],
+      roles: ["Admin", "Cleaner", "HousekeepingManager"],
     },
     {
       title: "Mine Opgaver",
       url: "/dashboard/tasks",
       icon: IconListCheck,
-      roles: ["Admin", "Cleaning"],
+      roles: ["Admin", "Cleaner", "HousekeepingManager"],
+    },
+      {
+      title: "Rengøringsoverblik", // Går til Management Dashboard
+      url: "/dashboard/housekeeping/overview", 
+      icon: BrushCleaning,
+      roles: ["Admin", "HousekeepingManager", "Receptionist"], 
+    },
+    {
+      title: "Rengøringsopgaver", // Går til Housekeeper's opgaveliste
+      url: "/dashboard/housekeeping/tasks", 
+      icon: IconListCheck,
+      roles: ["Admin", "HousekeepingManager", "Cleaner"], 
     },
   ] satisfies NavItem[],
   navClouds: [

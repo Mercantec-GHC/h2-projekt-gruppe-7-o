@@ -14,6 +14,21 @@ public class RoomResponseDto
     public string? ImageUrl { get; set; }
     public bool IsActive { get; set; } = false;
 
+    public Guid HotelId { get; set; }  
+    public string? HotelName { get; set; } 
+
+    public required HousekeepingStatus Status { get; set; }
+
+    public Guid? AssignedHousekeeperId { get; set; }
+
+    // Note om vedligeholdelse
+    public string? MaintenanceNote { get; set; }
+
+    // Høj prioritet for tidlig rengøring
+    public bool IsPriority { get; set; }
+
+    // Tidspunkt for sidste statusændring
+    public DateTimeOffset LastStatusUpdateTime { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
 }

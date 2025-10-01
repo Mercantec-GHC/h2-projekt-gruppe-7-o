@@ -69,6 +69,14 @@ public class AppDBContext : DbContext
             .WithMany(s => s.Tickets)
             .HasForeignKey(t => t.StatusId);
 
+        // Opretter en valgfri (nullable) Foreign Key fra Room til User-tabelen
+        modelBuilder.Entity<Room>()
+            .HasOne<User>() // Antager, at din User Entity hedder 'User'
+            .WithMany()
+            .HasForeignKey(r => r.AssignedHousekeeperId)
+            .IsRequired(false) // Tillader null
+            .OnDelete(DeleteBehavior.SetNull);
+
         // Seeding af statusser
         modelBuilder.Entity<TicketStatus>().HasData(
             new TicketStatus { Id = 1, Name = "Open", CreatedAt = DateTimeOffset.Now, UpdatedAt = DateTimeOffset.Now },

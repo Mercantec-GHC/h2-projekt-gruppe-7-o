@@ -77,7 +77,8 @@ public class HotelsSeeder(AppDBContext context)
                 Floor = faker.Random.Short(1, 10),
                 Description = description,
                 ImageUrl = imageUrl,
-                IsActive = true
+                IsActive = true,
+                LastStatusUpdateTime = DateTimeOffset.UtcNow
             });
         }
         return rooms;
