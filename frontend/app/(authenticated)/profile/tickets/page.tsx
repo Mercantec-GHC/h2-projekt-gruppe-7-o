@@ -1,7 +1,10 @@
+import { DashboardBodyWrapper } from "@/components/dashboard/DashboardBodyWrapper";
+import { TicketInbox } from "@/features/ticket/components/TicketInbox";
+
 export default function TicketsPage() {
   return (
-    <div className="flex items-center justify-center flex-1 text-3xl font-bold">
-      Tickets
-    </div>
+    <DashboardBodyWrapper>
+      <TicketInbox isAdmin={false} userRole="Customer" />
+    </DashboardBodyWrapper>
   );
 }

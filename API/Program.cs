@@ -41,8 +41,6 @@ public class Program
         builder.Services.AddScoped<BookingService>();
         builder.Services.AddScoped<BookingService>();
 
-        builder.Services.AddSignalR();
-
 
         // Register Repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -101,6 +99,8 @@ public class Program
             });
 
         builder.Services.AddAuthorization();
+        builder.Services.AddSignalR();
+
 
         // Add services to the container.
         builder.Services.AddControllers().AddJsonOptions(o =>
@@ -235,7 +235,6 @@ public class Program
 
 
         app.MapControllers();
-        app.MapHub<ChatHub>("/chathub");
         app.MapHub<TicketHub>("/tickethub");
 
 

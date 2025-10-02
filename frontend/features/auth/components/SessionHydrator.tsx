@@ -1,8 +1,8 @@
 // app/SessionHydrator.tsx
 "use client";
 import { useEffect } from "react";
-import { Session } from "../lib/getSession";
 import { useSessionStore } from "../stores/sessionStore";
+import { Session } from "../domain";
 
 export default function SessionHydrator({ session }: { session: Session }) {
   const setSession = useSessionStore((s) => s.setSession);

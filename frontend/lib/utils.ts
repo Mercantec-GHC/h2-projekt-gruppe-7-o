@@ -1,4 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
+import { format } from "date-fns";
+import { da } from "date-fns/locale";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -24,4 +26,14 @@ export function formatCurrency(amount: number, currency = "DKK"): string {
     style: "currency",
     currency,
   }).format(amount);
+}
+
+export function formatDateTimeToLocaleString(date?: Date): string {
+  if (!date) return "";
+
+  const formattedDateTime = format(date, "yyyy-MM-dd HH:mm", {
+    locale: da,
+  });
+
+  return formattedDateTime;
 }

@@ -23,7 +23,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { getUserInitials } from "@/features/user/lib/utilts";
 import Link from "next/link";
@@ -40,10 +40,12 @@ export function NavUser() {
 
   const hasDashboardAccess = useHasDashboardAccess();
   const { isMobile } = useSidebar();
+  const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: AuthApi.logout,
-    onSuccess: () => {
+    onSuccess: async () => {
       sessionLogout();
+      await queryClient.invalidateQueries();
       router.refresh();
     },
   });
