@@ -18,11 +18,9 @@ export default function CustomerTicketDetailPage() {
       <DashboardBodyWrapper>
         <div className="text-center py-12">
           <h1 className="text-2xl font-bold text-destructive">
-            Invalid Ticket ID
+            Ugyldigt Sags-ID
           </h1>
-          <p className="text-muted-foreground mt-2">
-            The ticket ID provided is not valid.
-          </p>
+          <p className="text-muted-foreground mt-2">Sags-ID er ikke gyldigt.</p>
         </div>
       </DashboardBodyWrapper>
     );
