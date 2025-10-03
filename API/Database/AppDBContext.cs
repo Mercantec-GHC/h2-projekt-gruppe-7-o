@@ -69,6 +69,7 @@ public class AppDBContext : DbContext
             .WithMany(s => s.Tickets)
             .HasForeignKey(t => t.StatusId);
 
+
         modelBuilder.Entity<Ticket>()
             .HasOne(t => t.AssignedToUser)
             .WithMany()
@@ -88,6 +89,16 @@ public class AppDBContext : DbContext
             .WithMany(t => t.Messages)
             .HasForeignKey(tm => tm.TicketId)
             .OnDelete(DeleteBehavior.Cascade);
+
+
+        // Opretter en valgfri (nullable) Foreign Key fra Room til User-tabelen
+        modelBuilder.Entity<Room>()
+            .HasOne<User>() // Antager, at din User Entity hedder 'User'
+            .WithMany()
+            .HasForeignKey(r => r.AssignedHousekeeperId)
+            .IsRequired(false) // Tillader null
+            .OnDelete(DeleteBehavior.SetNull);
+
 
         // Seeding af statusser
         // TODO: Vi bør nok ikke seede herinde, men i stedet som vi gør ved f.eks bruger roller

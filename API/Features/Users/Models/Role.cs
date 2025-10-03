@@ -13,8 +13,9 @@ public static class RoleNames
 {
     public const string Admin = "Admin";
     public const string Receptionist = "Receptionist";
+    public const string HousekeepingManager = "HousekeepingManager";
     public const string Cleaner = "Cleaner";
     public const string Customer = "Customer";
 
-    public static readonly string[] All = [Admin, Receptionist, Cleaner, Customer];
+    public static readonly string[] All = [Admin, Receptionist, HousekeepingManager, Cleaner, Customer];
 }

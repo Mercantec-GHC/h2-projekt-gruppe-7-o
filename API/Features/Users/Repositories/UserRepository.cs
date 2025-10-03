@@ -87,6 +87,17 @@ internal sealed class UserRepository(AppDBContext context) : IUserRepository
         return user; // Returner den slettede bruger
     }
 
+    /// <summary>
+    /// Hent alle brugere med rollerne Cleaner, HousekeepingManager eller Admin
+    /// </summary>
+    public async Task<List<User>> GetHousekeepingRelevantUsersAsync()
+    {
+        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
+        return await _context.Users
+            .Where(u => roles.Contains(u.Role.Name))
+            .ToListAsync();
+    }
+
 
 
     public async Task<User?> FindUserByEmail(string email)

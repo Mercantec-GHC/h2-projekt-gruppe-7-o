@@ -28,7 +28,7 @@ public class RoomService
 
         var rooms = await _repository.GetAllAsync();
         var roomDtos = rooms.Select(r => r.ToRoomDto()).ToList();
-        _cache.Set(cacheKey, roomDtos, TimeSpan.FromSeconds(30));
+        //_cache.Set(cacheKey, roomDtos, TimeSpan.FromSeconds(30));
         return roomDtos;
     }
 
@@ -57,6 +57,35 @@ public class RoomService
         _cache.Remove("all_rooms");
         return true;
     }
+
+
+
+    private const string HousekeepingCacheKey = "housekeeping_dashboard";
+
+    public async Task<IEnumerable<RoomResponseDto>> GetHousekeepingDashboardStatusAsync()
+    {
+        if (_cache.TryGetValue(HousekeepingCacheKey, out List<RoomResponseDto> cachedRooms))
+            return cachedRooms;
+
+        var rooms = await _repository.GetRoomsWithHousekeepingDetailsAsync();
+
+        var roomDtos = rooms.Select(r => r.ToRoomDto()).ToList();
+
+        // Caching for denne visning er vigtigere end for 'all_rooms'
+        _cache.Set(HousekeepingCacheKey, roomDtos, TimeSpan.FromSeconds(15));
+
+        return roomDtos;
+    }
+
+    public async Task<IEnumerable<RoomResponseDto>> GetAssignedRoomsAsync(Guid housekeeperId)
+    {
+        
+        var rooms = await _repository.GetAssignedRoomsByHousekeeperAsync(housekeeperId);
+
+        return rooms.Select(r => r.ToRoomDto()).ToList();
+    }
+
+
 
     public async Task<RoomTypesAvailablityResponseDto> GetAvailableRoomTypesAsync(
         Guid hotelId, DateTime checkIn, DateTime checkOut)
@@ -203,5 +232,97 @@ public class RoomService
             CheckOut = end,
             Rooms = unavailable
         };
+    }
+
+
+    /// <summary>
+    /// Opdaterer et værelses Housekeeping Status.
+    /// </summary>
+    public async Task<RoomResponseDto?> UpdateRoomHousekeepingStatusAsync(
+        Guid roomId, HousekeepingStatus newStatus)
+    {
+        var room = await _repository.GetByIdAsync(roomId);
+        if (room == null) return null;
+
+
+        // Håndtering af tildeling og noter baseret på status
+        Guid? newHousekeeperId = null;
+        string? newMaintenanceNote = null;
+
+        if (newStatus == HousekeepingStatus.CleanReady) // VC
+        {
+            // Rydder tildeling og noter, når værelset er klar
+            newHousekeeperId = null;
+            newMaintenanceNote = null;
+        }
+        else if (newStatus == HousekeepingStatus.DirtyCheckout ||
+                 newStatus == HousekeepingStatus.DirtyStayOver)
+        {
+            // Rydder tildeling 
+            newHousekeeperId = null;
+        }
+
+       
+        var updatedRoom = await _repository.UpdateHousekeepingFieldsAsync(
+            roomId,
+            (int)newStatus,
+            newHousekeeperId,
+            newMaintenanceNote,
+            isPriority: null); 
+
+        if (updatedRoom == null) return null;
+
+        await _repository.SaveChangesAsync();
+
+        _cache.Remove(HousekeepingCacheKey);
+        _cache.Remove("all_rooms");
+
+        return updatedRoom.ToRoomDto();
+    }
+
+
+    /// <summary>
+    /// Tildeler et værelse til en Housekeeper.
+    /// </summary>
+    public async Task<RoomResponseDto?> AssignRoomToHousekeeperAsync(Guid roomId, Guid housekeeperId)
+    {
+        var room = await _repository.GetByIdAsync(roomId);
+        if (room == null) return null;
+
+        var updatedRoom = await _repository.UpdateHousekeepingFieldsAsync(
+            roomId,
+            assignedHousekeeperId: housekeeperId);
+
+        if (updatedRoom == null) return null;
+
+        await _repository.SaveChangesAsync();
+
+        _cache.Remove(HousekeepingCacheKey);
+
+        return updatedRoom.ToRoomDto();
+    }
+
+
+    /// <summary>
+    /// Rapporterer en vedligeholdelsesfejl for et værelse.
+    /// </summary>
+    public async Task<RoomResponseDto?> ReportMaintenanceAsync(Guid roomId, string note)
+    {
+        var room = await _repository.GetByIdAsync(roomId);
+        if (room == null) return null;
+
+        // Opdater status og note
+        var updatedRoom = await _repository.UpdateHousekeepingFieldsAsync(
+            roomId,
+            newStatus: (int)HousekeepingStatus.OutOfOrder, // Sætter til OOO ved fejl
+            maintenanceNote: note);
+
+        if (updatedRoom == null) return null;
+
+        await _repository.SaveChangesAsync();
+
+        _cache.Remove(HousekeepingCacheKey);
+
+        return updatedRoom.ToRoomDto();
     }
 }

@@ -18,6 +18,13 @@ public static class RoomMapping
             Description = room.Description,
             ImageUrl = room.ImageUrl,
             IsActive = room.IsActive,
+            HotelId = room.HotelId,
+            HotelName = room.Hotel?.Name,
+            Status = (HousekeepingStatus)room.HousekeepingStatus,
+            AssignedHousekeeperId = room.AssignedHousekeeperId,
+            MaintenanceNote = room.MaintenanceNote,
+            IsPriority = room.IsPriority,
+            LastStatusUpdateTime = room.LastStatusUpdateTime,
             CreatedAt = room.CreatedAt,
             UpdatedAt = room.UpdatedAt
         };
@@ -36,6 +43,13 @@ public static class RoomMapping
             Description = room.Description,
             ImageUrl = room.ImageUrl,
             IsActive = room.IsActive,
+            HotelId = room.HotelId,
+            HotelName = room.Hotel?.Name,
+            Status = (HousekeepingStatus)room.HousekeepingStatus,
+            AssignedHousekeeperId = room.AssignedHousekeeperId,
+            MaintenanceNote = room.MaintenanceNote,
+            IsPriority = room.IsPriority,
+            LastStatusUpdateTime = room.LastStatusUpdateTime,
             CreatedAt = room.CreatedAt,
             UpdatedAt = room.UpdatedAt,
             Bookings = room.Bookings.Select(b => b.ToBookingDto()).ToList()
@@ -53,7 +67,12 @@ public static class RoomMapping
             Floor = dto.Floor,
             Description = dto.Description ?? string.Empty,
             IsActive = dto.IsActive,
-            HotelId = dto.HotelId
+            HotelId = dto.HotelId,
+            HousekeepingStatus = (int)HousekeepingStatus.CleanReady,
+            AssignedHousekeeperId = null,
+            MaintenanceNote = null,
+            IsPriority = false,
+            LastStatusUpdateTime = DateTimeOffset.UtcNow 
         };
     }
 
