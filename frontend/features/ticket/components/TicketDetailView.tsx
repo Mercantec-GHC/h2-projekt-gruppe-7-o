@@ -34,7 +34,6 @@ import { da } from "date-fns/locale";
 
 interface TicketDetailViewProps {
   ticketId: number;
-  currentUserId?: string;
   isAdmin?: boolean;
   onBack?: () => void;
 }
