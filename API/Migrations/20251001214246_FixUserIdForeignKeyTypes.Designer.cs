@@ -4,6 +4,7 @@ using API.Data;
 using API.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    partial class AppDBContextModelSnapshot : ModelSnapshot
+    [Migration("20251001214246_FixUserIdForeignKeyTypes")]
+    partial class FixUserIdForeignKeyTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -323,26 +326,11 @@ namespace API.Migrations
                     b.Property<Guid>("HotelId")
                         .HasColumnType("uuid");
 
-                    b.Property<int>("HousekeepingStatus")
-                        .HasColumnType("integer");
-
                     b.Property<string>("ImageUrl")
                         .HasColumnType("text");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPriority")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastServiceRequested")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTimeOffset>("LastStatusUpdateTime")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("MaintenanceNote")
-                        .HasColumnType("text");
 
                     b.Property<string>("Number")
                         .IsRequired()
@@ -359,8 +347,6 @@ namespace API.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssignedHousekeeperId");
 
                     b.HasIndex("HotelId");
 
@@ -535,11 +521,6 @@ namespace API.Migrations
 
             modelBuilder.Entity("API.Models.Entities.Room", b =>
                 {
-                    b.HasOne("API.Models.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedHousekeeperId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("API.Models.Entities.Hotel", "Hotel")
                         .WithMany("Rooms")
                         .HasForeignKey("HotelId")

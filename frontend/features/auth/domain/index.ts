@@ -5,7 +5,9 @@ export type Session =
   | {
       isAuthenticated: true;
       user: {
+        // TODO: id and sub is the same thing, we should remove one of them (probalby sub)
         sub: string;
+        id: string;
         email?: string;
         firstName?: string;
         lastName?: string;

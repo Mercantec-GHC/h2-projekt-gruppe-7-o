@@ -1,21 +1,10 @@
-import UsersList from "@/features/users/components/UsersList";
-import { getUsers } from "@/features/users/lib/getUsers";
-import { getQueryClient } from "@/lib/getQueryClient";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
-
-const AllUsersPage = async () => {
-  const queryClient = getQueryClient();
-
-  await queryClient.prefetchQuery({
-    queryKey: ["users"],
-    queryFn: getUsers,
-  });
-
+export default function UsersPage() {
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <UsersList />
-    </HydrationBoundary>
+    <div className="container mx-auto py-6">
+      <h1 className="text-3xl font-bold">Users Management</h1>
+      <p className="text-muted-foreground mt-2">
+        Users management functionality is coming soon.
+      </p>
+    </div>
   );
-};
-
-export default AllUsersPage;
+}

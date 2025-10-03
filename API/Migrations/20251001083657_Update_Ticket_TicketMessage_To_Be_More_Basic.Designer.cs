@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace API.Migrations
 {
     [DbContext(typeof(AppDBContext))]
-    [Migration("20250926153426_AddTicketSystem")]
-    partial class AddTicketSystem
+    [Migration("20251001083657_Update_Ticket_TicketMessage_To_Be_More_Basic")]
+    partial class Update_Ticket_TicketMessage_To_Be_More_Basic
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,6 +27,46 @@ namespace API.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "booking_status", new[] { "cancelled", "confirmed", "pending" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "room_type", new[] { "deluxe", "family", "standard", "suite" });
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("API.Features.Chat.TicketMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("TicketId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("UserId1")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.HasIndex("UserId1");
+
+                    b.ToTable("TicketMessages");
+                });
 
             modelBuilder.Entity("API.Features.Chat.TicketStatus", b =>
                 {
@@ -55,23 +95,44 @@ namespace API.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(7875), new TimeSpan(0, 2, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Name = "Open",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(8962), new TimeSpan(0, 2, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(9801), new TimeSpan(0, 2, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Name = "In Progress",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(9825), new TimeSpan(0, 2, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(9837), new TimeSpan(0, 2, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Waiting for Customer",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Waiting for Admin",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            Name = "Resolved",
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Name = "Closed",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2025, 9, 26, 17, 34, 23, 449, DateTimeKind.Unspecified).AddTicks(9841), new TimeSpan(0, 2, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -379,8 +440,17 @@ namespace API.Migrations
                     b.Property<string>("AssignedToUserId")
                         .HasColumnType("text");
 
+                    b.Property<Guid?>("AssignedToUserId1")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedByUserId")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("CreatedByUserId1")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -399,9 +469,32 @@ namespace API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssignedToUserId1");
+
+                    b.HasIndex("CreatedByUserId1");
+
                     b.HasIndex("StatusId");
 
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("API.Features.Chat.TicketMessage", b =>
+                {
+                    b.HasOne("Ticket", "Ticket")
+                        .WithMany("Messages")
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("API.Models.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId1")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Ticket");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("API.Models.Entities.Booking", b =>
@@ -475,11 +568,23 @@ namespace API.Migrations
 
             modelBuilder.Entity("Ticket", b =>
                 {
+                    b.HasOne("API.Models.Entities.User", "AssignedToUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedToUserId1");
+
+                    b.HasOne("API.Models.Entities.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId1");
+
                     b.HasOne("API.Features.Chat.TicketStatus", "Status")
                         .WithMany("Tickets")
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AssignedToUser");
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Status");
                 });
@@ -509,6 +614,11 @@ namespace API.Migrations
                     b.Navigation("BookingLines");
 
                     b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("Ticket", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }
