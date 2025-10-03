@@ -259,4 +259,170 @@ public class RoomsController : ControllerBase
     {
         return _context.Rooms.Any(e => e.Id == id);
     }
+
+
+    /// <summary>
+    /// Retrieves the full housekeeping status for all rooms, intended for the Management Dashboard.
+    /// </summary>
+    /// <returns>A list of all rooms with housekeeping details</returns>
+    /// <response code="200">Returns the list of rooms with status</response>
+    [HttpGet("housekeeping-dashboard")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist},{RoleNames.HousekeepingManager}")]
+    public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetHousekeepingDashboardStatus()
+    {
+        try
+        {
+            var rooms = await _roomService.GetHousekeepingDashboardStatusAsync();
+            return Ok(rooms);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred while fetching dashboard status.");
+        }
+    }
+
+
+    /// <summary>
+    /// Retrieves the list of rooms assigned to a specific housekeeper.
+    /// </summary>
+    /// <param name="housekeeperId">The unique identifier of the housekeeper</param>
+    /// <returns>A list of rooms assigned to the housekeeper</returns>
+    /// <response code="200">Returns the list of assigned rooms</response>
+    [HttpGet("housekeeper-tasks/{housekeeperId}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager},{RoleNames.Cleaner}")]
+    public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetHousekeeperAssignedRooms(Guid housekeeperId)
+    {
+        try
+        {
+            var rooms = await _roomService.GetAssignedRoomsAsync(housekeeperId);
+            return Ok(rooms);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred while fetching housekeeper tasks.");
+        }
+    }
+
+
+    /// <summary>
+    /// Updates the housekeeping status of a room (e.g., Dirty -> Clean).
+    /// </summary>
+    /// <param name="id">The unique identifier of the room</param>
+    /// <param name="newStatus">The new HousekeepingStatus ID</param>
+    /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
+    [HttpPut("{id}/status/{newStatus}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager},{RoleNames.Cleaner}")]
+    public async Task<ActionResult<RoomResponseDto>> UpdateRoomStatus(
+        Guid id,
+        [FromRoute] HousekeepingStatus newStatus) // Bruger Enum for klarhed
+    {
+        try
+        {
+            var updatedRoom = await _roomService.UpdateRoomHousekeepingStatusAsync(id, newStatus);
+
+            if (updatedRoom == null) return NotFound();
+
+            return Ok(updatedRoom);
+        }
+        catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred during status update.");
+        }
+    }
+
+    /// <summary>
+    /// Updates the priority flag of a room (isPriority)
+    /// </summary>
+    /// <param name="id">The unique identifier of the room</param>
+    /// <param name="isPriority">The new priority value</param>
+    /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
+    [HttpPut("{id}/priority/{isPriority}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}, {RoleNames.Cleaner}")]
+    public async Task<ActionResult<RoomResponseDto>> UpdateRoomPriority(Guid id, bool isPriority)
+    {
+        var room = await _context.Rooms.FindAsync(id);
+        if (room == null) return NotFound();
+
+        room.IsPriority = isPriority;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            _cache.Remove("all_rooms");
+            return Ok(room.ToRoomDto());
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
+        }
+    }
+
+
+    /// <summary>
+    /// Assigns a specific room to a housekeeper.
+    /// </summary>
+    /// <param name="id">The unique identifier of the room</param>
+    /// <param name="housekeeperId">The unique identifier of the housekeeper to assign</param>
+    /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
+    [HttpPost("{id}/assign/{housekeeperId}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}")]
+    public async Task<ActionResult<RoomResponseDto>> AssignRoom(Guid id, Guid housekeeperId)
+    {
+        try
+        {
+            var updatedRoom = await _roomService.AssignRoomToHousekeeperAsync(id, housekeeperId);
+
+            if (updatedRoom == null) return NotFound("Room or Housekeeper not found.");
+
+            return Ok(updatedRoom);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred during room assignment.");
+        }
+    }
+
+    [HttpPut("{roomId}/complete")]
+    public async Task<IActionResult> CompleteRoom(Guid roomId)
+    {
+        var updatedRoom = await _roomService.UpdateRoomHousekeepingStatusAsync(
+            roomId, HousekeepingStatus.CleanReady); // HousekeepingService håndterer nulstilling af assignment og prioritet
+        if (updatedRoom == null) return NotFound();
+        return Ok(updatedRoom);
+    }
+
+
+
+    /// <summary>
+    /// Reports a maintenance issue, setting the room status to OutOfOrder.
+    /// </summary>
+    /// <param name="id">The unique identifier of the room</param>
+    /// <param name="note">The maintenance description</param>
+    /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
+    [HttpPost("{id}/maintenance")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager},{RoleNames.Cleaner}")]
+    public async Task<ActionResult<RoomResponseDto>> ReportMaintenance(
+        Guid id,
+        [FromBody] string note)
+    {
+        if (string.IsNullOrWhiteSpace(note))
+            return BadRequest(new { error = "Maintenance note is required." });
+
+        try
+        {
+            var updatedRoom = await _roomService.ReportMaintenanceAsync(id, note);
+
+            if (updatedRoom == null) return NotFound();
+
+            return Ok(updatedRoom);
+        }
+        catch (Exception)
+        {
+            return StatusCode(500, "An unexpected error occurred during maintenance reporting.");
+        }
+    }
 }

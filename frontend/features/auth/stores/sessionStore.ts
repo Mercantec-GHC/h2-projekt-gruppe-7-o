@@ -42,7 +42,9 @@ export const useHasAnyRole = (roles: readonly UserRole[]) =>
 export const useIsAdmin = () => useHasRole("Admin");
 export const useIsCustomer = () => useHasRole("Customer");
 export const useIsReceptionist = () => useHasRole("Receptionist");
-export const useIsCleaning = () => useHasRole("Cleaning");
+export const useIsCleaning = () => useHasRole("Cleaner");
+export const useIsHousekeeping = () => useHasRole("HousekeepingManager");
+
 
 // Dashboard access
 export const hasDashboardAccess = (userRole?: UserRole) =>
