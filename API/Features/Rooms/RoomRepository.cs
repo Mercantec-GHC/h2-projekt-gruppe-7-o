@@ -55,28 +55,29 @@ public class RoomRepository : IRoomRepository
         .ToListAsync(ct);
     }
 
-  
     public async Task<Room?> UpdateHousekeepingFieldsAsync(
-        Guid roomId,
-        int? newStatus = null,
-        Guid? assignedHousekeeperId = null,
-        string? maintenanceNote = null,
-        bool? isPriority = null,
-        CancellationToken ct = default)
+      Guid roomId,
+      int? newStatus = null,
+      Guid? assignedHousekeeperId = null,
+      string? maintenanceNote = null,
+      bool? isPriority = null,
+      CancellationToken ct = default)
     {
-
         var room = await _context.Rooms.FindAsync(new object?[] { roomId }, ct);
-
         if (room == null) return null;
 
         if (newStatus.HasValue)
         {
             room.HousekeepingStatus = newStatus.Value;
-            room.LastStatusUpdateTime = DateTimeOffset.UtcNow; // Sæt tidsstempel ved statusændring!
+            room.LastStatusUpdateTime = DateTimeOffset.UtcNow;
         }
 
-        if (assignedHousekeeperId.HasValue) room.AssignedHousekeeperId = assignedHousekeeperId.Value;
-        if (isPriority.HasValue) room.IsPriority = isPriority.Value;
+        // Her sætter vi assignedHousekeeperId til null hvis det er sendt
+        room.AssignedHousekeeperId = assignedHousekeeperId;
+
+        // Her sætter vi isPriority, også hvis det er false
+        if (isPriority.HasValue)
+            room.IsPriority = isPriority.Value;
 
         // Håndtering af MaintenanceNote
         if (maintenanceNote != null)
@@ -85,13 +86,12 @@ public class RoomRepository : IRoomRepository
         }
         else if (room.MaintenanceNote != null && room.HousekeepingStatus != (int)HousekeepingStatus.OutOfOrder)
         {
-            // Ryd note, hvis den ikke længere er nødvendig og værelset ikke er OOO
             room.MaintenanceNote = null;
         }
 
-        // SaveChangesAsync kaldes i Service-laget
         return room;
     }
+
 
     private IQueryable<Room> RoomWithHotel()
     {

@@ -310,7 +310,7 @@ public class RoomsController : ControllerBase
     /// <param name="id">The unique identifier of the room</param>
     /// <param name="newStatus">The new HousekeepingStatus ID</param>
     /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
-    [HttpPost("{id}/status/{newStatus}")]
+    [HttpPut("{id}/status/{newStatus}")]
     [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager},{RoleNames.Cleaner}")]
     public async Task<ActionResult<RoomResponseDto>> UpdateRoomStatus(
         Guid id,
@@ -331,6 +331,33 @@ public class RoomsController : ControllerBase
         catch (Exception)
         {
             return StatusCode(500, "An unexpected error occurred during status update.");
+        }
+    }
+
+    /// <summary>
+    /// Updates the priority flag of a room (isPriority)
+    /// </summary>
+    /// <param name="id">The unique identifier of the room</param>
+    /// <param name="isPriority">The new priority value</param>
+    /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
+    [HttpPut("{id}/priority/{isPriority}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}, {RoleNames.Cleaner}")]
+    public async Task<ActionResult<RoomResponseDto>> UpdateRoomPriority(Guid id, bool isPriority)
+    {
+        var room = await _context.Rooms.FindAsync(id);
+        if (room == null) return NotFound();
+
+        room.IsPriority = isPriority;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            _cache.Remove("all_rooms");
+            return Ok(room.ToRoomDto());
+        }
+        catch (DbUpdateException ex)
+        {
+            return BadRequest(new { message = ex.InnerException?.Message ?? ex.Message });
         }
     }
 
@@ -358,6 +385,16 @@ public class RoomsController : ControllerBase
             return StatusCode(500, "An unexpected error occurred during room assignment.");
         }
     }
+
+    [HttpPut("{roomId}/complete")]
+    public async Task<IActionResult> CompleteRoom(Guid roomId)
+    {
+        var updatedRoom = await _roomService.UpdateRoomHousekeepingStatusAsync(
+            roomId, HousekeepingStatus.CleanReady); // HousekeepingService håndterer nulstilling af assignment og prioritet
+        if (updatedRoom == null) return NotFound();
+        return Ok(updatedRoom);
+    }
+
 
 
     /// <summary>

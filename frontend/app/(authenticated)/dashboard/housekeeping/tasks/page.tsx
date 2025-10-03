@@ -1,16 +1,11 @@
-"use client";
+// page.tsx
 
+"use client";
 import * as React from 'react';
 import { useState, useCallback } from 'react'; 
-
-// Henter Sonner's toast funktion
 import { toast } from "sonner"; 
-
-// Opdaterede importstier (antaget korrekt i dit projekt)
 import { useHousekeeperTasks } from "../api/useHousekeepingData"
 import { HousekeepingRoom } from "../api/HousekeepingRoomTransform";
-
-// Sikre imports fra komponenter og ShadCN
 import { DashboardBodyWrapper } from "@/components/dashboard/DashboardBodyWrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,60 +13,31 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge"; 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; 
-
-// Ikon Imports
 import { IconListCheck } from "@tabler/icons-react";
-import { CheckCircle, Hotel, Loader2, RefreshCw, AlertTriangle, Star, Bed, MapPin } from "lucide-react"; // Tilføjede MapPin for Hotel
+import { CheckCircle, Hotel, Loader2, RefreshCw, AlertTriangle, Star, Bed, MapPin } from "lucide-react";
 import { useSessionStore } from "@/features/auth/stores/sessionStore"; 
-import { apiClient } from "@/api/client";
+
+import { getStatusConfig, } from "../api/statusConfig"; 
+import { useUpdateRoomStatus } from '../hooks/updateRoomStatus';
 
 
-// ---------------------------------------------
-// Lokal Hook til Status Opdatering (Mutation)
-// ---------------------------------------------
-const useLocalUpdateRoomStatus = () => {
-    const [isLoading, setIsLoading] = useState(false);
 
-    // Status 4 i C# er 'AwaitingInspection'
-    const AWAITING_INSPECTION_STATUS = 4; 
-
-    const updateStatus = useCallback(async (roomId: string) => {
-        setIsLoading(true);
-        try {
-            // POST request til backend endpoint
-            const res = await apiClient.post(`/rooms/${roomId}/status/${AWAITING_INSPECTION_STATUS}`);
-            return res.data; // returnerer opdateret værelse DTO
-        } catch (err) {
-            const errorMessage = (err as any)?.response?.data?.error || (err as Error).message || 'Fejl ved opdatering af værelse';
-            throw new Error(errorMessage);
-        } finally {
-            setIsLoading(false);
-        }
-    }, []);
-
-    return { updateStatus, isLoading };
-};
-// ---------------------------------------------
-
-
-// --- Shadcn-optimeret Komponent til Opgaveelementet (Bruger Sonner) ---
 const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: () => void }) => {
-    const { updateStatus, isLoading: isUpdating } = useLocalUpdateRoomStatus();
+
+    const { updateStatus, isLoading: isUpdating } = useUpdateRoomStatus(); 
     const [statusError, setStatusError] = useState<string | null>(null);
 
     const handleComplete = async () => {
         setStatusError(null); 
         
-        // Sonner notifikation mens vi venter
-        const promise = updateStatus(task.id);
+        // Kalder med hook og CleanReady status streng
+        const promise = updateStatus(task.id, "CleanReady");
 
-        // Sonner's promise-funktion giver god UX under loading
         toast.promise(promise, {
             loading: `Opdaterer værelse ${task.number}...`,
             success: () => {
-                // Opdater listen efter succesfuld opdatering
                 refreshList(); 
-                return `Værelse ${task.number} er nu klar til inspektion!`;
+                return `Værelse ${task.number} er nu markeret som rent og klar!`;
             },
             error: (err) => {
                 const errorMessage = (err as Error).message;
@@ -87,12 +53,8 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
     };
 
     const isCheckout = task.status === 'DirtyCheckout';
-    // Sikrer at displayColor bruges korrekt til border class
-    const borderClass = task.displayColor.replace('bg-', 'border-'); 
-    const statusLabel = isCheckout ? 'Tjek Ud Rengøring' : task.status === 'DirtyStayOver' ? 'Opholds Service' : task.status;
-    const taskType = isCheckout ? 'Fuld Rengøring (DCO)' : 'Daglig Service (DS)';
-    
-    // Antager at HousekeepingRoom har 'hotelName' og 'floor' properties
+    const config = getStatusConfig(task.status);
+    const taskType = isCheckout ? 'Fuld Rengøring (DCO)' : task.status === 'DirtyStayOver' ? 'Daglig Service (DS)' : config.label;
     const hotelName = task.hotelName || "Ukendt Hotel"; 
     const roomFloor = task.floor; 
 
@@ -100,7 +62,7 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
         <Card 
             className={`
                 mb-4 shadow-lg hover:shadow-xl transition-shadow 
-                border-l-4 ${borderClass} 
+                border-l-4 ${config.borderColor} 
                 ${task.isPriority ? 'border-r-4 border-r-yellow-500' : ''}
             `}
         >
@@ -122,14 +84,16 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
                             <Star className="h-4 w-4 mr-1 fill-white" /> PRIORITET
                         </Badge>
                     )}
-                    <Badge variant={isCheckout ? 'destructive' : 'secondary'} className="text-xs">
-                        {statusLabel}
+                    <Badge
+                        variant={isCheckout ? 'destructive' : 'secondary'}
+                        className={`text-xs ${config.color.split(" ")[0]} text-white`}
+                    >
+                        {config.label}
                     </Badge>
                 </div>
             </CardHeader>
 
             <CardContent className="p-4 pt-0">
-                {/* Værelsesdetaljer (Hotel og Etage) */}
                 <div className="space-y-1 text-sm">
                     <div className="flex justify-between items-center">
                         <span className="text-muted-foreground flex items-center">
@@ -147,7 +111,6 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
 
                 <Separator className="my-3" />
 
-                {/* Vis fejlmeddelelse med Shadcn Alert */}
                 {statusError && (
                     <Alert variant="destructive" className="mb-4">
                         <AlertTriangle className="h-4 w-4" />
@@ -169,7 +132,7 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
                         : 
                         <>
                             <CheckCircle className="h-6 w-6 mr-2" />
-                            Færdiggør (Klar til Inspektion)
+                            Færdiggør (Sæt til CleanReady)
                         </>
                     }
                 </Button>
@@ -181,7 +144,6 @@ const TaskItem = ({ task, refreshList }: { task: HousekeepingRoom, refreshList: 
 
 // --- Hovedkomponenten til Opgavelisten ---
 export default function HousekeeperTasksPage() {
-    // LØSNING: Kalder hooken separat for at undgå at oprette et nyt objekt
     const user = useSessionStore(state => state.user);
     const hydrated = useSessionStore(state => state.hydrated);
     
@@ -206,7 +168,7 @@ export default function HousekeeperTasksPage() {
                     <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Fejl ved indlæsning af opgaver</AlertTitle>
-                        <AlertDescription>Kunne ikke hente opgavelisten. Prøv venligst at synkronisere igen. {error.message}</AlertDescription>
+                        <AlertDescription>Kunne ikke hente opgavelisten. Prøv venligst at synkronisere igen. {error?.message}</AlertDescription>
                     </Alert>
                     <Button onClick={() => refresh()} className="mt-4">
                          <RefreshCw className="h-4 w-4 mr-2" /> Synkroniser Nu
@@ -216,7 +178,6 @@ export default function HousekeeperTasksPage() {
         );
     }
 
-    // Loader med Skeleton for bedre UX
     if (isLoading) {
         return (
             <DashboardBodyWrapper>
@@ -234,7 +195,6 @@ export default function HousekeeperTasksPage() {
 
     return (
         <DashboardBodyWrapper>
-            {/* Div lag for at håndtere padding og begrænse bredden */}
             <div className="p-6 md:p-8"> 
                 <div className="flex justify-between items-center mb-6">
                     <h1 className="text-3xl font-bold flex items-center">

@@ -1,6 +1,7 @@
 ﻿using API.Models.Entities;
 using Bogus;
 using Microsoft.EntityFrameworkCore;
+using System; // Tilføj denne for Guid og DateTimeOffset
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -40,6 +41,7 @@ public class HotelsSeeder(AppDBContext context)
 
             var rooms = new List<Room>();
 
+            // Antallet af værelser er en god blanding til at starte med
             rooms.AddRange(CreateRooms(hotel.Id, RoomType.Standard, 2, 50, ref globalRoomCounter));
             rooms.AddRange(CreateRooms(hotel.Id, RoomType.Deluxe, 2, 40, ref globalRoomCounter));
             rooms.AddRange(CreateRooms(hotel.Id, RoomType.Family, 6, 20, ref globalRoomCounter));
@@ -64,6 +66,25 @@ public class HotelsSeeder(AppDBContext context)
         var description = GetRoomDescription(faker, roomType);
         var imageUrl = GetRoomImageUrl(roomType);
 
+        // Bestem start HousekeepingStatus
+        // Sæt de fleste til CleanReady, men et par stykker til DirtyCheckout for at teste prioritering
+        HousekeepingStatus initialStatus;
+        if (roomType == RoomType.Standard && globalRoomCounter < 5) // Eksempel: De første 5 Standard værelser er klar
+        {
+            initialStatus = HousekeepingStatus.CleanReady;
+        }
+        else if (globalRoomCounter % 10 == 0) // Hvert 10. værelse er DirtyCheckout
+        {
+            initialStatus = HousekeepingStatus.DirtyCheckout;
+        }
+        else
+        {
+            initialStatus = HousekeepingStatus.CleanReady; // Standard status
+        }
+
+        // Bestem IsPriority for et par Suiter
+        bool isPriority = roomType == RoomType.Suite && faker.Random.Bool(0.3f); // 30% chance for VIP suite
+
         for (int i = 0; i < count; i++)
         {
             rooms.Add(new Room
@@ -78,7 +99,15 @@ public class HotelsSeeder(AppDBContext context)
                 Description = description,
                 ImageUrl = imageUrl,
                 IsActive = true,
-                LastStatusUpdateTime = DateTimeOffset.UtcNow
+                LastStatusUpdateTime = DateTimeOffset.UtcNow,
+
+                // --- NYE HOUSEKEEPING FELTER ---
+                HousekeepingStatus = (int)initialStatus, // Konverter til int
+                AssignedHousekeeperId = null, // Intet tildelt i starten
+                LastServiceRequested = null, // Ingen service anmodet
+                MaintenanceNote = null, // Ingen fejl rapporteret
+                IsPriority = isPriority
+                // -----------------------------
             });
         }
         return rooms;
@@ -86,8 +115,8 @@ public class HotelsSeeder(AppDBContext context)
 
     private static string GetHotelImageUrl(string city)
     {
-        // Using static Pexels links for reliable hotel images (1600x900)
-        return city switch
+        // ... (Uændret) ...
+        return city switch
         {
             "København" => "https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
             "Aarhus" => "https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=1600&h=900&fit=crop",
@@ -99,8 +128,8 @@ public class HotelsSeeder(AppDBContext context)
 
     private static string GetRoomImageUrl(RoomType roomType)
     {
-        // Using static Pexels links for reliable room images (800x600)
-        return roomType switch
+        // ... (Uændret) ...
+        return roomType switch
         {
             RoomType.Standard => "https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
             RoomType.Deluxe => "https://images.pexels.com/photos/271643/pexels-photo-271643.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=800&h=600&fit=crop",
@@ -113,6 +142,7 @@ public class HotelsSeeder(AppDBContext context)
 
     private static string GetRoomDescription(Faker faker, RoomType roomType)
     {
+        // ... (Uændret) ...
         var baseDescription = "Dette hyggelige værelse er designet for maksimal komfort og afslapning. Værelset inkluderer moderne møbler og gratis Wi-Fi.";
         switch (roomType)
         {
@@ -131,7 +161,7 @@ public class HotelsSeeder(AppDBContext context)
 
     private static decimal GetRoomPrice(Faker faker, RoomType roomType)
     {
-        
+        // ... (Uændret) ...
         var basePrice = roomType switch
         {
             RoomType.Standard => 800,

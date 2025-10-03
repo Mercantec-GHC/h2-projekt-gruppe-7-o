@@ -1,12 +1,14 @@
-export type HousekeepingStatusDto = 
-  | "CleanReady"      // Rent - Klar (VC)
-  | "DirtyCheckout"   // Beskidt - Tjek Ud (DCO)
-  | "DirtyStayOver"   // Beskidt - Ophold (DS)
+export type HousekeepingStatusDto =
+  | "CleanReady" // Rent - Klar (VC)
+  | "DirtyCheckout" // Beskidt - Tjek Ud (DCO)
+  | "DirtyStayOver" // Beskidt - Ophold (DS)
   | "AwaitingInspection" // Rent - Inspektionsklar (CI)
-  | "OutOfOrder"      // Ude af Drift (OOO)
-  | "DoNotDisturb";   // Forstyr Ikke (DND);
+  | "OutOfOrder" // Ude af Drift (OOO)
+  | "DoNotDisturb"; // Forstyr Ikke (DND);
 
 export interface HousekeepingRoomDto {
+  hotelId: string;
+  type: string;
   id: string;
   number: string;
   floor: number;
@@ -16,5 +18,5 @@ export interface HousekeepingRoomDto {
   assignedHousekeeperId: string | null;
   maintenanceNote: string | null;
   isPriority: boolean;
-  lastStatusUpdateTime: string; 
+  lastStatusUpdateTime: string;
 }

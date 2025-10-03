@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using API.Data;
+using API.Features.Users;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
@@ -9,6 +9,7 @@ using API.Services.Password;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace API.Controllers;
@@ -229,6 +230,24 @@ public class UsersController : ControllerBase
                 r.Description
             })
         }).ToList());
+    }
+    /// <summary>
+    /// Henter brugere relevante for housekeeping (Cleaner, HousekeepingManager, Admin)
+    /// </summary>
+    [HttpGet("housekeeping-users")]
+    [Authorize(Roles = "Admin,HousekeepingManager")]
+    public async Task<ActionResult<List<UserReponseDto>>> GetHousekeepingUsers()
+    {
+        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
+
+        var users = await _context.Users
+            .Include(u => u.Role)
+            .Where(u => roles.Contains(u.Role.Name))
+            .ToListAsync();
+
+        var dto = users.Select(u => u.ToUserDto()).ToList();
+
+        return Ok(dto);
     }
 
 

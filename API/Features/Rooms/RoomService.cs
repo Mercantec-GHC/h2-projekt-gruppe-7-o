@@ -244,9 +244,6 @@ public class RoomService
         var room = await _repository.GetByIdAsync(roomId);
         if (room == null) return null;
 
-        // --- FORRETNINGSLOGIK ---
-        // Logik for at tjekke, om statusændringen er gyldig (f.eks. kan man kun sætte til VC efter CI)
-        // Dette er den vigtigste del af Service-laget.
 
         // Håndtering af tildeling og noter baseret på status
         Guid? newHousekeeperId = null;
@@ -261,7 +258,7 @@ public class RoomService
         else if (newStatus == HousekeepingStatus.DirtyCheckout ||
                  newStatus == HousekeepingStatus.DirtyStayOver)
         {
-            // Rydder tildeling (skal tildeles på ny af manager)
+            // Rydder tildeling 
             newHousekeeperId = null;
         }
 
@@ -271,13 +268,12 @@ public class RoomService
             (int)newStatus,
             newHousekeeperId,
             newMaintenanceNote,
-            isPriority: null); // Sætter ikke prioritet her
+            isPriority: null); 
 
         if (updatedRoom == null) return null;
 
         await _repository.SaveChangesAsync();
 
-        // Invalider cache for Housekeeping Dashboardet og generel rumliste
         _cache.Remove(HousekeepingCacheKey);
         _cache.Remove("all_rooms");
 
@@ -293,9 +289,6 @@ public class RoomService
         var room = await _repository.GetByIdAsync(roomId);
         if (room == null) return null;
 
-        // Valider om housekeeperId faktisk eksisterer (kræver en IUserRepository)
-
-        // Opdater kun AssignedHousekeeperId
         var updatedRoom = await _repository.UpdateHousekeepingFieldsAsync(
             roomId,
             assignedHousekeeperId: housekeeperId);
