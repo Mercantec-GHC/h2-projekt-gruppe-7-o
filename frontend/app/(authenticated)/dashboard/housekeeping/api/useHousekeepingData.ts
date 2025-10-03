@@ -49,7 +49,7 @@ export const useHousekeepingDashboard = () => {
     (r) =>
       r.status === "DirtyCheckout" ||
       r.status === "DirtyStayOver" ||
-      r.status === "AwaitingInspection"
+      r.status === "AwaitingInspection",
   );
 
   return {

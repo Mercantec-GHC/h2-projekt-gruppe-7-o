@@ -39,7 +39,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
     const fetchUsers = async () => {
       try {
         const res = await apiClient.get<UserOption[]>(
-          "/users/housekeeping-users"
+          "/users/housekeeping-users",
         );
         const options = res.data.map((u) => ({
           id: u.id,
@@ -68,15 +68,15 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
 
   const handleStatusChange = async (
     roomId: string,
-    newStatus: HousekeepingStatusDto
+    newStatus: HousekeepingStatusDto,
   ) => {
     // Optimistic update
     setLocalRooms((prev) =>
       prev.map((r) =>
         r.id === roomId
           ? { ...r, status: newStatus, lastStatusUpdate: new Date() }
-          : r
-      )
+          : r,
+      ),
     );
 
     try {
@@ -98,7 +98,9 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
 
     // Optimistisk update
     setLocalRooms((prev) =>
-      prev.map((r) => (r.id === roomId ? { ...r, isPriority: newPriority } : r))
+      prev.map((r) =>
+        r.id === roomId ? { ...r, isPriority: newPriority } : r,
+      ),
     );
 
     try {
@@ -114,11 +116,11 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
   const handleAssignUser = async (roomId: string, userId: string) => {
     try {
       const res = await apiClient.post<HousekeepingRoom>(
-        `/rooms/${roomId}/assign/${userId}`
+        `/rooms/${roomId}/assign/${userId}`,
       );
       const updatedRoom = res.data;
       setLocalRooms((prev) =>
-        prev.map((r) => (r.id === roomId ? updatedRoom : r))
+        prev.map((r) => (r.id === roomId ? updatedRoom : r)),
       );
     } catch (err) {
       console.error(err);
@@ -126,12 +128,12 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
     }
   };
 
-   // Mark room as cleaned (reset everything)
+  // Mark room as cleaned (reset everything)
   const handleRoomCompleted = async (roomId: string) => {
     const prev = [...localRooms];
 
-    setLocalRooms(prev =>
-      prev.map(r =>
+    setLocalRooms((prev) =>
+      prev.map((r) =>
         r.id === roomId
           ? {
               ...r,
@@ -141,8 +143,8 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
               maintenanceNote: null,
               lastStatusUpdate: new Date(),
             }
-          : r
-      )
+          : r,
+      ),
     );
 
     try {
@@ -164,7 +166,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
             key={room.id}
             className={`relative p-4 rounded shadow ${statusCfg.borderColor.replace(
               "border-l",
-              "border-l-4"
+              "border-l-4",
             )} hover:shadow-lg transition-shadow`}
           >
             <div className="flex justify-between items-center mb-2">
@@ -192,7 +194,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
               onChange={(e) =>
                 handleStatusChange(
                   room.id,
-                  e.target.value as HousekeepingStatusDto
+                  e.target.value as HousekeepingStatusDto,
                 )
               }
               disabled={updating}

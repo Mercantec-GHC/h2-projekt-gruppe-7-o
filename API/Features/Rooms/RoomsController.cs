@@ -267,7 +267,8 @@ public class RoomsController : ControllerBase
     /// <returns>A list of all rooms with housekeeping details</returns>
     /// <response code="200">Returns the list of rooms with status</response>
     [HttpGet("housekeeping-dashboard")]
-    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist},{RoleNames.HousekeepingManager}")]
+    [Authorize(Roles =
+        $"{RoleNames.Admin},{RoleNames.Receptionist},{RoleNames.HousekeepingManager}, {RoleNames.Cleaner}")]
     public async Task<ActionResult<IEnumerable<RoomResponseDto>>> GetHousekeepingDashboardStatus()
     {
         try
@@ -390,11 +391,11 @@ public class RoomsController : ControllerBase
     public async Task<IActionResult> CompleteRoom(Guid roomId)
     {
         var updatedRoom = await _roomService.UpdateRoomHousekeepingStatusAsync(
-            roomId, HousekeepingStatus.CleanReady); // HousekeepingService håndterer nulstilling af assignment og prioritet
+            roomId,
+            HousekeepingStatus.CleanReady); // HousekeepingService håndterer nulstilling af assignment og prioritet
         if (updatedRoom == null) return NotFound();
         return Ok(updatedRoom);
     }
-
 
 
     /// <summary>
