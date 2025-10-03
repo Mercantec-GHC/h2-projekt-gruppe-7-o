@@ -18,7 +18,7 @@ import {
   UserCheck,
   RefreshCw,
 } from "lucide-react";
-import { formatDistanceToNow, format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
 import { TicketChat } from "./TicketChat";
 import {
   useTicket,
