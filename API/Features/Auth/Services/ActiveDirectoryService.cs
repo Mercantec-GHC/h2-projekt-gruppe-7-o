@@ -329,36 +329,62 @@ namespace API.Services
         /// <summary>
         /// Henter gruppemedlemskaber fra en AD entry
         /// </summary>
+        // ActiveDirectoryService.cs
         private List<string> GetGroupMemberships(SearchResultEntry entry)
         {
             var groups = new List<string>();
 
-            if (entry.Attributes["memberOf"] != null)
+            if (entry.Attributes["memberOf"] == null)
             {
-                foreach (var group in entry.Attributes["memberOf"])
+                _logger.LogWarning("MemberOf attribute is missing or empty for user.");
+                return groups;
+            }
+
+            foreach (var groupAttributeValue in entry.Attributes["memberOf"])
+            {
+                string groupDn;
+
+                // HÅNDTERING AF BYTE ARRAY
+                if (groupAttributeValue is byte[] byteValue)
                 {
-                    var groupDn = group.ToString();
-                    if (!string.IsNullOrEmpty(groupDn))
+                    
+                    groupDn = Encoding.UTF8.GetString(byteValue); // Bruger UTF8, som er standard for mange LDAP data.
+                }
+                else
+                {
+                    
+                    groupDn = groupAttributeValue.ToString();
+                }
+                
+                _logger.LogInformation("Raw Group DN received: {DN}", groupDn);
+
+                if (!string.IsNullOrEmpty(groupDn))
+                {
+                    try
                     {
-                        var cnIndex = groupDn.IndexOf("CN=", StringComparison.OrdinalIgnoreCase);
-                        if (cnIndex >= 0)
+                       
+                        var components = groupDn.Split(',');
+                        var cnComponent = components.FirstOrDefault(c => c.StartsWith("CN=", StringComparison.OrdinalIgnoreCase));
+
+                        if (cnComponent != null)
                         {
-                            var cnEnd = groupDn.IndexOf(",", cnIndex);
-                            if (cnEnd > cnIndex)
-                            {
-                                var groupName = groupDn.Substring(cnIndex + 3, cnEnd - cnIndex - 3);
-                                groups.Add(groupName);
-                            }
-                            else
-                            {
-                                var groupName = groupDn.Substring(cnIndex + 3);
-                                groups.Add(groupName);
-                            }
+                            var groupName = cnComponent.Substring(3);
+                            groups.Add(groupName);
+                            _logger.LogInformation("Successfully extracted group name: {Name}", groupName);
                         }
+                        else
+                        {
+                            _logger.LogWarning("Could not find CN component in DN: {DN}", groupDn);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error during group DN parsing for: {DN}", groupDn);
                     }
                 }
             }
 
+            _logger.LogInformation("Total AD groups successfully extracted: {Count}", groups.Count);
             return groups;
         }
 
@@ -467,21 +493,28 @@ namespace API.Services
                 return "Admin";
             }
 
-            if (adGroups.Any(g => g.Contains("Manager", StringComparison.OrdinalIgnoreCase)))
-            {
-                return "Manager";
-            }
-
             if (adGroups.Any(g => g.Contains("Receptionist", StringComparison.OrdinalIgnoreCase) ||
                                   g.Contains("Reception", StringComparison.OrdinalIgnoreCase)))
             {
                 return "Receptionist";
+            }  
+            
+            if (adGroups.Any(g => g.Contains("HousekeepingManager", StringComparison.OrdinalIgnoreCase)))
+            {
+                return "HousekeepingManager";
+            }
+
+            if (adGroups.Any(g => g.Contains("Cleaner", StringComparison.OrdinalIgnoreCase)))
+            {
+                return "Cleaner";
             }
 
             if (adGroups.Any(g => g.Contains("User", StringComparison.OrdinalIgnoreCase)))
             {
                 return "User";
             }
+
+          
 
             // Default rolle for AD brugere er Receptionist
             return "Receptionist";

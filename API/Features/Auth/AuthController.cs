@@ -169,29 +169,53 @@ public class AuthController : ControllerBase
                 .Select(r => r.Id)
                 .SingleOrDefaultAsync();
 
-            // Synk AD-bruger til DB hvis den ikke findes
-            var newUser = await _userRepository.FindUserByEmail(adUser.Email) ?? new User
+            // Hent eksisterende bruger ELLER opret ny
+            var existingUser = await _userRepository.FindUserByEmail(adUser.Email);
+
+            // Opret/opdater brugerobjekt
+            User userToSync;
+
+            if (existingUser != null)
             {
-                Email = adUser.Email,
-                FirstName = adUser.FirstName,
-                LastName = adUser.LastName,
-                RoleId = roleId,
-                IsADUser = true,
-                LastLogin = DateTimeOffset.UtcNow
-            };
+                //OPDATERING AF EKSISTERENDE BRUGER
+                userToSync = existingUser;
+                userToSync.FirstName = adUser.FirstName;
+                userToSync.LastName = adUser.LastName;
+                userToSync.RoleId = roleId; // Opdater DB rollen baseret på AD gruppe
+                userToSync.IsADUser = true;
+                userToSync.LastLogin = DateTimeOffset.UtcNow;
+                _context.Users.Update(userToSync);
+            }
+            else // Opret ny bruger
+            {
+                // OPRETTELSE AF NY BRUGER
+                userToSync = new User
+                {
+                    Email = adUser.Email,
+                    FirstName = adUser.FirstName,
+                    LastName = adUser.LastName,
+                    RoleId = roleId,
+                    IsADUser = true,
+                    LastLogin = DateTimeOffset.UtcNow
+                };
+                await _userRepository.AddAsync(userToSync);
+            }
 
-            if (newUser.Id == Guid.Empty) await _userRepository.AddAsync(newUser);
+            // Gem ændringer til DB (opdatering eller initial oprettelse af Id for den nye bruger)
+            await _context.SaveChangesAsync();
 
+            
             var token = _jwtService.GenerateTokenForADUser(adUser, roleName);
             return Ok(new
             {
                 token,
-                user = new { newUser.Id, newUser.Email, Role = roleName, isADUser = true }
+                user = new { userToSync.Id, userToSync.Email, Role = roleName, isADUser = true }
             });
+
         }
 
-        // Forkert login -> registrer mislykket forsøg
-        var dbDelay = _loginAttemptService.RecordFailedAttempt(usernameOrEmail);
+            // Forkert login -> registrer mislykket forsøg
+            var dbDelay = _loginAttemptService.RecordFailedAttempt(usernameOrEmail);
         if (dbDelay > 0) await Task.Delay(dbDelay * 1000);
         return Unauthorized(new { message = "Incorrect email or password", delayApplied = dbDelay });
     }
