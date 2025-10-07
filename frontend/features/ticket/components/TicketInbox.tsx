@@ -230,8 +230,6 @@ export function TicketInbox({ isAdmin = false }: TicketInboxProps) {
           </CardContent>
         </Card>
       )}
-
-      {/* Quick Stats for Admin */}
     </div>
   );
 }
