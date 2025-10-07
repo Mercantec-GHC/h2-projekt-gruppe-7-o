@@ -18,10 +18,10 @@ import {
 export default function ManagerDashboard() {
   const { rooms, isLoading, error, refresh } = useHousekeepingDashboard();
 
-  // --- STATE TIL FILTER/SORTERING ---
+  // STATE TIL FILTER/SORTERING
   const [selectedHotel, setSelectedHotel] = useState<string>("all");
   
-  // 💡 FIX: Initialiser med ALLE statusser for at undgå, at værelser filtreres fra ved indlæsning.
+
   const [selectedStatuses, setSelectedStatuses] = useState<HousekeepingStatusDto[]>(statusOptions);
   
   const [sortKey, setSortKey] = useState<"number" | "floor" | "status" | "lastStatusUpdate">("number");
@@ -33,7 +33,7 @@ export default function ManagerDashboard() {
     return ["all", ...hotelNames];
   }, [rooms]);
 
-  // --- FILTRERINGS- OG SORTERINGSLOGIK (Den smartere måde) ---
+  // FILTRERINGS- OG SORTERINGSLOGIK
   const filteredAndSortedRooms = useMemo(() => {
     // 1. Start med en kopi af værelserne
     let result = [...rooms];

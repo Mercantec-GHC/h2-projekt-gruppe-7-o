@@ -25,6 +25,8 @@ const navMain: NavItem[] = [
   // Housekeeping sektion
   { title: "Rengøringsoverblik", url: "/dashboard/housekeeping/overview", icon: BrushCleaning as Icon, roles: ["Admin", "HousekeepingManager", "Receptionist"] },
   { title: "Rengøringsopgaver", url: "/dashboard/housekeeping/tasks", icon: IconListCheck, roles: ["Admin", "HousekeepingManager", "Cleaner"] },
+
+  
   { title: "Mine Opgaver", url: "/dashboard/tasks/", icon: IconListCheck, roles: ["Admin", "HousekeepingManager", "Cleaner"] },
 ];
 

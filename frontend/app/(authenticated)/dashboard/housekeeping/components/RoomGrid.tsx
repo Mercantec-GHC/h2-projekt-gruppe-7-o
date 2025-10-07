@@ -96,7 +96,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
 
     const newPriority = !room.isPriority;
 
-    // Optimistisk update
+    
     setLocalRooms((prev) =>
       prev.map((r) =>
         r.id === roomId ? { ...r, isPriority: newPriority } : r,
