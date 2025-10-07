@@ -48,7 +48,6 @@ export default async function RootLayout({
       >
         {/*TODO: this can probably be removed... Was trying to get the flashing of components to stop on reload*/}
         <SessionHydrator session={session} />
-        {/* {session.isAuthenticated && <AuthenticatedHeader />} */}
         {/* <ClientProvider /> */}
         <QueryProvider>
           <>
