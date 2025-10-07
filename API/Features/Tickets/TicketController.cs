@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Features.Chat;
 using API.Mapping;
+using API.Models.Entities;
 
 
 [ApiController]
@@ -58,7 +59,7 @@ public class TicketsController : ControllerBase
         }
 
         // For customers, only show their own tickets
-        if (currentUserRole == "Customer" && !string.IsNullOrEmpty(currentUserId) &&
+        if (currentUserRole == RoleNames.Customer && !string.IsNullOrEmpty(currentUserId) &&
             Guid.TryParse(currentUserId, out var createdByUserGuid))
         {
             query = query.Where(t => t.CreatedByUserId == createdByUserGuid);
@@ -131,11 +132,10 @@ public class TicketsController : ControllerBase
             return NotFound();
         }
 
-        // Authorization check
-        // if (currentUserRole == "Customer" && ticket?.CreatedByUser?.Id != currentUserId)
-        // {
-        //     return Forbid();
-        // }
+        if (currentUserRole == RoleNames.Customer && ticket?.CreatedByUser?.Id != currentUserId)
+        {
+            return Forbid();
+        }
 
 
         var ticketDto = new TicketDto
