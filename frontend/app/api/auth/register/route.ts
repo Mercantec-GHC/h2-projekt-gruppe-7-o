@@ -3,7 +3,6 @@ import { CONSTANTS } from "@/lib/constants";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  // throw new Error("Not implemented");
   const { firstName, lastName, email, password, confirmPassword } =
     await req.json();
 
