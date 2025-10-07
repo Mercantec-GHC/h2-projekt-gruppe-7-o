@@ -20,6 +20,20 @@ const createEmptyRoomBookings = (): SelectedRoomBookings => {
   }, {} as SelectedRoomBookings);
 };
 
+interface BookingBreakdown {
+  rooms: RoomTypeBreakdown[];
+  nights: number;
+  total: number;
+}
+
+interface RoomTypeBreakdown {
+  type: RoomType;
+  amountOfBookings: number;
+  pricePerNight: number;
+  totalPerNight: number;
+  totalPrice: number;
+}
+
 interface BookingStore {
   selectedHotel?: Hotel;
   guestCount: GuestCount;
@@ -50,7 +64,7 @@ interface BookingStoreActions {
 }
 
 export const useBookingStore = create<BookingStore>()(
-  immer((set, get) => ({
+  immer((set) => ({
     selectedHotel: undefined,
     guestCount: { adults: 1, children: 0 },
     checkInDate: undefined,
@@ -275,22 +289,16 @@ export const useCheckInDate = () =>
 export const useCheckOutDate = () =>
   useBookingStore((state) => state.checkOutDate);
 
-// Get bookings for a specific room type - O(1) lookup
-export const useSelectedRoomBookingsByType = (roomType: RoomType) =>
-  useBookingStore((state) => state.selectedRoomBookings[roomType]);
-
 //TODO: does it make sense to make a bigger hook for the breakdown, can we call the atomic hooks inside of it? I'm not sure we can if we are wrapping with useShallow...
-// 1) Minimal selector: only pull raw state needed (stable primitives/refs)
 const useBookingRaw = () =>
   useBookingStore(
     useShallow((s) => ({
       checkInDate: s.checkInDate,
       checkOutDate: s.checkOutDate,
-      selectedRoomBookings: s.selectedRoomBookings, // assume this reference only changes when content changes
+      selectedRoomBookings: s.selectedRoomBookings,
     })),
   );
 
-// 2) Derive in React with useMemo to keep referential stability
 export const useBookingBreakdown = (): BookingBreakdown => {
   const { checkInDate, checkOutDate, selectedRoomBookings } = useBookingRaw();
 
@@ -334,20 +342,6 @@ export const useBookingBreakdown = (): BookingBreakdown => {
   return { rooms, nights, total };
 };
 
-interface BookingBreakdown {
-  rooms: RoomTypeBreakdown[];
-  nights: number;
-  total: number;
-}
-
-interface RoomTypeBreakdown {
-  type: RoomType;
-  amountOfBookings: number;
-  pricePerNight: number;
-  totalPerNight: number;
-  totalPrice: number;
-}
-
 export const useSelectedRoomBookings = () =>
   useBookingStore((state) => state.selectedRoomBookings);
 
@@ -367,8 +361,6 @@ export const useGetSelectedRoomBookingsCount = () =>
       0,
     );
   });
-
-// exposing single actions hook, since the actions object should never change and therefore not trigger re-renders.
 
 export const useBookingActions = () =>
   useBookingStore((state) => state.actions);

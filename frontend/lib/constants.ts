@@ -3,7 +3,7 @@ import { UserRole } from "@/features/user/domain";
 
 interface Constants {
   SESSION_COOKIE_NAME: string;
-  ROOM_TYPES: readonly RoomType[];
+  ROOM_TYPES: RoomType[];
   DASHBOARD_ROLES: readonly Exclude<UserRole, "Customer">[];
   JWT: {
     ROLE_URI: string;

@@ -5,9 +5,9 @@ import HotelApi from "../api/hotel-api";
 
 // Query keys for consistent caching
 export const hotelKeys = {
-  all: ["hotels"] as const,
-  list: () => [...hotelKeys.all, "list"] as const,
-  detail: (id: string) => [...hotelKeys.all, "detail", id] as const,
+  all: ["hotels"],
+  list: () => [...hotelKeys.all, "list"],
+  detail: (id: string) => [...hotelKeys.all, "detail", id],
 };
 
 // Hook for fetching all hotels

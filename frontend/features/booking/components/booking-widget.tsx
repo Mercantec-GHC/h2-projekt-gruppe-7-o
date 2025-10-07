@@ -44,7 +44,6 @@ export default function BookingWidget({
               ))}
             </Stepper.Navigation>
             {methods.switch({
-              // "step-1": (step) => <BookingConfirmation />,
               "step-1": (step) => <BookingSearch />,
               "step-2": (step) => <BookingChooseRoom />,
               "step-3": (step) => <BookingAssignGuestsToRooms />,
