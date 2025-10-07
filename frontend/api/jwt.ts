@@ -13,35 +13,16 @@ export async function importHS256KeyFromUtf8(secret: string) {
   );
 }
 
-export async function importHS256KeyFromBase64(b64: string) {
-  const binary =
-    typeof atob === "function"
-      ? atob(b64)
-      : Buffer.from(b64, "base64").toString("binary");
-  const bytes = new Uint8Array([...binary].map((c) => c.charCodeAt(0)));
-  return crypto.subtle.importKey(
-    "raw",
-    bytes,
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["verify"],
-  );
-}
-
-const ROLE_URI = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
-const NAMEID_URI =
-  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-
 type DotNetPayload = {
   sub?: string;
   email?: string;
-  [ROLE_URI]?: string;
-  [NAMEID_URI]?: string;
+  [CONSTANTS.JWT.ROLE_URI]?: string;
+  [CONSTANTS.JWT.NAMEID_URI]?: string;
 };
 
 export function normalizeDotNetClaims(p: Record<string, unknown>) {
-  const roleClaim = (p as DotNetPayload)[ROLE_URI];
-  const userId = p.sub ?? (p as DotNetPayload)[NAMEID_URI];
+  const roleClaim = (p as DotNetPayload)[CONSTANTS.JWT.ROLE_URI];
+  const userId = p.sub ?? (p as DotNetPayload)[CONSTANTS.JWT.NAMEID_URI];
 
   return {
     sub: userId,
