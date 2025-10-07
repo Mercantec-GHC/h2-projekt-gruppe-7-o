@@ -20,7 +20,6 @@ import {
   SearchIcon,
   Moon,
   User,
-  DoorOpen,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -39,12 +38,11 @@ import {
   useNightsCount,
   useRoomCount,
   useSelectedHotel,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import {
   formatDateRange,
   getAdultsCountText,
   getChildrenCountText,
-  getGuestsCountText,
   getTotalAvailableRoomsCount,
   getTotalGuestsText,
   getTotalNightsStayText,

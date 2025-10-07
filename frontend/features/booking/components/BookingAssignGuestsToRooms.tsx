@@ -16,7 +16,7 @@ import {
   useSelectedRoomBookings,
   useSelectedRoomValidation,
   useTotalSelectedRooms,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import { toast } from "sonner";
 import { CONSTANTS } from "@/lib/constants";
 import { Counter } from "@/components/Counter";

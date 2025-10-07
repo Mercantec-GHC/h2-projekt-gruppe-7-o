@@ -46,9 +46,8 @@ export default async function RootLayout({
           "antialiased app-shell min-h-screen flex flex-col overflow-x-hidden",
         )}
       >
-        {/*TODO: this can probably be removed... Was trying to get the flashing of components to stop on reload*/}
         <SessionHydrator session={session} />
-        {/* <ClientProvider /> */}
+        {/*<ClientProvider /> */}
         <QueryProvider>
           <>
             <Header />

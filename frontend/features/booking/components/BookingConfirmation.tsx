@@ -2,18 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useSessionStore } from "@/features/auth/stores/sessionStore";
 import useAuthModalStore from "@/features/auth/stores/authModalStore";
 import { useStepper } from "./booking-widget";
-import {
-  CalendarIcon,
-  UsersIcon,
-  ClockIcon,
-  CheckCircleIcon,
-  AlertCircleIcon,
-  CreditCardIcon,
-} from "lucide-react";
+import { CheckCircleIcon, AlertCircleIcon, CreditCardIcon } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import Link from "next/link";
 import {
@@ -21,18 +13,10 @@ import {
   useCheckInDate,
   useCheckOutDate,
   useGetTotalBookingPrice,
-  useGuestCount,
   useSelectedHotel,
   useSelectedRoomBookings,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import { cn, formatCurrency } from "@/lib/utils";
-import {
-  formatDateRange,
-  getAdultsCountText,
-  getChildrenCountText,
-  getTotalGuestsText,
-  getTotalNightsStayText,
-} from "../domain";
 import { useCreateBooking } from "../queries/useCreateBooking";
 import { toast } from "sonner";
 import { BookingDetails } from "./BookingDetails";
@@ -43,9 +27,6 @@ export default function BookingConfirmation() {
   const checkOutDate = useCheckOutDate();
   const totalPrice = useGetTotalBookingPrice();
   const selectedRooms = useSelectedRoomBookings();
-  const guestCount = useGuestCount();
-
-  const bookingBreakdown = useBookingBreakdown();
 
   const { isAuthenticated } = useSessionStore();
   const { openModal } = useAuthModalStore();

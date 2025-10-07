@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { immer } from "zustand/middleware/immer";
 
-import { Hotel } from "../hotel/domain";
-import { GuestCount, RoomBooking } from "./domain";
-import { RoomType } from "./api/dto";
+import { Hotel } from "../../hotel/domain";
+import { GuestCount, RoomBooking } from "../domain";
+import { RoomType } from "../api/dto";
 import { differenceInDays } from "date-fns";
 import { CONSTANTS } from "@/lib/constants";
 import { useMemo } from "react";

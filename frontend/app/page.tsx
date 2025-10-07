@@ -1,6 +1,5 @@
 import { Testimonial7 } from "@/components/shadcnblocks/testimonails/Testimonial7";
 import { Button } from "@/components/ui/button";
-import BookingWidget from "@/features/booking/components/booking-widget";
 import { HotelCards } from "@/features/hotel/components/HotelCards";
 import Link from "next/link";
 

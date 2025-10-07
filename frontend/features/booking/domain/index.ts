@@ -1,5 +1,5 @@
 import { RoomType } from "../api/dto";
-import { SelectedRoomBookings } from "../bookingStore";
+import { SelectedRoomBookings } from "../stores/bookingStore";
 
 export interface RoomTypeAvailability {
   type: RoomType;

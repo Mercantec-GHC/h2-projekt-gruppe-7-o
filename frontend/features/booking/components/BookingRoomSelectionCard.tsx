@@ -3,8 +3,7 @@ import {
   useBookingActions,
   useSelectedRoomBookings,
   useSelectedRoomValidation,
-} from "../bookingStore";
-import { RoomType } from "../api/dto";
+} from "../stores/bookingStore";
 import { getPriceText, RoomTypeAvailability } from "../domain";
 import { BedIcon, MinusIcon, PlusIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -14,7 +14,7 @@ import {
   useSelectedHotel,
   useSelectedRoomBookings,
   useSelectedRoomValidation,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import { useSearchAvailableRooms } from "../queries/useSearchAvailableRooms";
 import {
   getTotalAvailableRoomsCount,
