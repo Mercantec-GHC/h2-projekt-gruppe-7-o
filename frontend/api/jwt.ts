@@ -37,7 +37,6 @@ type DotNetPayload = {
   email?: string;
   [ROLE_URI]?: string;
   [NAMEID_URI]?: string;
-  // ...rest of JWT fields
 };
 
 export function normalizeDotNetClaims(p: Record<string, unknown>) {
@@ -76,7 +75,6 @@ export function hasDashboardRole(roleClaim: NormalizedTokenPayload["role"]) {
 
 export async function verifyJWT(token?: string) {
   if (!token) return null;
-  // TODO: DI instead?
   const SECRET = await importHS256KeyFromUtf8(process.env.JWT_SECRET!);
 
   try {
