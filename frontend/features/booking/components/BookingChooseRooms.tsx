@@ -34,7 +34,6 @@ export default function BookingChooseRoom() {
   const checkInDate = useCheckInDate();
   const checkOutDate = useCheckOutDate();
   const nightsCount = useNightsCount();
-  const selectedRoomBookings = useSelectedRoomBookings();
   const selectedRoomValidation = useSelectedRoomValidation();
 
   const { reset } = useBookingActions();

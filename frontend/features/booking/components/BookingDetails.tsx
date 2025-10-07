@@ -82,7 +82,6 @@ export const BookingDetails = () => {
               </span>
             </div>
           ))}
-          {/* Add taxes, fees here if needed */}
         </div>
       </div>
       <div className="flex justify-between self-end font-mono text-lg font-bold">
