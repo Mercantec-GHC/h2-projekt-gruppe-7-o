@@ -7,7 +7,7 @@ export {
   useUpdateTicketStatus,
   useAssignTicket,
   ticketKeys,
-} from './ticket-queries';
+} from "./ticket-queries";
 
 // Message queries
 export {
@@ -16,4 +16,4 @@ export {
   useCreateTicketMessage,
   useDeleteTicketMessage,
   messageKeys,
-} from './message-queries';
+} from "./message-queries";
