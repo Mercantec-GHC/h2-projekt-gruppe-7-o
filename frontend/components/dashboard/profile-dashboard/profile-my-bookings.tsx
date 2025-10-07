@@ -65,8 +65,9 @@ export default function ProfileMyBookings() {
     }
   };
 
+  //TODO: should be moved out of the component
   const canCancelBooking = (booking: BookingDto) => {
-    if (!booking || booking.status === "Cancelled") return false;
+    if (booking?.status === "Cancelled") return false;
     const now = new Date();
     const checkIn = new Date(booking.checkIn);
 
@@ -75,6 +76,7 @@ export default function ProfileMyBookings() {
   };
 
   // Filter and sort bookings
+  // TODO: move this to a custom hook
   const filteredBookings = useMemo(() => {
     if (!bookings) return [];
 
@@ -82,13 +84,12 @@ export default function ProfileMyBookings() {
       const checkInDate = new Date(booking.checkIn);
       const checkOutDate = new Date(booking.checkOut);
 
-      // Filter by type (upcoming/past)
       if (filterType === "upcoming" && !isFuture(checkInDate)) return false;
       if (filterType === "past" && !isPast(checkOutDate)) return false;
 
-      // Filter by status
-      if (statusFilter !== "all" && booking.status !== statusFilter)
+      if (statusFilter !== "all" && booking.status !== statusFilter) {
         return false;
+      }
 
       return true;
     });
