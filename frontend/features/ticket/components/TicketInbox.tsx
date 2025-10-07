@@ -16,7 +16,7 @@ import {
   useUpdateTicketStatus,
   useAssignTicket,
 } from "../queries";
-import { UserRole } from "@/features/user/domain";
+import { TicketStatus } from "../domain";
 
 interface TicketInboxProps {
   isAdmin?: boolean;
@@ -32,19 +32,16 @@ export function TicketInbox({ isAdmin = false }: TicketInboxProps) {
     pageSize: 10,
   });
 
-  // Fetch tickets using new query hook
   const { data: ticketsData, isLoading, error, refetch } = useTickets(filters);
-
-  // Fetch available statuses using new query hook
   const { data: availableStatuses = [] } = useTicketStatuses();
-
-  // Status change mutation using new query hook
   const statusMutation = useUpdateTicketStatus();
 
-  // Assignment mutation using new query hook
   const assignMutation = useAssignTicket();
 
-  const handleStatusChange = async (ticketId: number, newStatus: string) => {
+  const handleStatusChange = async (
+    ticketId: number,
+    newStatus: TicketStatus,
+  ) => {
     await statusMutation.mutateAsync({
       id: ticketId,
       data: { statusName: newStatus },
@@ -77,7 +74,6 @@ export function TicketInbox({ isAdmin = false }: TicketInboxProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -106,6 +102,64 @@ export function TicketInbox({ isAdmin = false }: TicketInboxProps) {
           <CreateTicketDialog isAdmin={isAdmin} />
         </div>
       </div>
+      {isAdmin && (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Åbne Sager
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {tickets.filter((t) => t.status === "Open").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Igangværende
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {tickets.filter((t) => t.status === "In Progress").length}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Venter på svar
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {
+                  tickets.filter(
+                    (t) =>
+                      t.status === "Waiting for Customer" ||
+                      t.status === "Waiting for Admin",
+                  ).length
+                }
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Løste
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="text-2xl font-bold">
+                {tickets.filter((t) => t.status === "Resolved").length}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Filters */}
       <TicketFilters
@@ -178,64 +232,6 @@ export function TicketInbox({ isAdmin = false }: TicketInboxProps) {
       )}
 
       {/* Quick Stats for Admin */}
-      {isAdmin && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Åbne Sager
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {tickets.filter((t) => t.status === "Open").length}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Igangværende
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {tickets.filter((t) => t.status === "In Progress").length}
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Venter på svar
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {
-                  tickets.filter(
-                    (t) =>
-                      t.status === "Waiting for Customer" ||
-                      t.status === "Waiting for Admin",
-                  ).length
-                }
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Løste
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-0">
-              <div className="text-2xl font-bold">
-                {tickets.filter((t) => t.status === "Resolved").length}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }
