@@ -28,7 +28,7 @@ public class RoomService
 
         var rooms = await _repository.GetAllAsync();
         var roomDtos = rooms.Select(r => r.ToRoomDto()).ToList();
-        //_cache.Set(cacheKey, roomDtos, TimeSpan.FromSeconds(30));
+        _cache.Set(cacheKey, roomDtos, TimeSpan.FromSeconds(30));
         return roomDtos;
     }
 
@@ -71,7 +71,7 @@ public class RoomService
 
         var roomDtos = rooms.Select(r => r.ToRoomDto()).ToList();
 
-        // Caching for denne visning er vigtigere end for 'all_rooms'
+        // Caching
         _cache.Set(HousekeepingCacheKey, roomDtos, TimeSpan.FromSeconds(15));
 
         return roomDtos;

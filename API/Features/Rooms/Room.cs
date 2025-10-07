@@ -13,7 +13,7 @@ public class Room : Entity<Guid>
     public required RoomType Type { get; set; } = RoomType.Standard;
     public required short Floor { get; set; }
     public string Description { get; set; } = string.Empty;
-   // public string ImgageUrl { get; set; } 
+
     public bool IsActive { get; set; } = false;
 
 
