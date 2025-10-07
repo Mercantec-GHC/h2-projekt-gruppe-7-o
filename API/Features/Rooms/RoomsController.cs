@@ -370,7 +370,7 @@ public class RoomsController : ControllerBase
     /// <param name="housekeeperId">The unique identifier of the housekeeper to assign</param>
     /// <returns>200 Ok with updated room DTO or 404 Not Found</returns>
     [HttpPost("{id}/assign/{housekeeperId}")]
-    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}, {RoleNames.Receptionist}")]
     public async Task<ActionResult<RoomResponseDto>> AssignRoom(Guid id, Guid housekeeperId)
     {
         try
@@ -388,6 +388,7 @@ public class RoomsController : ControllerBase
     }
 
     [HttpPut("{roomId}/complete")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager}, {RoleNames.Cleaner}, {RoleNames.Receptionist}")]
     public async Task<IActionResult> CompleteRoom(Guid roomId)
     {
         var updatedRoom = await _roomService.UpdateRoomHousekeepingStatusAsync(

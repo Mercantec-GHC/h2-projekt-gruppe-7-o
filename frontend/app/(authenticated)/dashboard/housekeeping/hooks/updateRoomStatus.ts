@@ -3,13 +3,13 @@
 
 import { useState, useCallback } from "react";
 import { apiClient } from "@/api/client";
-import { HousekeepingStatus } from "../types/room"; // Sikrer typekontrol
+import { HousekeepingStatus } from "../types/room";
 import { HousekeepingRoom } from "../api/HousekeepingRoomTransform";
 
 export const useUpdateRoomStatus = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  // Accepterer nu både numerisk ID (gammel API) eller status-streng (ny API)
+  // Opdater status
   const updateStatus = useCallback(async (roomId: string, newStatus: number | HousekeepingStatus) => {
     setIsLoading(true);
     try {

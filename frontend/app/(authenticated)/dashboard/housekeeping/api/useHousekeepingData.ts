@@ -57,11 +57,11 @@ export const useHousekeepingDashboard = () => {
     roomsToClean,
     error,
     isLoading,
-    refresh: fetchData, // Manuel genindlæsningsfunktion
+    refresh: fetchData, 
   };
 };
 
-// --- Til Housekeepers Opgaveliste ---
+// Housekeepers Opgaveliste
 export const useHousekeeperTasks = (housekeeperId: string) => {
   const [tasks, setTasks] = useState<HousekeepingRoom[]>([]);
   const [isLoading, setIsLoading] = useState(true);

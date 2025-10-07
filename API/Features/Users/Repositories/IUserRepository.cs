@@ -15,4 +15,7 @@ public interface IUserRepository
     public Task SoftDeleteByIdAsync(Guid id);
 
     public Task<User?> FindUserByEmail(string email);
+
+    public Task<List<User>> GetHousekeepingRelevantUsersAsync();
+
 }

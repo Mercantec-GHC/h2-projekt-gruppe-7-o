@@ -34,15 +34,15 @@ namespace API.Services
             _configuration = configuration;
 
             // Læs AD konfiguration fra appsettings.json
-            _server = _configuration["ActiveDirectory:Server"] ?? "10.133.71.113";
-            _domain = _configuration["ActiveDirectory:Domain"] ?? "kabdikhan.local";
-            _username = _configuration["ActiveDirectory:ReaderUsername"] ?? "adReader";
-            _password = _configuration["ActiveDirectory:ReaderPassword"] ?? "Merc1234!";
-            _port = int.Parse(_configuration["ActiveDirectory:Port"] ?? "389");
-            _useSSL = bool.Parse(_configuration["ActiveDirectory:UseSSL"] ?? "false");
-            _connectionTimeout = int.Parse(_configuration["ActiveDirectory:ConnectionTimeout"] ?? "30");
-            _maxRetries = int.Parse(_configuration["ActiveDirectory:MaxRetries"] ?? "3");
-            _retryDelayMs = int.Parse(_configuration["ActiveDirectory:RetryDelayMs"] ?? "1000");
+            _server = _configuration["ActiveDirectory:Server"];
+            _domain = _configuration["ActiveDirectory:Domain"];
+            _username = _configuration["ActiveDirectory:ReaderUsername"];
+            _password = _configuration["ActiveDirectory:ReaderPassword"];
+            _port = int.Parse(_configuration["ActiveDirectory:Port"]);
+            _useSSL = bool.Parse(_configuration["ActiveDirectory:UseSSL"]);
+            _connectionTimeout = int.Parse(_configuration["ActiveDirectory:ConnectionTimeout"]);
+            _maxRetries = int.Parse(_configuration["ActiveDirectory:MaxRetries"]);
+            _retryDelayMs = int.Parse(_configuration["ActiveDirectory:RetryDelayMs"]);
         }
 
         /// <summary>

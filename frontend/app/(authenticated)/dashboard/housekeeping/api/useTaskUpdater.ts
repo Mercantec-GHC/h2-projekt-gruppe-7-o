@@ -32,7 +32,6 @@ export const useTaskUpdater = () => {
       }
 
       setError(errorMessage);
-      // Gen-kast fejlen for at lade UI'en/caller'en håndtere den
       throw new Error(errorMessage);
     } finally {
       setIsLoading(false);

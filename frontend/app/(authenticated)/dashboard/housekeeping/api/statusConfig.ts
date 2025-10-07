@@ -1,11 +1,11 @@
 // statusConfig.ts
 
 import { CheckCircle, Clock, Ban, AlertTriangle, Bed, LucideIcon } from "lucide-react";
-import { HousekeepingStatus } from "../types/room"; // Bruger den generiske type
+import { HousekeepingStatus } from "../types/room"; 
 
 interface StatusConfig {
   label: string;
-  color: string;       // Til kort baggrund (f.eks. bg-red-600)
+  color: string;       // Til kort baggrund 
   icon: LucideIcon;
   borderColor: string; // Til TaskItem's venstre kant (f.eks. border-l-red-600)
   isDirty: boolean;    // Til beregning af 'Til Rengøring'
@@ -21,7 +21,7 @@ export const STATUS_CONFIG: Record<HousekeepingStatus, StatusConfig> = {
   },
   DirtyCheckout: {
     label: "Dirty – Checkout",
-    color: "bg-red-700 text-white", // Brug en konsistent mørkere farve
+    color: "bg-red-700 text-white", 
     icon: Clock,
     borderColor: "border-l-red-700",
     isDirty: true,
@@ -35,7 +35,7 @@ export const STATUS_CONFIG: Record<HousekeepingStatus, StatusConfig> = {
   },
   AwaitingInspection: {
     label: "Awaiting Inspection",
-    color: "bg-blue-500 text-white", // Skift fra gul for at undgå prioritet/advarsel
+    color: "bg-blue-500 text-white", 
     icon: AlertTriangle,
     borderColor: "border-l-blue-500",
     isDirty: true, // Værelset er stadig 'beskidt', men færdigt.
@@ -72,4 +72,3 @@ export const statusOptions: HousekeepingStatus[] = [
   "OutOfOrder",
   "DoNotDisturb",
 ];
-// Bruges til dropdown-menuer og lignende

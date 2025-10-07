@@ -22,21 +22,18 @@ namespace API.Services
         public JwtService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _secretKey = _configuration["Jwt:SecretKey"]
-                         ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-                         ?? "MyVerySecureSecretKeyThatIsAtLeast32CharactersLong123456789";
+            _secretKey = _configuration["Jwt:SecretKey"];
 
-            _issuer = _configuration["Jwt:Issuer"]
-                      ?? Environment.GetEnvironmentVariable("JWT_ISSUER")
-                      ?? "H2-2025-API";
 
-            _audience = _configuration["Jwt:Audience"]
-                        ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-                        ?? "H2-2025-Client";
 
-            _expiryInMinutes = int.Parse(_configuration["Jwt:ExpirationInMinutes"]
-                                         ?? Environment.GetEnvironmentVariable("JWT_EXPIRATION_IN_MINUTES")
-                                         ?? "60");
+            _issuer = _configuration["Jwt:Issuer"];
+
+
+            _audience = _configuration["Jwt:Audience"];
+
+
+            _expiryInMinutes = int.Parse(_configuration["Jwt:ExpirationInMinutes"]);
+                                       
         }
 
         /// <summary>

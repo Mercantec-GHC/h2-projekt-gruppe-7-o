@@ -43,15 +43,15 @@ public class HotelsController : ControllerBase
     {
         var cacheKey = "all_hotels";
 
-        // try to get from cache
-        // if (_cache.TryGetValue(cacheKey, out List<Hotel> cachedHotels))
-        // {
-        //     return Ok(cachedHotels);
-        // }
+       
+         if (_cache.TryGetValue(cacheKey, out List<Hotel> cachedHotels))
+         {
+             return Ok(cachedHotels);
+         }
 
         var hotels = await _context.Hotels.ToListAsync();
 
-        // _cache.Set(cacheKey, cachedHotels, TimeSpan.FromSeconds(60));
+         _cache.Set(cacheKey, cachedHotels, TimeSpan.FromSeconds(60));
 
         return hotels.Select(u => u.ToHotelDto()).ToList();
     }
@@ -83,6 +83,7 @@ public class HotelsController : ControllerBase
     /// <response code="404">If the hotel is not found.</response>
     /// <response code="400">If the request is invalid.</response>
     [HttpPut("{id}")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.Receptionist}")]
     public async Task<IActionResult> PutHotel(Guid id, HotelUpdateDto hotelUpdateDto)
     {
         if (id != hotelUpdateDto.Id)
@@ -127,6 +128,7 @@ public class HotelsController : ControllerBase
     /// <response code="204">Hotel deleted successfully.</response>
     /// <response code="404">If the hotel is not found.</response>
     [HttpDelete("{id}")]
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> DeleteHotel(Guid id)
     {
         Hotel? Hotel = await _context.Hotels.FindAsync(id);
@@ -147,6 +149,7 @@ public class HotelsController : ControllerBase
     /// <response code="200">Hotel created successfully.</response>
     /// <response code="400">If a hotel with the same email already exists.</response>
     [HttpPost]
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<ActionResult<HotelResponseDto>> CreateHotel(HotelCreateDto hotelCreateDto)
     {
         //TODO: we should probably allow the hotels to have the same email

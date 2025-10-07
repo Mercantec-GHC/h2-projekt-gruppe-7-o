@@ -57,7 +57,7 @@ public class UsersController : ControllerBase
     /// <response code="404">If no user is found with the specified ID</response>
     [HttpGet("{id}")]
     // TODO: add Auth for Owner validation
-    // [AuthorizeAdminOrOwner]
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<ActionResult<UserReponseDto>> GetUser(Guid id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -78,8 +78,8 @@ public class UsersController : ControllerBase
     /// <response code="401">If the user is not authenticated</response>
     /// <response code="404">If no user is found with the specified ID</response>
     [HttpPut("{id}")]
-    // TODO: add Auth for Owner validation
-    // [AuthorizeAdminOrOwner]
+
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> PutUser(Guid id, UserUpdateDto userUpdateDto)
     {
         try
@@ -240,13 +240,8 @@ public class UsersController : ControllerBase
     {
         string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
 
-        var users = await _context.Users
-            .Include(u => u.Role)
-            .Where(u => roles.Contains(u.Role.Name))
-            .ToListAsync();
-
+        var users = await _userRepository.GetHousekeepingRelevantUsersAsync();
         var dto = users.Select(u => u.ToUserDto()).ToList();
-
         return Ok(dto);
     }
 
