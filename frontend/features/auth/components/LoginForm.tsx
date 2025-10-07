@@ -30,13 +30,13 @@ export default function LoginForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Since FormField is using a controlled component, you need to provide a default value for the field
     defaultValues: {
       usernameOrEmail: "",
       password: "",
     },
   });
 
+  // TODO: this should be abstracted away into a custom hook
   const mutate = useMutation({
     mutationFn: (values: z.infer<typeof formSchema>) => login(values),
     onSuccess: (res) => {
