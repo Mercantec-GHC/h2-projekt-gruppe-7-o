@@ -18,3 +18,7 @@ services:
       - DOTNET_RUNNING_IN_CONTAINER=true
     networks:
       - h2-network
+
+networks:
+  h2-network:
+    driver: bridge
