@@ -1,0 +1,55 @@
+meta {
+  name: Admin Login
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/auth/login
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "email": "Admintest@Admin.com",
+    "password": "Password123"
+  }
+}
+
+script:post-response {
+  try {
+    // Brug res.body direkte
+    if (res.body && res.body.token) {
+      console.log("Admin login succesfuld!");
+
+      // Gem JWT og User-ID som miljøvariabler
+      bru.setEnvVar("JWT-Admin", res.body.token);
+      bru.setEnvVar("User-Id", res.body.user.id);
+
+      console.log("JWT-Admin gemt:", res.body.token);
+      console.log("User-Id gemt:", res.body.user.id);
+    } else {
+      console.log("Ingen token fundet i responset");
+      console.log("Response body:", res.body);
+    }
+  } catch (error) {
+    console.log("Fejl ved håndtering af admin login response:", error.message);
+  }
+}
+
+tests {
+  test("Admin login returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+  
+  test("Response har token og user", function() {
+    expect(res.body).to.have.property("token");
+    expect(res.body).to.have.property("user");
+  });
+
+  test("User objekt har id og email", function() {
+    expect(res.body.user).to.have.property("id");
+    expect(res.body.user).to.have.property("email");
+  });
+}

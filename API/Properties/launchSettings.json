@@ -6,19 +6,17 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://localhost:8051",
-      "launchBrowser": true,
-      "launchUrl": "https://localhost:8051/swagger"
+      "applicationUrl": "http://localhost:7087",
+      "launchUrl": "https://localhost:7087/swagger"
     },
     "https": {
       "commandName": "Project",
-      "launchBrowser": true,
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost:7087;http://localhost:5145"
+      "applicationUrl": "http://localhost:7087;http://localhost:5145"
     },
     "Container (Dockerfile)": {
       "commandName": "Docker",

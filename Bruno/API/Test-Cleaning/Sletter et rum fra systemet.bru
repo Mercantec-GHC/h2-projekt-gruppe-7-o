@@ -1,0 +1,22 @@
+meta {
+  name: Sletter et rum fra systemet
+  type: http
+  seq: 2
+}
+
+delete {
+  url: {{baseUrl}}/api/Rooms/{{Room-Id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+tests {
+  // Test status kode
+  test("Status kode skal være 204 No Content", function() {
+    expect(res.status).to.equal(204);
+  });
+}

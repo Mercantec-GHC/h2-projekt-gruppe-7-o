@@ -1,25 +1,34 @@
+import { Testimonial7 } from "@/components/shadcnblocks/testimonails/Testimonial7";
+import { Button } from "@/components/ui/button";
+import { HotelCards } from "@/features/hotel/components/HotelCards";
 import Link from "next/link";
 
 export default function HomePage() {
+  // TODO: get user from session
+  //
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold mb-6">Velkommen !</h1>
-
-      <div className="space-x-4">
-        <Link
-          href="/login"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Login
-        </Link>
-
-        <Link
-          href="/register"
-          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-        >
-          Opret bruger
-        </Link>
+    <div>
+      <div className="content-container">
+        <div className="mb-8 sm:mb-16">
+          <h1 className="text-3xl sm:text-9xl font-bold font-mono text-center text-foreground mt-24 sm:mt-40">
+            KABDIKHAN
+          </h1>
+          <h2 className="text-sm sm:text-xl text-center font-mono text-muted-foreground mb-8">
+            BEST SOMALISKE HOTELKÆDE I HELE DANMARK
+          </h2>
+        </div>
+        <div className="flex items-center mx-auto max-w-4xl justify-center mb-12">
+          <Link href="/booking" className="w-full flex justify-center">
+            <Button size="lg" className="w-full max-w-52">
+              Book Nu
+            </Button>
+          </Link>
+        </div>
       </div>
+
+      <HotelCards />
+      <Testimonial7 />
     </div>
   );
 }

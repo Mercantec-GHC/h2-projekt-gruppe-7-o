@@ -30,11 +30,12 @@
         <PackageReference Include="Scalar.AspNetCore" Version="2.4.19"/>
         <PackageReference Include="Sentry.AspNetCore" Version="5.14.1"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0"/>
+        <PackageReference Include="System.DirectoryServices" Version="9.0.9"/>
+        <PackageReference Include="System.DirectoryServices.Protocols" Version="9.0.9"/>
     </ItemGroup>
 
     <ItemGroup>
         <Folder Include="Database\Diagrams\"/>
-        <Folder Include="Features\Bookings\Services\"/>
         <Folder Include="Migrations\"/>
     </ItemGroup>
 

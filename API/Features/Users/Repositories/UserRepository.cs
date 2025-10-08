@@ -35,8 +35,18 @@ internal sealed class UserRepository(AppDBContext context) : IUserRepository
 
     public async Task UpdateUserAsync(Guid id, UserUpdateDto userUpdateDto)
     {
-        _context.Entry(userUpdateDto).State = EntityState.Modified;
+        var user = await _context.Users.FindAsync(id);
 
+        if (user == null)
+            throw new KeyNotFoundException($"User with id {id} not found");
+
+        // Mapper felter fra DTO til entity
+        user.FirstName = userUpdateDto.FirstName;
+        user.LastName = userUpdateDto.LastName;
+        user.Phone = userUpdateDto.Phone;
+        //vi kan tilføje evt. andre felter
+
+        // EF Core track’er allerede entity’en, så vi skal kun gemme
         await _context.SaveChangesAsync();
     }
 
@@ -55,14 +65,40 @@ internal sealed class UserRepository(AppDBContext context) : IUserRepository
 
     public async Task<User?> DeleteByIdAsync(Guid id)
     {
-        User? user = await _context.Users.FindAsync(id);
+        // Find brugeren først
+        var user = await _context.Users.FindAsync(id);
 
-        if (user == null) return null;
+        if (user == null)
+            return null; // Return null, hvis brugeren ikke findes
 
+        // Fjern brugeren
         _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
-        return user;
+
+        try
+        {
+            await _context.SaveChangesAsync(); // Gem ændringer
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            // Hvis entity blev slettet af en anden, returner null
+            return null;
+        }
+
+        return user; // Returner den slettede bruger
     }
+
+    /// <summary>
+    /// Hent alle brugere med rollerne Cleaner, HousekeepingManager eller Admin
+    /// </summary>
+    public async Task<List<User>> GetHousekeepingRelevantUsersAsync()
+    {
+        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
+        return await _context.Users
+            .Where(u => roles.Contains(u.Role.Name))
+            .ToListAsync();
+    }
+
+
 
     public async Task<User?> FindUserByEmail(string email)
     {

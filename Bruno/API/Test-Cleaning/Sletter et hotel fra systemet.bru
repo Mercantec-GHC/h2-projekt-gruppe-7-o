@@ -1,0 +1,23 @@
+meta {
+  name: Sletter et hotel fra systemet.
+  type: http
+  seq: 3
+}
+
+delete {
+  url: {{baseUrl}}/api/Hotels/{{Hotel-Id}}
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-Admin}}
+}
+
+tests {
+  // Test status kode
+  test("Status kode skal være 204 No Content", function() {
+    expect(res.status).to.equal(204);
+  });
+}
+

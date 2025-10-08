@@ -1,0 +1,33 @@
+meta {
+  name: Gets all hotels.
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/Hotels
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{JWT-User}}
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Hoteller hentet succesfuldt. Antal:", res.body.length);
+  } else {
+    console.log("Hentning fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("Get all hotels returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response er en liste af hoteller", function() {
+    expect(res.body).to.be.an("array");
+  });
+}

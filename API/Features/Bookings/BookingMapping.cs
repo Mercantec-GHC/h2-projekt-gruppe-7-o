@@ -14,23 +14,17 @@ public static class BookingMapping
             CheckOut = Booking.CheckOut,
             Adults = Booking.Adults,
             Children = Booking.Children,
-            // TODO: add together all BookingLines to get the total price, can just be done in a service
-            TotalPrice = 0,
-            Status = Booking.Status,
+            TotalPrice = Booking.TotalPrice,
+            Status = Booking.Status.ToString(),
             CreatedAt = Booking.CreatedAt,
-            UpdatedAt = Booking.UpdatedAt
+            UpdatedAt = Booking.UpdatedAt,
+            User = Booking.User?.ToUserDto(),
+            Rooms = Booking.BookingLines?
+                .Where(bl => bl.Type == BookingLineType.Room && bl.Room != null)
+                .Select(bl => bl.Room.ToRoomDto())
+                .ToList() ?? new List<RoomResponseDto>()
         };
     }
 
-    public static Booking ToBooking(this BookingCreateDto bookingCreateDto, decimal totalPrice)
-    {
-        return new Booking
-        {
-            CheckIn = bookingCreateDto.CheckIn,
-            CheckOut = bookingCreateDto.CheckOut,
-            Adults = bookingCreateDto.Adults,
-            Children = bookingCreateDto.Children,
-            Status = BookingStatus.Pending
-        };
-    }
+
 }

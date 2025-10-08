@@ -1,8 +1,9 @@
-using Microsoft.IdentityModel.Tokens;
-using System.Security.Claims;
-using System.Text;
 using API.Models.Entities;
 using Microsoft.IdentityModel.JsonWebTokens;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using JwtRegisteredClaimNames = System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames;
 
 namespace API.Services
@@ -16,26 +17,23 @@ namespace API.Services
         private readonly string _secretKey;
         private readonly string _issuer;
         private readonly string _audience;
-        private readonly int _expiryInMinutes;
+        public readonly int _expiryInMinutes;
 
         public JwtService(IConfiguration configuration)
         {
             _configuration = configuration;
-            _secretKey = _configuration["Jwt:SecretKey"]
-                         ?? Environment.GetEnvironmentVariable("JWT_SECRET_KEY")
-                         ?? "MyVerySecureSecretKeyThatIsAtLeast32CharactersLong123456789";
+            _secretKey = _configuration["Jwt:SecretKey"];
 
-            _issuer = _configuration["Jwt:Issuer"]
-                      ?? Environment.GetEnvironmentVariable("JWT_ISSUER")
-                      ?? "H2-2025-API";
 
-            _audience = _configuration["Jwt:Audience"]
-                        ?? Environment.GetEnvironmentVariable("JWT_AUDIENCE")
-                        ?? "H2-2025-Client";
 
-            _expiryInMinutes = int.Parse(_configuration["Jwt:ExpirationInMinutes"]
-                                         ?? Environment.GetEnvironmentVariable("JWT_EXPIRATION_IN_MINUTES")
-                                         ?? "60");
+            _issuer = _configuration["Jwt:Issuer"];
+
+
+            _audience = _configuration["Jwt:Audience"];
+
+
+            _expiryInMinutes = int.Parse(_configuration["Jwt:ExpirationInMinutes"]);
+                                       
         }
 
         /// <summary>
@@ -48,7 +46,7 @@ namespace API.Services
             var securityKey = Encoding.ASCII.GetBytes(_secretKey);
             var signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(securityKey),
-                SecurityAlgorithms.HmacSha256Signature);
+                SecurityAlgorithms.HmacSha256);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -57,6 +55,8 @@ namespace API.Services
                     new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                    new Claim("firstName", user.FirstName),
+                    new Claim("lastName", user.LastName),
                     //TODO: add more claims, like email_verified
                     // new Claim("email_verified", user.EmailVerified.ToString()),
                     new Claim(ClaimTypes.Role, user.Role.Name)
@@ -73,6 +73,49 @@ namespace API.Services
 
             return token;
         }
+
+        /// <summary>
+        /// Genererer en JWT token for en AD bruger
+        /// </summary>
+        /// <param name="adUser">AD brugeren der skal have en token</param>
+        /// <param name="role">Rollen der skal tildeles brugeren</param>
+        /// <returns>JWT token som string</returns>
+        public string GenerateTokenForADUser(ADUserInfo adUser, string role)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_secretKey);
+
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, adUser.SamAccountName),
+                new Claim(ClaimTypes.Email, adUser.Email),
+                new Claim(ClaimTypes.Name, adUser.DisplayName),
+                new Claim("userId", adUser.SamAccountName),
+                new Claim("username", adUser.SamAccountName),
+                new Claim("adUser", "true"), // Marker som AD bruger
+                new Claim("adGroups", string.Join(",", adUser.Groups))
+            };
+
+            // Tilføj rolle claim
+            claims.Add(new Claim(ClaimTypes.Role, role));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddMinutes(_expiryInMinutes),
+                Issuer = _issuer,
+                Audience = _audience,
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        
+    
 
         public string? GetTokenFromRequest(HttpRequest request)
         {

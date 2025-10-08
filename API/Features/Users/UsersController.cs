@@ -1,5 +1,5 @@
-using System.Security.Claims;
 using API.Data;
+using API.Features.Users;
 using API.Mapping;
 using API.Models.Dtos;
 using API.Models.Entities;
@@ -9,6 +9,7 @@ using API.Services.Password;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace API.Controllers;
@@ -56,7 +57,7 @@ public class UsersController : ControllerBase
     /// <response code="404">If no user is found with the specified ID</response>
     [HttpGet("{id}")]
     // TODO: add Auth for Owner validation
-    // [AuthorizeAdminOrOwner]
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<ActionResult<UserReponseDto>> GetUser(Guid id)
     {
         var user = await _userRepository.GetByIdAsync(id);
@@ -77,8 +78,8 @@ public class UsersController : ControllerBase
     /// <response code="401">If the user is not authenticated</response>
     /// <response code="404">If no user is found with the specified ID</response>
     [HttpPut("{id}")]
-    // TODO: add Auth for Owner validation
-    // [AuthorizeAdminOrOwner]
+
+    [Authorize(Roles = $"{RoleNames.Admin}")]
     public async Task<IActionResult> PutUser(Guid id, UserUpdateDto userUpdateDto)
     {
         try
@@ -110,12 +111,10 @@ public class UsersController : ControllerBase
     // [AuthorizeAdminOrOwner]
     public async Task<IActionResult> DeleteUser(Guid id)
     {
-        var user = await _userRepository.DeleteByIdAsync(id);
+        var deletedUser = await _userRepository.DeleteByIdAsync(id);
 
-        if (user == null) return NotFound();
-
-        _context.Users.Remove(user);
-        await _context.SaveChangesAsync();
+        if (deletedUser == null)
+            return NotFound();
 
         return NoContent();
     }
@@ -153,6 +152,8 @@ public class UsersController : ControllerBase
             user.Email,
             user.CreatedAt,
             user.LastLogin,
+            user.FirstName,
+            user.LastName,
             Role = user.Role.Name,
             Bookings = user.Bookings.Select(b => new
             {
@@ -174,6 +175,76 @@ public class UsersController : ControllerBase
         });
         // 3. Return the users information
     }
+
+    /// <summary>
+    /// Retrieves the current authenticated user's bookings
+    /// </summary>
+    /// <returns>The current user's information</returns>
+    /// <response code="200">Returns the current user's information</response>
+    /// <response code="401">If the user is not authenticated</response>
+    [Authorize]
+    [HttpGet("me/bookings")]
+    public async Task<IActionResult> GetCurrentUserBookings()
+    {
+        // 1. Get user id from token
+        // TODO: couldn't get getting the id to work with the JwtRegisteredClaimNames.Sub, can we fix this?
+        // TODO: can we get the current user id in an easier way than having to constantly look it up in the token? Can we extract this to some kind of service?
+        var userId =
+            User.FindFirst(JwtRegisteredClaimNames.Sub)?.Value ??
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (userId == null)
+            return Unauthorized("UserId missing from token");
+
+        if (!Guid.TryParse(userId, out var guid)) return BadRequest("Invalid user id");
+        // 2. Find the user in the database
+
+        var user = await _userRepository.GetByIdAsync(guid);
+
+        if (user == null)
+            return NotFound("User Not found");
+
+        // 3. Return the users bookings
+        return Ok(user.Bookings.Select(b => new
+        {
+            b.Id,
+            b.CheckIn,
+            b.CheckOut,
+            b.Adults,
+            b.Children,
+            // TODO: this should return a string
+            b.Status,
+            b.TotalPrice,
+            b.BookingLines,
+            b.CreatedAt,
+            b.UpdatedAt,
+            Rooms = b.Rooms.Select(r => new
+            {
+                r.Id,
+                r.Type,
+                r.Floor,
+                r.Number,
+                r.Capacity,
+                r.ImageUrl,
+                r.PricePerNight,
+                r.Description
+            })
+        }).ToList());
+    }
+    /// <summary>
+    /// Henter brugere relevante for housekeeping (Cleaner, HousekeepingManager, Admin)
+    /// </summary>
+    [HttpGet("housekeeping-users")]
+    [Authorize(Roles = "Admin,HousekeepingManager")]
+    public async Task<ActionResult<List<UserReponseDto>>> GetHousekeepingUsers()
+    {
+        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
+
+        var users = await _userRepository.GetHousekeepingRelevantUsersAsync();
+        var dto = users.Select(u => u.ToUserDto()).ToList();
+        return Ok(dto);
+    }
+
 
     private bool UserExists(Guid id)
     {

@@ -1,0 +1,85 @@
+meta {
+  name: Registrerer en ny bruger
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/Auth/register
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "email": "{{User-Email}}",
+    "password": "{{User-Password}}",
+    "confirmPassword": "{{User-Password}}",
+    "firstName": "{{User-FirstName}}",
+    "lastName": "{{User-LastName}}"
+  }
+}
+
+script:pre-request {
+  // Generer tilfældig email
+  const domains = ["gmail.com", "hotmail.com", "outlook.com", "yahoo.com", "live.com"];
+  const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+  const randomEmail = `user${Math.floor(Math.random() * 10000)}@${randomDomain}`;
+  
+  // Generer tilfældigt brugernavn
+  const adjectives = ["Cool", "Happy", "Smart", "Fast", "Bright", "Wise", "Quick", "Sharp"];
+  const nouns = ["User", "Person", "Guy", "Girl", "One", "Star", "Hero", "Pro"];
+  const randomAdjective = adjectives[Math.floor(Math.random() * adjectives.length)];
+  const randomNoun = nouns[Math.floor(Math.random() * nouns.length)];
+  const randomUsername = `${randomAdjective}${randomNoun}${Math.floor(Math.random() * 100)}`;
+  
+  // Generer tilfældige navne
+  const firstNames = ["Mads", "Sofie", "Lars", "Emma", "Frederik", "Ida", "Anders", "Julie", "Kasper", "Anna"];
+  const lastNames = ["Jensen", "Nielsen", "Hansen", "Pedersen", "Andersen", "Christensen", "Larsen", "Madsen", "Olsen", "Thomsen"];
+  const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+  // Fast password (kun for test)
+  const randomPassword = "Cisco1234!";
+
+  // Gem variablerne
+  bru.setEnvVar("User-Email", randomEmail);
+  bru.setEnvVar("User-Username", randomUsername);
+  bru.setEnvVar("User-Password", randomPassword);
+  bru.setEnvVar("User-FirstName", randomFirstName);
+  bru.setEnvVar("User-LastName", randomLastName);
+
+  // Log variablerne for debugging
+  console.log("Genererede tilfældige brugerdata:");
+  console.log("Email: " + randomEmail);
+  console.log("Username: " + randomUsername);
+  console.log("Password: " + randomPassword);
+  console.log("FirstName: " + randomFirstName);
+  console.log("LastName: " + randomLastName);
+}
+
+script:post-response {
+  if (res.status === 200 && res.body) {
+    console.log("Bruger registreret succesfuldt.");
+    if (res.body.id) {
+      bru.setEnvVar("user-id", res.body.id);
+      console.log("Bruger-ID gemt som variabel: {{user-id}}");
+    }
+  } else {
+    console.log("Registrering fejlede. Status:", res.status);
+  }
+}
+
+tests {
+  test("User register returnerer 200 OK", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("Response indeholder korrekt email", function() {
+    expect(res.body.email).to.equal(bru.getEnvVar("User-Email"));
+  });
+}

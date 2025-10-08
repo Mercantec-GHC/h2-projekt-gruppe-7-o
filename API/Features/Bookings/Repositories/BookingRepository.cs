@@ -26,13 +26,68 @@ internal sealed class BookingRepository(AppDBContext context) : IBookingReposito
         return booking;
     }
 
-    public Task<Booking> CreateAsync(Booking entity, CancellationToken ct = default)
+    public async Task<Booking> CreateAsync(Booking entity, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        _context.Bookings.Add(entity);
+        await _context.SaveChangesAsync(ct);
+        return entity;
     }
 
-    public Task DeleteByIdAsync(Guid id, CancellationToken ct = default)
+    public async Task DeleteByIdAsync(Guid id, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        var booking = await _context.Bookings.FindAsync(new object[] { id }, ct);
+        if (booking != null)
+        {
+            _context.Bookings.Remove(booking);
+            await _context.SaveChangesAsync(ct);
+        }
+    }
+
+    public async Task<List<Room>> GetRoomsByIdsAsync(List<Guid> roomIds, CancellationToken ct = default)
+    {
+        return await _context.Rooms
+            .Where(r => roomIds.Contains(r.Id))
+            .ToListAsync(ct);
+    }
+
+    public async Task<List<Booking>> GetOverlappingBookingsAsync(List<Guid> roomIds, DateTime checkIn, DateTime checkOut, CancellationToken ct = default)
+    {
+        // Konverter til UTC
+        var startUtc = checkIn.Kind == DateTimeKind.Utc ? checkIn : checkIn.ToUniversalTime();
+        var endUtc = checkOut.Kind == DateTimeKind.Utc ? checkOut : checkOut.ToUniversalTime();
+        return await _context.Bookings
+            .Include(b => b.Rooms)
+            .Where(b =>
+                b.Status != BookingStatus.Cancelled &&
+                b.CheckIn < endUtc &&
+                b.CheckOut > startUtc &&
+                b.Rooms.Any(r => roomIds.Contains(r.Id)))
+            .ToListAsync(ct);
+    }
+
+    public async Task<Room?> GetAvailableRoomByTypeAsync(RoomType roomType, DateTime checkIn, DateTime checkOut, Guid? hotelId, List<Guid>? excludeRoomIds = null)
+    {
+        var query = _context.Rooms
+            .Where(r => r.Type == roomType);
+
+        if (hotelId.HasValue)
+        {
+            query = query.Where(r => r.HotelId == hotelId.Value);
+        }
+
+        if (excludeRoomIds != null && excludeRoomIds.Count > 0)
+        {
+            query = query.Where(r => !excludeRoomIds.Contains(r.Id));
+        }
+
+        var availableRoom = await query
+            .Where(r => !r.Bookings.Any(b =>
+                b.Status != BookingStatus.Cancelled &&
+                b.CheckIn < checkOut &&
+                b.CheckOut > checkIn))
+            .OrderBy(r => r.Number) // så vi altid får et deterministisk værelse
+            .FirstOrDefaultAsync();
+
+        return availableRoom;
     }
 }

@@ -1,8 +1,7 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Reflection;
-using System.Text;
 using API.Data;
 using API.Data.Seeders;
+using API.Features.Bookings.Services;
+using API.Features.Mail.Services;
 using API.Repositories;
 using API.Services;
 using API.Services.Password;
@@ -12,6 +11,10 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Scalar.AspNetCore;
+using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
+using System.Text;
+using API.Hubs;
 
 namespace API;
 
@@ -31,11 +34,18 @@ public class Program
         builder.Services.AddScoped<DevelopmentOnlyFilter>();
         builder.Services.AddScoped<UsersSeeder>();
         builder.Services.AddScoped<HotelsSeeder>();
+        builder.Services.AddScoped<ActiveDirectoryService>();
+        builder.Services.AddScoped<LoginAttemptService>();
+        builder.Services.AddScoped<RoomService>();
+        builder.Services.AddScoped<MailService>();
+        builder.Services.AddScoped<BookingService>();
+        builder.Services.AddScoped<BookingService>();
 
 
         // Register Repositories
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+        builder.Services.AddScoped<IRoomRepository, RoomRepository>();
 
 
         // Configure JWT Authentication
@@ -71,12 +81,34 @@ public class Program
                     ValidateLifetime = true,
                     ClockSkew = TimeSpan.Zero
                 };
+                options.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        // Try to get JWT from cookie
+                        context.Request.Cookies.TryGetValue("session", out var accessToken);
+                        if (!string.IsNullOrEmpty(accessToken))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        // If not found, fallback to Authorization header
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
         builder.Services.AddAuthorization();
+        builder.Services.AddSignalR();
+
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers().AddJsonOptions(o =>
+        {
+            o.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
+            // Optional: case-insensitive or naming policy tweaks:
+            // o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        });
 
         builder.Services.AddMemoryCache();
 
@@ -121,7 +153,6 @@ public class Program
         });
 
 
-        // Add CORS for specific Blazor WASM domains
         builder.Services.AddCors(options =>
         {
             options.AddPolicy(
@@ -138,6 +169,7 @@ public class Program
                         )
                         .AllowAnyMethod()
                         .AllowAnyHeader()
+                        .AllowCredentials()
                         .WithExposedHeaders("Content-Disposition");
                 }
             );
@@ -169,6 +201,8 @@ public class Program
 
         var app = builder.Build();
 
+        app.UseWebSockets();
+
 
         // Brug CORS - skal være før anden middleware
         app.UseCors("AllowSpecificOrigins");
@@ -194,17 +228,15 @@ public class Program
 
         // Map the Swagger UI
         app.UseSwagger();
-        app.UseSwaggerUI(options =>
-        { 
-            options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1");
-
-        });
+        app.UseSwaggerUI(options => { options.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"); });
 
         app.UseAuthentication();
         app.UseAuthorization();
 
 
         app.MapControllers();
+        app.MapHub<TicketHub>("/tickethub");
+
 
         app.Run();
     }

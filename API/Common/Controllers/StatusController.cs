@@ -1,5 +1,6 @@
 using API.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -31,21 +32,33 @@ namespace API.Controllers
         /// <returns>Status og besked om databaseforbindelse.</returns>
         /// <response code="200">Database er kørende eller fejlbesked gives.</response>
         [HttpGet("dbhealthcheck")]
-        public IActionResult DBHealthCheck()
+        public async Task<IActionResult> DBHealthCheck()
         {
-            // Indtil vi har opsat EFCore, returnerer vi bare en besked
-
             try
             {
-                _context.Database.CanConnect();
+                // Forsøg at åbne en connection til databasen
+                var canConnect = await _context.Database.CanConnectAsync();
+
+                if (!canConnect)
+                {
+                    return StatusCode(503, new { status = "Error", message = "Database is unavailable" });
+                }
+
+                // Optional: tjek at vi kan hente fx 1 række fra Bookings
+                var bookingsExist = await _context.Bookings.AnyAsync();
+
+                return Ok(new
+                {
+                    status = "OK",
+                    message = "Database is running",
+                    bookingsCount = bookingsExist ? 1 : 0
+                });
             }
             catch (Exception ex)
             {
-                // TODO: what should this return be? not Ok
-                return Ok(new { status = "Error", message = ex.Message });
+                // Returner 500 med fejlbesked
+                return StatusCode(500, new { status = "Error", message = ex.Message });
             }
-
-            return Ok(new { status = "OK", message = "Database is running!" });
         }
 
         /// <summary>

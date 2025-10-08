@@ -37,4 +37,18 @@ public static class HotelMapping
             PhoneNumber = hotelCreateDto.PhoneNumber,
         };
     }
+
+    public static void UpdateFromDto(this Hotel hotel, HotelUpdateDto dto)
+    {
+        hotel.Name = dto.Name;
+        hotel.StreetName = dto.StreetName;
+        hotel.StreetNumber = dto.StreetNumber;
+        hotel.Floor = dto.Floor;
+        hotel.City = dto.City;
+        hotel.ZipCode = dto.ZipCode;
+        hotel.Country = dto.Country;
+        hotel.Email = dto.Email;
+        hotel.PhoneNumber = dto.PhoneNumber;
+        hotel.UpdatedAt = DateTime.UtcNow;
+    }
 }
