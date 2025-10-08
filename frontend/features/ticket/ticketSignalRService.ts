@@ -1,4 +1,5 @@
 import * as signalR from "@microsoft/signalr";
+import { TicketStatus } from "./domain";
 
 export interface TicketSignalRMessage {
   id: number;
@@ -16,19 +17,19 @@ export interface TicketSignalRMessage {
   updatedAt: string;
 }
 
-export interface TicketSignalRCallbacks {
-  onNewMessage?: (message: TicketSignalRMessage) => void;
-  onUserJoined?: (ticketId: number, userName: string, userId: string) => void;
-  onUserLeft?: (ticketId: number, userName: string, userId: string) => void;
-  onTicketStatusChanged?: (
+export type TicketSignalRCallbacks = {
+  onNewMessage: (message: TicketSignalRMessage) => void;
+  onUserJoined: (ticketId: number, userName: string, userId: string) => void;
+  onUserLeft: (ticketId: number, userName: string, userId: string) => void;
+  onTicketStatusChanged: (
     ticketId: number,
-    newStatus: string,
+    newStatus: TicketStatus,
     changedBy: string,
   ) => void;
-  onConnected?: () => void;
-  onDisconnected?: () => void;
-  onError?: (error: string) => void;
-}
+  onConnected: () => void;
+  onDisconnected: () => void;
+  onError: (error: string) => void;
+};
 
 class TicketSignalRService {
   private connection: signalR.HubConnection | null = null;
@@ -42,10 +43,8 @@ class TicketSignalRService {
   }
 
   private initializeConnection() {
-    const baseUrl = "http://localhost:7087";
-
     this.connection = new signalR.HubConnectionBuilder()
-      .withUrl(`${baseUrl}/ticketHub`, {
+      .withUrl(`${process.env.NEXT_PUBLIC_BASE_URL}/ticketHub`, {
         withCredentials: true,
         transport:
           signalR.HttpTransportType.WebSockets |
@@ -120,6 +119,10 @@ class TicketSignalRService {
     });
   }
 
+  setCallbacks(callbacks: TicketSignalRCallbacks) {
+    this.callbacks = callbacks;
+  }
+
   async connect(): Promise<void> {
     if (!this.connection || this.isConnecting) return;
 
@@ -157,10 +160,6 @@ class TicketSignalRService {
     }
   }
 
-  setCallbacks(callbacks: TicketSignalRCallbacks) {
-    this.callbacks = callbacks;
-  }
-
   async joinTicketRoom(ticketId: number): Promise<void> {
     // Wait for connection if still connecting
     let attempts = 0;
@@ -169,17 +168,10 @@ class TicketSignalRService {
       attempts++;
     }
 
-    // If not connected, try to schedule for later
     if (!this.isConnected()) {
-      console.log("SignalR not connected, scheduling room join for later");
-      setTimeout(() => {
-        if (this.isConnected()) {
-          this.joinTicketRoom(ticketId);
-        }
-      }, 1000);
+      console.error("SignalR not connected");
       return;
     }
-
     // Don't join if already in the same room
     if (this.currentTicketId === ticketId) {
       return;
@@ -210,11 +202,7 @@ class TicketSignalRService {
 
     try {
       await this.connection!.invoke("LeaveTicketRoom", ticketId);
-      if (this.currentTicketId === ticketId) {
-        this.currentTicketId = null;
-      }
 
-      // Clear joined users for this ticket
       const keysToDelete = Array.from(this.joinedUsers).filter((key) =>
         key.startsWith(`${ticketId}-`),
       );

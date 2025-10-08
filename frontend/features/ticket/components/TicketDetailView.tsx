@@ -337,7 +337,7 @@ export function TicketDetailView({
 
         {/* Right Column - Chat */}
         <div className="lg:col-span-2">
-          <TicketChat ticketId={ticketId} />
+          <TicketChat ticketId={ticketId} ticket={ticket} />
         </div>
       </div>
     </div>

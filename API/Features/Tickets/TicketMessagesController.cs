@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Mapping;
+using API.Models.Entities;
 
 namespace API.Features.Chat
 {
@@ -31,7 +32,6 @@ namespace API.Features.Chat
                 return Unauthorized();
             }
 
-            // Check if user has access to this ticket
             var hasAccess = await HasTicketAccess(ticketId, currentUserId, currentUserRole);
             if (!hasAccess)
             {
@@ -84,7 +84,6 @@ namespace API.Features.Chat
                 return Unauthorized();
             }
 
-            // Check if user has access to this ticket
             var hasAccess = await HasTicketAccess(ticketId, currentUserId, currentUserRole);
             if (!hasAccess)
             {
@@ -97,9 +96,7 @@ namespace API.Features.Chat
                 return BadRequest("Message content cannot be empty");
             }
 
-            // Get user display name
-            //TODO: Typesafety here, instead of just check a string?
-            var isInternal = currentUserRole != "Customer" && dto.IsInternal;
+            var isInternal = currentUserRole != RoleNames.Customer && dto.IsInternal;
 
             var message = new TicketMessage
             {
@@ -166,7 +163,7 @@ namespace API.Features.Chat
             }
 
             // Only allow users to delete their own messages or admins to delete any message
-            if (message.UserId != currentUserId && currentUserRole != "Admin")
+            if (message.UserId != currentUserId && currentUserRole != RoleNames.Admin)
             {
                 return Forbid();
             }
@@ -190,42 +187,13 @@ namespace API.Features.Chat
             if (ticket == null)
                 return false;
 
-            // Customers can only access their own tickets
-            if (userRole == "Customer")
+            if (userRole == RoleNames.Customer)
             {
                 return ticket.CreatedByUserId == userId;
             }
 
             // Admin, Receptionist, etc. can access all tickets
-            return userRole == "Admin" || userRole == "Receptionist" || userRole == "Cleaner";
-        }
-
-        private async Task<string> GetUserDisplayName(string userId)
-        {
-            try
-            {
-                if (!Guid.TryParse(userId, out var userGuid))
-                {
-                    return "Unknown User";
-                }
-
-                var user = await _context.Users
-                    .AsNoTracking()
-                    .Where(u => u.Id == userGuid)
-                    .Select(u => new { u.FirstName, u.LastName, u.Email })
-                    .FirstOrDefaultAsync();
-
-                if (user != null && !string.IsNullOrEmpty(user.FirstName))
-                {
-                    return $"{user.FirstName} {user.LastName}".Trim();
-                }
-
-                return user?.Email ?? "Unknown User";
-            }
-            catch
-            {
-                return "Unknown User";
-            }
+            return userRole == RoleNames.Admin || userRole == RoleNames.Receptionist || userRole == RoleNames.Cleaner;
         }
     }
 }
