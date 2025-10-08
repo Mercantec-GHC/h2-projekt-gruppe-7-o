@@ -92,8 +92,9 @@ internal sealed class UserRepository(AppDBContext context) : IUserRepository
     /// </summary>
     public async Task<List<User>> GetHousekeepingRelevantUsersAsync()
     {
-        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
+        string[] roles = { "Cleaner", "HousekeepingManager", "Admin", "Receptionist" };
         return await _context.Users
+            .Include(u => u.Role) 
             .Where(u => roles.Contains(u.Role.Name))
             .ToListAsync();
     }

@@ -235,11 +235,9 @@ public class UsersController : ControllerBase
     /// Henter brugere relevante for housekeeping (Cleaner, HousekeepingManager, Admin)
     /// </summary>
     [HttpGet("housekeeping-users")]
-    [Authorize(Roles = "Admin,HousekeepingManager")]
+    [Authorize(Roles = $"{RoleNames.Admin},{RoleNames.HousekeepingManager},{RoleNames.Cleaner}, {RoleNames.Receptionist}")]
     public async Task<ActionResult<List<UserReponseDto>>> GetHousekeepingUsers()
     {
-        string[] roles = { "Cleaner", "HousekeepingManager", "Admin" };
-
         var users = await _userRepository.GetHousekeepingRelevantUsersAsync();
         var dto = users.Select(u => u.ToUserDto()).ToList();
         return Ok(dto);

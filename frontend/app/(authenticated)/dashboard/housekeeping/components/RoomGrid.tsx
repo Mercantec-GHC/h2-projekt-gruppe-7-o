@@ -104,7 +104,7 @@ export const RoomGrid: React.FC<RoomGridProps> = ({ rooms }) => {
     );
 
     try {
-      await updatePriority?.(roomId, newPriority); // Opdater API hvis hook understøtter det
+      await updatePriority?.(roomId, newPriority);
     } catch (err) {
       console.error(err);
       setLocalRooms(rooms); // Revert

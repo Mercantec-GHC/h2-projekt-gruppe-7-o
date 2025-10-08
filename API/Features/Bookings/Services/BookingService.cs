@@ -116,7 +116,7 @@ public class BookingService
             }
         }
 
-        // **After the loop, update the main booking properties that are totals**
+        
         booking.Adults = totalAdults;
         booking.Children = totalChildren;
         booking.TotalPrice = totalPrice;
@@ -131,11 +131,11 @@ public class BookingService
                 userEmail,
                 userName,
                 roomNumbersString,
-                "KabdiKhan", // hotel name
+                "KabdiKhan", 
                 booking.CheckIn,
                 booking.CheckOut,
                 (short)(booking.Adults + booking.Children), 
-                bookingNights, // Pass the calculated booking nights
+                bookingNights, 
                 booking.TotalPrice,
                 booking.Id
             );
