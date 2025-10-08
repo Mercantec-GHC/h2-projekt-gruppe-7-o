@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Features.Chat;
 using API.Mapping;
+using API.Models.Entities;
 
 
 [ApiController]
@@ -35,8 +36,7 @@ public class TicketsController : ControllerBase
         var currentUserRole = User.FindFirst(ClaimTypes.Role)?.Value;
 
         var query = _context.Tickets
-            .Include(t => t.Status)
-            .AsQueryable();
+            .Include(t => t.Status).AsQueryable();
 
         // Filter by status
         if (!string.IsNullOrEmpty(status))
@@ -58,7 +58,7 @@ public class TicketsController : ControllerBase
         }
 
         // For customers, only show their own tickets
-        if (currentUserRole == "Customer" && !string.IsNullOrEmpty(currentUserId) &&
+        if (currentUserRole == RoleNames.Customer && !string.IsNullOrEmpty(currentUserId) &&
             Guid.TryParse(currentUserId, out var createdByUserGuid))
         {
             query = query.Where(t => t.CreatedByUserId == createdByUserGuid);
@@ -131,11 +131,10 @@ public class TicketsController : ControllerBase
             return NotFound();
         }
 
-        // Authorization check
-        // if (currentUserRole == "Customer" && ticket?.CreatedByUser?.Id != currentUserId)
-        // {
-        //     return Forbid();
-        // }
+        if (currentUserRole == RoleNames.Customer && ticket?.CreatedByUser?.Id != currentUserId)
+        {
+            return Forbid();
+        }
 
 
         var ticketDto = new TicketDto
@@ -172,8 +171,11 @@ public class TicketsController : ControllerBase
         var statusEntity = await _context.TicketStatuses
             .FirstOrDefaultAsync(s => s.Name == dto.StatusName);
 
+        // TODO: not sure if we should just force a status here instead? This might be too strict..
         if (statusEntity == null)
+        {
             return BadRequest($"Status '{dto.StatusName}' does not exist.");
+        }
 
         var ticket = new Ticket
         {
@@ -256,6 +258,7 @@ public class TicketsController : ControllerBase
         );
 
         // If ticket is being closed or resolved, add system message
+        // TODO: this should be typed properly...
         if (dto.StatusName == "Resolved" || dto.StatusName == "Closed")
         {
             var systemMessage = new TicketMessage

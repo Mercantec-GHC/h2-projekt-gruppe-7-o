@@ -13,7 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Filter, X } from "lucide-react";
-import { TicketFilters as TicketFiltersType } from "./ticketService";
+import { TicketFilters as TicketFiltersType } from "../api/dto";
 
 interface TicketFiltersProps {
   filters: TicketFiltersType;

@@ -51,7 +51,6 @@ export default function RegisterForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Since FormField is using a controlled component, you need to provide a default value for the field
     defaultValues: {
       firstName: "",
       lastName: "",

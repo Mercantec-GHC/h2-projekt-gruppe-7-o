@@ -76,11 +76,6 @@ export async function registerUserNext(
 ): Promise<RegisterResponseDto> {
   // TODO: add type with response from .NET API
   const res = await apiClient.post("/auth/register", data);
-  // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-  //   method: "POST",
-  //   headers: { "Content-Type": "application/json" },
-  //   body: JSON.stringify(data),
-  // });
 
   if (res.data.error) {
     const err = res.data.error;

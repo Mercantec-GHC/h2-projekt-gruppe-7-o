@@ -47,7 +47,7 @@ const formSchema = z.object({
     .min(1, "Please enter a ticket title")
     .max(255, "Title must be less than 255 characters"),
   description: z.string().min(1, "Please enter a ticket description"),
-  statusName: z.nativeEnum(TicketStatus).optional(),
+  statusName: z.enum(TicketStatus).optional(),
   assignedToUserId: z.string().optional(),
 });
 
@@ -70,14 +70,14 @@ export function CreateTicketDialog({
     },
   });
 
-  // Fetch available statuses
   const { data: availableStatuses = [] } = useTicketStatuses();
 
-  // Create ticket mutation
-  const createMutation = useCreateTicket(() => {
-    setOpen(false);
-    form.reset();
-    onSuccess?.();
+  const createMutation = useCreateTicket({
+    onSuccess: () => {
+      setOpen(false);
+      form.reset();
+      onSuccess?.();
+    },
   });
 
   const handleOpenChange = (newOpen: boolean) => {
@@ -90,11 +90,6 @@ export function CreateTicketDialog({
   const onSubmit = (data: FormData) => {
     const submitData = {
       ...data,
-      // Convert empty assignedToUserId to undefined
-      assignedToUserId:
-        data.assignedToUserId === "unassigned"
-          ? undefined
-          : data.assignedToUserId,
     };
     createMutation.mutate(submitData);
   };

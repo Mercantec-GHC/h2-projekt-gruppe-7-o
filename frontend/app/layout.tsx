@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "@/styles/gradients.css";
-import QueryProvider from "@/components/QueryProvider";
+import QueryProvider from "@/providers/QueryProvider";
 import { cn } from "@/lib/utils";
 import { Footer } from "@/components/nav/Footers/Footer";
 import { Toaster } from "@/components/ui/sonner";
@@ -46,10 +46,8 @@ export default async function RootLayout({
           "antialiased app-shell min-h-screen flex flex-col overflow-x-hidden",
         )}
       >
-        {/*TODO: this can probably be removed... Was trying to get the flashing of components to stop on reload*/}
         <SessionHydrator session={session} />
-        {/* {session.isAuthenticated && <AuthenticatedHeader />} */}
-        {/* <ClientProvider /> */}
+        {/*<ClientProvider /> */}
         <QueryProvider>
           <>
             <Header />

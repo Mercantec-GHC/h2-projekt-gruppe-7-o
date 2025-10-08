@@ -11,400 +11,38 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, MessageCircle, Clock, Shield, Loader2 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { da } from "date-fns/locale";
-import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-import {
-  ticketSignalRService,
-  type TicketSignalRCallbacks,
-  type TicketSignalRMessage,
-} from "../ticketSignalRService";
-import {
-  useTicketMessages,
-  useCreateTicketMessage,
-  messageKeys,
-} from "../queries";
-import { ticketKeys } from "../queries/ticket-queries";
-import { TicketMessage, MessageType, TicketStatus } from "../domain";
+import { TicketMessage, MessageType, TicketStatus, Ticket } from "../domain";
 import { useSessionStore } from "@/features/auth/stores/sessionStore";
+import { useChat } from "../hooks/useChat";
 
 interface TicketChatProps {
   ticketId: number;
-  ticket?: {
-    id: number;
-    title: string;
-    description: string;
-    status: TicketStatus;
-    assignedToUser?: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    };
-    createdByUser: {
-      id: string;
-      firstName: string;
-      lastName: string;
-      email: string;
-    };
-    createdAt: string;
-    updatedAt: string;
-  };
-}
-
-interface MessagesQueryData {
-  messages: TicketMessage[];
-  totalCount: number;
-  currentPage: number;
-  pageSize: number;
+  ticket: Ticket;
 }
 
 export function TicketChat({ ticketId, ticket }: TicketChatProps) {
-  const [newMessage, setNewMessage] = useState("");
-  const [isConnected, setIsConnected] = useState(false);
-  const [isInternalMessage, setIsInternalMessage] = useState(false);
-  const [ticketStatus, setTicketStatus] = useState<string>(
-    ticket?.status || "Open",
-  );
-
-  // Update status when ticket prop changes
-  useEffect(() => {
-    if (ticket?.status) {
-      setTicketStatus(ticket.status);
-    }
-  }, [ticket?.status]);
-
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const queryClient = useQueryClient();
   const session = useSessionStore();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch messages
   const {
-    data: messagesData,
+    isConnected,
+    messagesData,
     isLoading,
     error,
-  } = useTicketMessages(ticketId, 1, 50);
-
-  // Send message mutation
-  const sendMessageMutation = useCreateTicketMessage(ticketId, () => {
-    setNewMessage("");
-    scrollToBottom();
+    newMessage,
+    setNewMessage,
+    sendMessageMutation,
+    handleSendMessage,
+    isNewMessageInternal,
+    setIsNewMessageInternal,
+    ticketStatus,
+  } = useChat({
+    ticketId,
+    initialTicketStatus: ticket.status,
+    messagesEndRef,
   });
-
-  // Initialize SignalR
-  useEffect(() => {
-    const callbacks: TicketSignalRCallbacks = {
-      onNewMessage: (signalRMessage: TicketSignalRMessage) => {
-        try {
-          // Validate message structure
-          if (!signalRMessage) {
-            console.error("Invalid SignalR message structure:", signalRMessage);
-            return;
-          }
-
-          // Update React Query cache with the new message
-          queryClient.setQueryData(
-            messageKeys.list(ticketId, 1, 50),
-            (oldData: MessagesQueryData | undefined) => {
-              if (!oldData) return oldData;
-
-              // Try to find existing user info from cached messages
-              const existingUser = oldData.messages.find(
-                (msg) => msg.user.id === signalRMessage.userId,
-              )?.user;
-
-              // Convert SignalR message to our domain format
-              const newMessage: TicketMessage = {
-                id: signalRMessage.id,
-                ticketId: signalRMessage.ticketId,
-                user: signalRMessage.user
-                  ? {
-                      id: signalRMessage.user.id,
-                      firstName: signalRMessage.user.firstName,
-                      lastName: signalRMessage.user.lastName,
-                      email: signalRMessage.user.email,
-                      phone: "",
-                      roleName: "Customer",
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    }
-                  : existingUser || {
-                      id: signalRMessage.userId,
-                      firstName: "Unknown",
-                      lastName: "User",
-                      email: "",
-                      phone: "",
-                      roleName: "Customer",
-                      createdAt: new Date().toISOString(),
-                      updatedAt: new Date().toISOString(),
-                    },
-                content: signalRMessage.content,
-                isInternal: signalRMessage.isInternal,
-                messageType:
-                  signalRMessage.user?.id === "system"
-                    ? MessageType.System
-                    : MessageType.User,
-                createdAt: signalRMessage.createdAt,
-                updatedAt: signalRMessage.updatedAt,
-              };
-
-              // Check if message already exists to avoid duplicates
-              const messageExists = oldData.messages.some(
-                (msg: TicketMessage) => msg.id === newMessage.id,
-              );
-
-              if (!messageExists) {
-                return {
-                  ...oldData,
-                  messages: [...oldData.messages, newMessage],
-                  totalCount: oldData.totalCount + 1,
-                };
-              }
-
-              return oldData;
-            },
-          );
-
-          scrollToBottom();
-        } catch (error) {
-          console.error("Error handling SignalR message:", error);
-          toast.error("Error receiving message");
-        }
-      },
-
-      onUserJoined: (ticketId: number, userName: string, userId: string) => {
-        if (String(userId) === String(session.user?.id)) return;
-
-        // Add system message for user joining
-        const systemMessage: TicketMessage = {
-          id: Date.now(), // Temporary ID for system message
-          ticketId,
-          user: {
-            id: "system",
-            firstName: "System",
-            lastName: "",
-            email: "",
-            phone: "",
-            roleName: "System",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          content: `${userName} har sluttet sig til chatten`,
-          isInternal: false,
-          messageType: MessageType.System,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        queryClient.setQueryData(
-          messageKeys.list(ticketId, 1, 50),
-          (oldData: MessagesQueryData | undefined) => {
-            if (!oldData) return oldData;
-
-            // Check if similar join message already exists in the last few messages
-            const recentMessages = oldData.messages.slice(-3);
-            const duplicateExists = recentMessages.some(
-              (msg) =>
-                msg.messageType === MessageType.System &&
-                msg.content.includes(userName) &&
-                msg.content.includes("har tilsluttet sig"),
-            );
-
-            if (duplicateExists) {
-              return oldData;
-            }
-
-            return {
-              ...oldData,
-              messages: [...oldData.messages, systemMessage],
-              totalCount: oldData.totalCount + 1,
-            };
-          },
-        );
-        scrollToBottom();
-      },
-
-      onUserLeft: (ticketId: number, userName: string, userId: string) => {
-        if (String(userId) === String(session.user?.id)) return;
-
-        // Add system message for user leaving
-        const systemMessage: TicketMessage = {
-          id: Date.now() + 1, // Temporary ID for system message
-          ticketId,
-          user: {
-            id: "system",
-            firstName: "System",
-            lastName: "",
-            email: "",
-            phone: "",
-            roleName: "System",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          content: `${userName} har forladt chatten`,
-          isInternal: false,
-          messageType: MessageType.System,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        queryClient.setQueryData(
-          messageKeys.list(ticketId, 1, 50),
-          (oldData: MessagesQueryData | undefined) => {
-            if (!oldData) return oldData;
-
-            // Check if similar leave message already exists in the last few messages
-            const recentMessages = oldData.messages.slice(-3);
-            const duplicateExists = recentMessages.some(
-              (msg) =>
-                msg.messageType === MessageType.System &&
-                msg.content.includes(userName) &&
-                msg.content.includes("har forladt"),
-            );
-
-            if (duplicateExists) {
-              return oldData;
-            }
-
-            return {
-              ...oldData,
-              messages: [...oldData.messages, systemMessage],
-              totalCount: oldData.totalCount + 1,
-            };
-          },
-        );
-        scrollToBottom();
-      },
-
-      onConnected: () => {
-        setIsConnected(true);
-      },
-
-      onDisconnected: () => {
-        setIsConnected(false);
-      },
-
-      onError: (error: string) => {
-        toast.error(`Connection error: ${error}`);
-      },
-
-      onTicketStatusChanged: (
-        ticketId: number,
-        newStatus: string,
-        changedBy: string,
-      ) => {
-        console.log(`Status changing from ${ticketStatus} to ${newStatus}`);
-        setTicketStatus(newStatus);
-
-        // Add system message for status change
-        const statusMessage: TicketMessage = {
-          id: Date.now() + Math.random(), // Unique temporary ID
-          ticketId,
-          user: {
-            id: "system",
-            firstName: "System",
-            lastName: "",
-            email: "",
-            phone: "",
-            roleName: "System",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          },
-          content: `Status ændret til "${newStatus}" af ${changedBy}`,
-          isInternal: false,
-          messageType: MessageType.System,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        };
-
-        queryClient.setQueryData(
-          messageKeys.list(ticketId, 1, 50),
-          (oldData: MessagesQueryData | undefined) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              messages: [...oldData.messages, statusMessage],
-              totalCount: oldData.totalCount + 1,
-            };
-          },
-        );
-
-        scrollToBottom();
-
-        // Show toast for status change
-        toast.info(`Ticket status ændret til: ${newStatus}`);
-
-        // Invalidate ticket query to update parent component
-        queryClient.invalidateQueries({
-          queryKey: ticketKeys.detail(ticketId),
-        });
-      },
-    };
-
-    const initializeSignalR = async () => {
-      try {
-        ticketSignalRService.setCallbacks(callbacks);
-        await ticketSignalRService.connect();
-        await ticketSignalRService.joinTicketRoom(ticketId);
-      } catch (error) {
-        console.error("Failed to initialize SignalR:", error);
-      }
-    };
-
-    initializeSignalR();
-
-    return () => {
-      ticketSignalRService.leaveTicketRoom(ticketId);
-    };
-  }, [ticketId, session.user?.id, queryClient]);
-
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    scrollToBottom();
-  }, [messagesData?.messages]);
-
-  const scrollToBottom = () => {
-    setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  };
-
-  const handleSendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    const message = newMessage.trim();
-
-    try {
-      if (isConnected) {
-        // Send via SignalR for real-time delivery
-        await ticketSignalRService.sendMessage(
-          ticketId,
-          message,
-          isInternalMessage,
-        );
-        setNewMessage("");
-        setIsInternalMessage(false);
-      } else {
-        // Fallback to REST API
-        await sendMessageMutation.mutateAsync({
-          content: message,
-          isInternal: isInternalMessage,
-        });
-        setIsInternalMessage(false);
-      }
-    } catch (err) {
-      console.error("Failed to send message:", err);
-      // Try REST API as fallback
-      if (isConnected) {
-        try {
-          await sendMessageMutation.mutateAsync({ content: message });
-        } catch {
-          toast.error("Failed to send message. Please try again.");
-        }
-      }
-    }
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
@@ -454,14 +92,6 @@ export function TicketChat({ ticketId, ticket }: TicketChatProps) {
   };
 
   const messages = messagesData?.messages || [];
-
-  // Debug: Log current status when rendering
-  console.log(
-    "TicketChat render - current status:",
-    ticketStatus,
-    "ticket prop status:",
-    ticket?.status,
-  );
 
   return (
     <Card className="flex flex-col">
@@ -649,8 +279,8 @@ export function TicketChat({ ticketId, ticket }: TicketChatProps) {
                   <input
                     type="checkbox"
                     id="internal-message"
-                    checked={isInternalMessage}
-                    onChange={(e) => setIsInternalMessage(e.target.checked)}
+                    checked={isNewMessageInternal}
+                    onChange={(e) => setIsNewMessageInternal(e.target.checked)}
                     className="rounded border-gray-300"
                   />
                   <label
@@ -668,19 +298,19 @@ export function TicketChat({ ticketId, ticket }: TicketChatProps) {
                   onChange={handleInputChange}
                   onKeyPress={handleKeyPress}
                   placeholder="Skriv din besked..."
-                  disabled={sendMessageMutation.isPending || isTicketClosed()}
+                  disabled={sendMessageMutation?.isPending || isTicketClosed()}
                   className="flex-1"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={
                     !newMessage.trim() ||
-                    sendMessageMutation.isPending ||
+                    sendMessageMutation?.isPending ||
                     isTicketClosed()
                   }
                   size="sm"
                 >
-                  {sendMessageMutation.isPending ? (
+                  {sendMessageMutation?.isPending ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
                     <Send className="h-4 w-4" />

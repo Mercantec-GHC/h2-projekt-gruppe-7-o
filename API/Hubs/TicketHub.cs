@@ -3,6 +3,7 @@ using API.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using API.Features.Chat;
+using API.Models.Entities;
 
 namespace API.Hubs
 {
@@ -27,7 +28,7 @@ namespace API.Hubs
                 {
                     ConnectionId = Context.ConnectionId,
                     UserId = userId,
-                    UserRole = userRole ?? "Customer",
+                    UserRole = userRole ?? RoleNames.Customer,
                     ConnectedAt = DateTime.UtcNow
                 };
 
@@ -136,7 +137,7 @@ namespace API.Hubs
             try
             {
                 // Use the provided isInternal parameter, but customers can't send internal messages
-                var finalIsInternal = userRole != "Customer" && isInternal;
+                var finalIsInternal = userRole != RoleNames.Customer && isInternal;
 
                 // Save message to database
                 var message = new TicketMessage
@@ -158,7 +159,6 @@ namespace API.Hubs
                     .Where(u => u.Id == userId)
                     .Select(u => new { u.Id, u.FirstName, u.LastName, u.Email })
                     .FirstOrDefaultAsync();
-
 
 
                 // Send to all clients in the ticket room
@@ -194,7 +194,8 @@ namespace API.Hubs
                     if (ticket.StatusId != 5 && ticket.StatusId != 6)
                     {
                         var oldStatusId = ticket.StatusId;
-                        ticket.StatusId = userRole == "Customer" ? 4 : 3; // 4 = Waiting for Admin, 3 = Waiting for Customer
+                        ticket.StatusId =
+                            userRole == RoleNames.Customer ? 4 : 3; // 4 = Waiting for Admin, 3 = Waiting for Customer
 
                         // If status changed, notify clients
                         if (oldStatusId != ticket.StatusId)
@@ -206,7 +207,8 @@ namespace API.Hubs
                             var changedByName = await GetUserDisplayName(userIdValue);
 
                             // Notify all clients in the ticket room about status change
-                            await Clients.Group(groupName).SendAsync("TicketStatusChanged", ticketId, statusName, changedByName);
+                            await Clients.Group(groupName)
+                                .SendAsync("TicketStatusChanged", ticketId, statusName, changedByName);
                         }
                         else
                         {
@@ -229,27 +231,16 @@ namespace API.Hubs
         }
 
 
+        // public async Task NotifyStatusChange(int id, string newStatus, string changedBy = "System")
+        // {
+        //     // Notify all clients globally
+        //     await Clients.All.SendAsync("TicketStatusChanged", id, newStatus, changedBy);
+        //
+        //     // Also notify clients in the specific ticket room
+        //     var groupName = $"ticket-{id}";
+        //     await Clients.Group(groupName).SendAsync("TicketStatusChanged", id, newStatus, changedBy);
+        // }
 
-        // Existing ticket notification methods
-        public async Task NotifyNewTicket(int id, string title, string status)
-        {
-            await Clients.All.SendAsync("NewTicket", id, title, status, DateTime.UtcNow);
-        }
-
-        public async Task NotifyStatusChange(int id, string newStatus, string changedBy = "System")
-        {
-            // Notify all clients globally
-            await Clients.All.SendAsync("TicketStatusChanged", id, newStatus, changedBy);
-
-            // Also notify clients in the specific ticket room
-            var groupName = $"ticket-{id}";
-            await Clients.Group(groupName).SendAsync("TicketStatusChanged", id, newStatus, changedBy);
-        }
-
-        public async Task NotifyTicketAssigned(int id, string assignedUser)
-        {
-            await Clients.All.SendAsync("TicketAssigned", id, assignedUser);
-        }
 
         public async Task NotifyTicketUpdated(int ticketId)
         {
@@ -270,13 +261,13 @@ namespace API.Hubs
                 return false;
 
             // Customers can only access their own tickets
-            if (userRole == "Customer")
+            if (userRole == RoleNames.Customer)
             {
                 return ticket.CreatedByUserId == userGuid;
             }
 
             // Admin, Receptionist, etc. can access all tickets
-            return userRole == "Admin" || userRole == "Receptionist" || userRole == "Cleaner";
+            return userRole == RoleNames.Admin || userRole == RoleNames.Receptionist || userRole == RoleNames.Cleaner;
         }
 
         private async Task<string> GetUserDisplayName(string userId)
@@ -294,7 +285,7 @@ namespace API.Hubs
                     .Select(u => new { u.FirstName, u.LastName, u.Email })
                     .FirstOrDefaultAsync();
 
-                if (user != null && !string.IsNullOrEmpty(user.FirstName))
+                if (user != null)
                 {
                     return $"{user.FirstName} {user.LastName}".Trim();
                 }
