@@ -8,8 +8,7 @@ import { ticketKeys } from "./ticket-queries";
 export const messageKeys = {
   all: ["ticket-messages"] as const,
   lists: () => [...messageKeys.all, "list"] as const,
-  list: (ticketId: number, page?: number, pageSize?: number) =>
-    [...messageKeys.lists(), ticketId, page, pageSize] as const,
+  list: (ticketId: number) => [...messageKeys.lists(), ticketId] as const,
   details: () => [...messageKeys.all, "detail"] as const,
   detail: (ticketId: number, messageId: number) =>
     [...messageKeys.details(), ticketId, messageId] as const,
@@ -22,7 +21,7 @@ export function useTicketMessages(
   pageSize: number = 50,
 ) {
   return useQuery({
-    queryKey: messageKeys.list(ticketId, page, pageSize),
+    queryKey: messageKeys.list(ticketId),
     queryFn: () => TicketApi.getMessages(ticketId, page, pageSize),
     enabled: !!ticketId,
   });

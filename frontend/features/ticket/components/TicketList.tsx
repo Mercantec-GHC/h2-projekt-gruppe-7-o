@@ -20,8 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { MoreHorizontal, Eye, Edit, UserCheck } from "lucide-react";
-import { getTicketStatusColor, Ticket } from "../domain";
-import { cn } from "@/lib/utils";
+import { getTicketStatusColor, Ticket, TicketStatus } from "../domain";
 import { da } from "date-fns/locale";
 import { useSessionStore } from "@/features/auth/stores/sessionStore";
 
@@ -29,7 +28,7 @@ interface TicketListProps {
   tickets: Ticket[];
   isLoading: boolean;
   isAdmin?: boolean;
-  onStatusChange?: (ticketId: number, newStatus: string) => void;
+  onStatusChange?: (ticketId: number, newStatus: TicketStatus) => void;
   onAssignTicket?: (ticketId: number, userId?: string) => void;
   onViewTicket?: (ticketId: number) => void;
   availableStatuses: string[];
@@ -44,7 +43,10 @@ export function TicketList({
   onViewTicket,
   availableStatuses,
 }: TicketListProps) {
-  const handleStatusChange = async (ticketId: number, newStatus: string) => {
+  const handleStatusChange = async (
+    ticketId: number,
+    newStatus: TicketStatus,
+  ) => {
     if (!onStatusChange) return;
 
     onStatusChange(ticketId, newStatus);
@@ -105,9 +107,11 @@ export function TicketList({
           <TableBody>
             {tickets.map((ticket) => (
               <TableRow
+                // TODO: we should be able to click on the row itself to go into the ticket.
+                // however, currently if we use this listener here, when we click on a dropdown menu item, this is still fired..
                 // onClick={() => onViewTicket?.(ticket.id)}
                 key={ticket.id}
-                className={cn("cursor-pointer")}
+                // className={cn("cursor-pointer")}
               >
                 <TableCell className="font-medium">#{ticket.id}</TableCell>
                 <TableCell>
@@ -119,6 +123,7 @@ export function TicketList({
                   </div>
                 </TableCell>
                 <TableCell>
+                  {/*TODO: should be able to change statuses right here as well*/}
                   {session.user?.role && (
                     <Badge
                       className={getTicketStatusColor(

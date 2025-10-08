@@ -43,7 +43,6 @@ export function TicketDetailView({
   isAdmin = false,
   onBack,
 }: TicketDetailViewProps) {
-  // Fetch ticket details using new query hook
   const { data: ticket, isLoading, error, refetch } = useTicket(ticketId);
   const { refetch: refetchMessages } = useTicketMessages(ticketId);
 
@@ -54,13 +53,10 @@ export function TicketDetailView({
 
   const session = useSessionStore();
 
-  // Fetch available statuses using new query hook
   const { data: availableStatuses = [] } = useTicketStatuses();
 
-  // Status change mutation using new query hook
   const statusMutation = useUpdateTicketStatus();
 
-  // Assignment mutation using new query hook
   const assignMutation = useAssignTicket();
 
   const handleStatusChange = (newStatus: TicketStatus) => {
@@ -341,7 +337,7 @@ export function TicketDetailView({
 
         {/* Right Column - Chat */}
         <div className="lg:col-span-2">
-          <TicketChat ticketId={ticketId} isAdmin={isAdmin} />
+          <TicketChat ticketId={ticketId} ticket={ticket} />
         </div>
       </div>
     </div>

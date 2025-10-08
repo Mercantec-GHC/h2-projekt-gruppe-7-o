@@ -1,16 +1,12 @@
-import useAuthModalStore from "@/features/auth/stores/authModalStore";
-import { useSessionStore } from "@/features/auth/stores/sessionStore";
 import { cn, formatCurrency } from "@/lib/utils";
 import { UsersIcon } from "lucide-react";
 import {
   useSelectedHotel,
   useCheckInDate,
   useCheckOutDate,
-  useGetTotalBookingPrice,
-  useSelectedRoomBookings,
   useGuestCount,
   useBookingBreakdown,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import {
   formatDateRange,
   getTotalGuestsText,
@@ -86,7 +82,6 @@ export const BookingDetails = () => {
               </span>
             </div>
           ))}
-          {/* Add taxes, fees here if needed */}
         </div>
       </div>
       <div className="flex justify-between self-end font-mono text-lg font-bold">

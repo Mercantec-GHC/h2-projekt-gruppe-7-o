@@ -9,12 +9,12 @@ export default function LoginPage() {
         <h1 className="text-2xl font-bold mb-6 text-center">Login</h1>
         <LoginForm />
         <p className="mt-4 text-center text-gray-500 text-sm">
-          Don't have an account?{" "}
+          Har du ikke en konto?{" "}
           <a
             href="/register"
             className="font-bold hover:underline hover:opacity-80"
           >
-            Create account
+            Opret konto
           </a>
         </p>
       </div>

@@ -14,9 +14,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   useBookingActions,
-  useBookingStore,
   useSelectedHotel,
-} from "@/features/booking/bookingStore";
+} from "@/features/booking/stores/bookingStore";
 import { useHotels } from "@/features/hotel/queries/useGetHotels";
 
 interface HotelSelectorProps {

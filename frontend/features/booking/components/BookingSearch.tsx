@@ -20,7 +20,6 @@ import {
   SearchIcon,
   Moon,
   User,
-  DoorOpen,
 } from "lucide-react";
 
 import { Calendar } from "@/components/ui/calendar";
@@ -39,12 +38,11 @@ import {
   useNightsCount,
   useRoomCount,
   useSelectedHotel,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import {
   formatDateRange,
   getAdultsCountText,
   getChildrenCountText,
-  getGuestsCountText,
   getTotalAvailableRoomsCount,
   getTotalGuestsText,
   getTotalNightsStayText,
@@ -187,12 +185,6 @@ export const BookingSearch = () => {
                 </Button>
               </div>
             </div>
-            {/*<div className="text-xs text-muted-foreground select-none">
-              <p className="flex items-baseline-end gap-1">
-                <DoorOpen size={14} />
-                {roomCount} rum
-              </p>
-            </div>*/}
           </div>
           {/* Rooms Selection */}
           <div className="space-y-2 w-full">

@@ -45,7 +45,6 @@ export const useIsReceptionist = () => useHasRole("Receptionist");
 export const useIsCleaning = () => useHasRole("Cleaner");
 export const useIsHousekeeping = () => useHasRole("HousekeepingManager");
 
-
 // Dashboard access
 export const hasDashboardAccess = (userRole?: UserRole) =>
   hasAnyRole(CONSTANTS.DASHBOARD_ROLES as readonly UserRole[], userRole);

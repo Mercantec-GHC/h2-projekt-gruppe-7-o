@@ -7,7 +7,6 @@ import {
   UpdateTicketStatusDto,
   AssignTicketDto,
 } from "../api/dto";
-import { Ticket, TicketStatus } from "../domain";
 
 // Query Keys
 export const ticketKeys = {
@@ -43,7 +42,7 @@ export function useTicketStatuses() {
 }
 
 // Mutation Hooks
-export function useCreateTicket(onSuccess?: () => void) {
+export function useCreateTicket({ onSuccess }: { onSuccess?: () => void }) {
   const queryClient = useQueryClient();
 
   return useMutation({

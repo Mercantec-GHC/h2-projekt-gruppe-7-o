@@ -5,7 +5,7 @@ import {
   useNightsCount,
   useSelectedRoomBookings,
   useSelectedRoomValidation,
-} from "../bookingStore";
+} from "../stores/bookingStore";
 import { useSearchAvailableRooms } from "../queries/useSearchAvailableRooms";
 import { formatCurrency } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ export const BookingSummaryBottomSheet = () => {
   const selectedRoomBookings = useSelectedRoomBookings();
   const availableRooms = useSearchAvailableRooms();
   const totalBookingPrice = useGetTotalBookingPrice();
-  const totalNights = useNightsCount();
   const { reset } = useBookingActions();
 
   const methods = useStepper();
@@ -43,22 +42,6 @@ export const BookingSummaryBottomSheet = () => {
                     <h3 className="font-semibold font-mono mb-2">
                       {room.type} x {selectedRoomBookings[room.type].length}
                     </h3>
-                    {/*<div className="space-y-1">
-                      {(selectedRoomBookings[room.type] ?? []).map(
-                        (booking, index) => (
-                          <div
-                            key={index}
-                            className="text-xs text-muted-foreground"
-                          >
-                            <div className="flex items-center">
-                              <p className="text-sm font-medium">
-                                {getPriceText(booking)}
-                              </p>
-                            </div>
-                          </div>
-                        ),
-                      )}
-                    </div>*/}
                   </div>
                 ))}
               <div className="flex justify-between items-baseline">

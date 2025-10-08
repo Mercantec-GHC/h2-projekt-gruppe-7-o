@@ -3,8 +3,7 @@ import {
   useBookingActions,
   useSelectedRoomBookings,
   useSelectedRoomValidation,
-} from "../bookingStore";
-import { RoomType } from "../api/dto";
+} from "../stores/bookingStore";
 import { getPriceText, RoomTypeAvailability } from "../domain";
 import { BedIcon, MinusIcon, PlusIcon, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -108,7 +107,6 @@ export const BookingRoomSelectionCard = ({
                 </div>
               </div>
               <div className="flex items-center gap-1">
-                {/*<IconMoneybag className="size-4" />*/}
                 <span className="">
                   Pris: {""}
                   {getPriceText({
@@ -119,12 +117,6 @@ export const BookingRoomSelectionCard = ({
               </div>
             </div>
           </div>
-          {/*Display image when we get a correct one from the backend*/}
-          {/*<img
-        src={availableRoomType.roomImageUrl}
-        alt={availableRoomType.type}
-        className="w-full h-48 object-cover rounded-md"
-      />*/}
         </div>
       </div>
     </>

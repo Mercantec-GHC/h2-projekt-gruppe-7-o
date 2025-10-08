@@ -1,27 +1,97 @@
-# H2-Projekt gruppe-7-0
+# Hotel KabdiKhan - H2 Projekt Gruppe 7-0
 
-Projektet han findes her - [H2 Projekt forløb på Notion](https://mercantec.notion.site/h2f)
+Et lille bitte hotel management system bygget med Next.js frontend og ASP.NET Core Web API backend.
 
-Det er delt op i 4 mapper (3 hovedprojekter og Aspire)
+## 🚀 Teknologi Stack
 
-## [Blazor](/Blazor/)
+### Frontend - Next.js
 
-Vi anbefaler at I bruger Blazor WebAssembly, da det er det vi underviser i. Den er koblet op på vores API gemmen APIService klassen i Blazor.
+- **Framework:** Next.js 15.5 med App Router
+- **Sprog:** TypeScript
+- **Styling:** Tailwind CSS v4
+- **UI Komponenter:**
+  - Radix UI primitives
+  - Shadcn/ui komponent bibliotek
+- **State Management:**
+  - Zustand for global state
+  - TanStack React Query for async server state
+- **Forms:** React Hook Form med Zod validation
+- **Real-time:** Microsoft SignalR
 
-## [Domain Models](/DomainModels/)
+### Backend - ASP.NET Core Web API
+Backend er bygget med:
 
-Her er alle jeres klasser, som I skal bruge til jeres Blazor og API.
-Domain Models / Class Libary versionen er nu opdateret til .NET 9.0
+- **Framework:** ASP.NET Core 9.0 Web API
+- **Database:** PostgreSQL med Entity Framework Core 9.0
+- **Authentication:** JWT Bearer tokens
+- **Architecture:** Vertical Slice Architecture
+- **Documentation:** Swagger/OpenAPI
+- **Testing:** Bogus for test data generation
+- **Monitoring:** Sentry for error tracking
+- **Active Directory:** Integration for brugeradministration
 
-## [API](/API/)
+### Infrastructure
+- **Containerization:** Docker med Docker Compose
+- **Development:** .NET 9.0
+- **Database:** PostgreSQL
+- **API Client Generation:** OpenAPI Generator
 
-Her er jeres API, den bruger vi til at forbinde sikkert til vores database og for at fodre data til vores Blazor Projekt.
-ASP.NET Core Web API versionen er nu opdateret til .NET 9.0
+## 📁 Projekt Struktur
 
-## [Aspire](/H2-Projekt.AppHost/)
+```
+h2-api-ef-core/
+├── API/                          # ASP.NET Core Web API
+│   ├── Features/                 # Feature-baseret arkitektur
+│   ├── Database/                 # EF Core DbContext og konfiguration
+│   ├── Migrations/               # Database migrationer
+│   ├── Hubs/                     # SignalR hubs
+│   └── Common/                   # Shared utilities
+├── frontend/                     # Next.js frontend applikation
+│   ├── app/                      # Next.js App Router pages
+│   ├── components/               # Genbrugelige UI komponenter
+│   ├── features/                 # Feature-specifikke komponenter
+│   ├── lib/                      # Utility funktioner
+│   ├── hooks/                    # Custom React hooks
+│   ├── providers/                # Context providers
+│   └── api/                      # API client og types
+├── Bruno/                        # API test samling
+```
 
-Aspire er vores hosting platform, den er koblet op til vores API og Blazor. Det er ikke obligatorisk at bruge Aspire, men det anbefales. Vi bruger Aspire med .NET 9.0
+## 🛠️ Installation og Opsætning
 
-### Hosting
+### Frontend Setup (Next.js)
 
-Vi udforsker forskellige hosting muligheder på H2 - men vil helst vores lokale datacenter. På H2 bruger vi Windows Server 2022 som platform - det introducerede vi senere i forløbet.
+
+1. **Naviger til frontend mappen:**
+   ```bash
+   cd frontend
+   ```
+
+2. **Kopier `.example.env` til `.env`:**
+   ```bash
+   cp .example.env .env
+   ```
+
+3. **Installer dependencies:**
+   ```bash
+   npm install
+   ```
+
+
+4. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+Frontend kører på `http://localhost:3000`
+
+ ### Forudsætninger
+- .NET 9.0 SDK
+- Node.js 18+ og npm/yarn
+- PostgreSQL database
+
+### Backend Setup (API)
+
+???
+
+API'en kører på `https://localhost:7087`

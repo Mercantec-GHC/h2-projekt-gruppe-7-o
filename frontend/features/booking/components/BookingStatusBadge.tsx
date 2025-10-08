@@ -1,5 +1,6 @@
 import { Badge, BadgeProps } from "@/components/ui/badge";
 
+//TODO: fix the status type here, should not be a string
 export const BookingStatusBadge = ({ status }: { status: string }) => {
   let statusColorClassName = "";
   let variant: BadgeProps["variant"] = null;

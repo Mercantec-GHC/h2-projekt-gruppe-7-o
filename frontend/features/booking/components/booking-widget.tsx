@@ -38,37 +38,17 @@ export default function BookingWidget({
           >
             <Stepper.Navigation className="mb-8">
               {methods.all.map((step) => (
-                <Stepper.Step
-                  key={step.id}
-                  of={step.id}
-                  // onClick={() => methods.goTo(step.id)}
-                >
+                <Stepper.Step key={step.id} of={step.id}>
                   <Stepper.Title>{step.title}</Stepper.Title>
                 </Stepper.Step>
               ))}
             </Stepper.Navigation>
             {methods.switch({
-              // "step-1": (step) => <BookingConfirmation />,
               "step-1": (step) => <BookingSearch />,
               "step-2": (step) => <BookingChooseRoom />,
               "step-3": (step) => <BookingAssignGuestsToRooms />,
               "step-4": (step) => <BookingConfirmation />,
             })}
-            {/*<Stepper.Controls>
-              {!methods.isLast && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={methods.prev}
-                  disabled={methods.isFirst}
-                >
-                  Previous
-                </Button>
-              )}
-              <Button onClick={methods.isLast ? methods.reset : methods.next}>
-                {methods.isLast ? "Reset" : "Next"}
-              </Button>
-            </Stepper.Controls>*/}
           </motion.div>
         )}
       </Stepper.Provider>

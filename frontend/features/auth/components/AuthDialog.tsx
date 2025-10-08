@@ -8,6 +8,7 @@ import useAuthModalStore from "../stores/authModalStore";
 
 export default function AuthDialog() {
   const { open, closeModal } = useAuthModalStore();
+  //TODO: create link to switch between the forms
   const [selectedForm, setSelectedForm] = useState<"login" | "register">(
     "login",
   );

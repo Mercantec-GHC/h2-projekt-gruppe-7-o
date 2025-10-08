@@ -1,10 +1,8 @@
 "use client";
-import { useState } from "react";
 import { motion } from "framer-motion";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useStepper } from "./booking-widget";
 import { BabyIcon, BedIcon, Users, User } from "lucide-react";
@@ -14,10 +12,8 @@ import {
   useGuestCount,
   useSelectedHotel,
   useSelectedRoomBookings,
-  useSelectedRoomValidation,
   useTotalSelectedRooms,
-} from "../bookingStore";
-import { toast } from "sonner";
+} from "../stores/bookingStore";
 import { CONSTANTS } from "@/lib/constants";
 import { Counter } from "@/components/Counter";
 
@@ -28,7 +24,6 @@ export function BookingAssignGuestsToRooms() {
   const guestCount = useGuestCount();
   const selectedRoomBookings = useSelectedRoomBookings();
 
-  const roomValidation = useSelectedRoomValidation();
   const bookingValidation = useBookingValidation();
   const { updateRoomGuests } = useBookingActions();
   return (
